@@ -1,0 +1,40 @@
+<nav-bar-ad></nav-bar-ad>
+<div>
+	<form name="gestioneTratteForm" ng-submit="vm.sub()" role="form">
+        <div>
+            <input type="text" force-selection="true" required g-places-autocomplete options="vm.autocompleteOptions" ng-click="vm.geolocate()" ng-model="vm.position" class="inputoffer" style="margin-right: 0%;float: none;" />
+            <input type="text" placeholder="Nome rappresentativo" ng-model="vm.position.nome" />
+            <button type="submit" class="btn color little " />Inserisci aggiornamento</button> 
+            <p>{{vm.message}}</p>
+        </div>
+        <table>
+  <tr>
+    <th>Tipo</th>
+    <th>Nome</th>
+  </tr>
+  <tr ng-repeat="p in vm.position.address_components">
+    <td>{{p.types[0]}}</td>
+    <td>{{ p.long_name }}</td>
+  </tr>
+</table>
+        <div class="full-width">
+            
+        </div>
+	</form>
+</div>
+<style>
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>

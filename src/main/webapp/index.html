@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<!--
+    Dopetrope by HTML5 UP
+    html5up.net | @ajlkn
+    Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html ng-app="app" >
+    <head>
+    <!-- SERVERMOD  EasyMove-->
+    <base href="/EasyMove-maven/">
+    <!--<base href="/">-->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+      <link rel="stylesheet" href="css/animate.css">
+      <link rel="stylesheet" href="bower_components/angular-material/angular-material.min.css">
+      <link rel="stylesheet" href="css/style.css">
+      <link rel="stylesheet" href="css/stiliPrivati.css">
+      <link rel="stylesheet" href="app-code/user/personal_bacheca/personal_bacheca.app.style.css">
+      <link rel="stylesheet" href="css/theme-red.css">
+
+      <link rel="stylesheet" type="text/css" href="bower_components/mdPickers/dist/mdPickers.css">
+      <link rel="stylesheet" type="text/css" href="css/ng-img-crop.scss">
+      <link rel="stylesheet" type="text/css" href="bower_components/angular-jk-rating-stars/dist/jk-rating-stars.css">
+      <link rel="stylesheet" type="text/css" href="bower_components/side-bar/dist/side-bar.css">
+      <link rel="stylesheet" type="text/css" href="bower_components/toast/toast.style.css">
+      <link rel="stylesheet" href="bower_components/angular-google-places-autocomplete/src/autocomplete.css">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <link href='http://fonts.googleapis.com/css?family=Raleway:400,500,600,700|Montserrat:400,700' rel='stylesheet' type='text/css'>
+      <link rel="shortcut icon" href="images/favicon.ico" />
+
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKtwMDUkfiYjuFYWoMpUbELOymjSVeOxw&libraries=places"></script>
+  <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKtwMDUkfiYjuFYWoMpUbELOymjSVeOxw&libraries=places&callback=initAutocomplete"></script>-->
+
+
+              <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+    </head>
+    <body class="home"  >
+
+        <div ng-view></div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="bower_components/angular-material/angular-material.min.js"></script>
+    <script src="bower_components/ng-file-upload/ng-file-upload-all.js"></script>
+    <script src="bower_components/ng-file-upload/ng-img-crop.js"></script>
+    <script src="bower_components/angular-route/angular-route.min.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
+    <script src="bower_components/angular-google-places-autocomplete/src/autocomplete.js"></script>
+    <script src="bower_components/mdPickers/dist/mdPickers.js"></script>
+    <script src="bower_components/moment/moment-with-locales.min.js"></script>
+    
+    <script src="bower_components/angular-jk-rating-stars/dist/jk-rating-stars.js"></script>
+    <script src="bower_components/side-bar/dist/side-bar.js"></script>
+    <script src="bower_components/toast/toastr.js"></script>
+    <script src="bower_components/angular-messages/angular-messages.min.js"></script>
+    <script src="bower_components/angular-loader/angular-loader.min.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.min.js"></script>
+
+    <!--        <script src="bower_components/angular/angular.min.js"></script>
+<script src="bower_components/angular-animate/angular-animate.min.js"></script> 
+-->
+
+    <script src="app.js"></script>
+    <script src="app-services/authentication.service.js"></script>
+    <script src="app-services/flash.service.js"></script>
+    <script src="app-services/user.service.js"></script> 
+    <script src="app-services/route.service.js"></script> 
+    <script src="app-services/gestione.service.js"></script>
+    <script src="app-services/notifications.service.js"></script>
+    <script src="app-services/maps.service.js"></script>
+    <script src="app-services/localsaver.service.js"></script>
+
+
+<!--      CONTROLLER      --> 
+    <script src="app-code/user/feedback/feedback.controller.js"></script>
+    <script src="app-code/user/funzioni_fermate/funzioni_fermate.controller.js"></script>
+    <script src="app-code/user/inserimento_fermate/inserimento_fermate.controller.js"></script>
+    <script src="app-code/user/home/home.controller.js"></script>
+    <script src="app-code/user/login/login.controller.js"></script>
+    <script src="app-code/user/register/register.controller.js"></script>
+    <script src="app-code/user/personal_bacheca/personal_bacheca.app.controller.js"></script>
+    <script src="app-code/user/personal_feedback/personal_feedback.app.controller.js"></script>
+    <script src="app-code/user/personal_passaggi/personal_passaggi.app.controller.js"></script>
+    <script src="app-code/user/personal_profilo/personal_profilo.app.controller.js"></script>
+    <script src="app-code/user/personal_prenotazioni/personal_prenotazioni.controller.js"></script>
+    <script src="app-code/user/prenotation/prenotation.controller.js"></script>
+    <script src="app-code/user/search/search.controller.js"></script>
+    <script src="app-code/user/offer1/offer1.controller.js"></script>
+    <script src="app-code/user/offer2/offer2.controller.js"></script>
+    <script src="app-code/user/profilo_utenti/profilo_utenti.controller.js"></script>
+    <script src="app-code/user/visualizza_autobus/visualizza_autobus.controller.js"></script>
+    <script src="app-code/user/visualizza_autobus_cambio/visualizza_autobus_cambio.controller.js"></script>
+    <script src="app-code/user/visualizza_autobus_ibrido/visualizza_autobus_ibrido.controller.js"></script>
+    <script src="app-code/user/check_email/check_email.controller.js"></script>
+    <script src="app-code/user/error/error.controller.js"></script>
+    <script src="app-code/user/recupera_psw/recupera_psw.controller.js"></script>
+    <script src="app-code/user/modifica_psw/modifica_psw.controller.js"></script>
+    <script src="app-code/user/resend_email/resend_email.controller.js"></script>
+    <script src="app-code/user/travel_detail/travel_detail.controller.js"></script>
+    
+    <script src="app-code/admin/gestione_tratte/gestione_tratte.controller.js"></script>
+    <script src="app-code/admin/aggiunta_posizione/aggiunta_posizione.controller.js"></script>
+    <script src="app-code/admin/deladd_bus/deladd_bus.controller.js"></script>
+    <script src="app-code/admin/modifica_posizione/modifica_posizione.controller.js"></script>
+    <script src="app-code/admin/mappa_posizione/mappa_posizione.controller.js"></script>
+    <script src="app-code/admin/menu_gestione/menu_gestione.controller.js"></script>
+    <script src="app-code/admin/gestione_storico/gestione_storico.controller.js"></script>
+
+<!--     DIRETTIVE        -->
+    <script src="app-code/altreComponenti/sidebarpers.app.directive.js"></script>
+    <script src="app-code/altreComponenti/navbar.app.directive.js"></script>
+    <script src="app-code/altreComponenti/navbarad.app.directive.js"></script>
+    <script src="app-code/altreComponenti/sidenav.app.directive.js"></script>
+    <script src="app-code/altreComponenti/sidebarsearch.app.directive.js"></script>
+    <script src="app-code/altreComponenti/flashservice.app.directive.js"></script>
+    <script src="app-code/altreComponenti/footer.app.directive.js"></script>
+    <script src="app-code/altreComponenti/feedback.app.directive.js"></script>
+
+
+  
+</body>
+</html>
+
+

@@ -1,0 +1,49 @@
+<nav-bar-ad></nav-bar-ad>
+<div >
+<table>
+<h2>Seleziona la posizione da modificare</h2><h4>Cerca: <input type="text" ng-model="vm.searchText"></h4>
+    <tr>
+        <th>Id</th>
+        <th>Nome</th>
+        <th>Nome fermata</th>
+        <th>locality</th>
+        <th>route</th>
+        <th>Mappa</th>
+        <th>Elimina</th>
+    </tr>
+    <tr ng-repeat="k in vm.position | filter:vm.searchText" >
+        <td ng-click="vm.showAdvanced($event,k)">{{k.id}}</td>
+        <td ng-click="vm.showAdvanced($event,k)">{{k.nome }}</td>
+        <td ng-click="vm.showAdvanced($event,k)">{{k.nome_fermata}}</td>
+        <td ng-click="vm.showAdvanced($event,k)">{{k.locality}}</td>
+        <td ng-click="vm.showAdvanced($event,k)">{{k.route}}</td>
+        <td ng-click="vm.showAdvanced($event,k)">{{k.error_type}}</td>
+        <td ng-click="vm.showMap(k.id)"><i>Mappa</i></td>
+        <td ng-click="vm.delete(k)"><i>Elimina</i></td>
+    </tr>
+</table>
+</div>
+
+<style>
+#map{
+    height: 600px;
+    width: 600px;
+    text-align: center;
+    margin: 20px;
+}
+table {
+    border-collapse: collapse;
+    width: 60%;
+    margin-bottom: 40px;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>

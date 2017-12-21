@@ -1,0 +1,153 @@
+<nav-bar-ad></nav-bar-ad>
+
+<div style="display: inline-flex;">
+    <div id="map"></div>
+    <div>
+        <div class="celle">
+    <div class="cella">
+        <div class="intest">
+            <p>Id: </p>
+        </div>
+        <div>
+            <input type="text" ng-model="vm.obj.id" class="casella">
+        </div>
+        <div>
+            
+        </div>
+    </div>    
+    <div class="cella">
+        <div class="intest">
+            <p>Nome: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.nome  class="casella">
+        </div>
+    </div>    
+    <div class="cella">
+        <div class="intest">
+            <p>Nome fermata: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.nome_fermata class="casella">
+        </div>
+    </div>    
+    <div class="cella">
+        <div class="intest">
+            <p>Locality: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.locality class="casella">
+        </div>
+    </div>    
+    <div class="cella">
+        <div class="intest">
+            <p>Route: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.route class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Premise: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.premise class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Aal3: </p>
+        </div>
+        <div class="intest">
+            <input type="text" ng-model=vm.obj.aal3 class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Aal2: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.aal2 class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Aal1: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.aal1 class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Country: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.country class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Formatted address: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.formatted_address class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Latitudine: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.lat class="casella">
+        </div>
+    </div>
+    <div class="cella">
+        <div class="intest">
+            <p>Longitudine: </p>
+        </div>
+        <div>
+            <input type="text" ng-model=vm.obj.lng class="casella">
+        </div>
+    </div>
+            <md-button ng-click="vm.coordinate()">
+            Aggiorna coordinate    
+        </md-button>
+              <md-button ng-click="vm.modifica()">
+        Aggiorna
+      </md-button>
+</div>
+
+
+
+    </div>
+</div>
+
+<style>
+
+#map{
+    height: 500px;
+    width: 700px;
+}
+.cella{
+    display: flex;
+}
+.casella{
+ border: 1px solid white;   
+}
+.celle{
+    padding:10px;
+    width: 200px;
+}
+.intest{
+    width: 150px;
+    text-align: right;
+}
+.intest:nth-child(even) {
+    background-color: #dddddd;
+}
+p{
+    padding: 0px;
+}
+</style>

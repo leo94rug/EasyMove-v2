@@ -1,0 +1,31 @@
+﻿<nav-bar></nav-bar>
+<!-- Main -->
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <side-bar-pers></side-bar-pers>
+            <div id="pag_passaggi">
+                <div id="intest_passaggi" class="ampio">
+                    I tuoi passaggi
+                </div>
+                <div ng-if="vm.travel.length!=0">
+                    <div ng-repeat="route in vm.travel" class="two-third">
+                        <md-list-item  class="md-3-line box options-block " >
+                            <div class="md-list-item-text">
+                                <p><b style="color: green;">Partenza:</b> {{route.tratta_auto.denominazione_partenza}}</p>
+                                <p><b style="color: red;">Arrivo:</b> {{route.tratta_auto.denominazione_arrivo}}</p>
+                                <p style="white-space: nowrap;">{{route.tratta_auto.orario_partenza | date : "H:mm - d/M/y"}}</p>
+                            </div>
+                            <md-button class="md-secondary md-raised" ng-click="vm.delete(route.id)">Elimina</md-button>
+                        </md-list-item>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="vm.travel.length===0">
+                <h2>Non sono presenti viaggi</h2>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- //Main -->
+<foo-ter></foo-ter>

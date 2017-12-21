@@ -1,0 +1,35 @@
+<nav-bar></nav-bar>
+  <main class="main" role="main">
+    <div class="wrap">
+      <div class="row">
+        <!--- Content -->
+        <div class="content one-half modal">
+            <div class="box">
+	            <form name="recuperapswForm" ng-submit="vm.recuperaPsw()" role="form">
+	                <div class="f-row">
+	                    <md-input-container flex="50">
+	                        <label>Inserisci la tua email</label>
+	                        <input required type="email" name="email" ng-model="vm.email" minlength="5" maxlength="60" ng-pattern="/^.+@.+\..+$/" />
+	                            <div ng-messages="recuperapswForm.email.$error" role="alert">
+	                                <div ng-message-exp="['required', 'minlength', 'maxlength', 'pattern']">
+	                                    Your email must be between 5 and 100 characters long and look like an e-mail address.
+	                                </div>
+	                            </div>
+	                    </md-input-container>
+	                </div>
+	                
+	                <div class="f-row">
+	                    <div class="full-width">
+	                        <button type="submit" class="btn color medium full" />Recupera password</button>
+	                    </div>
+	                </div>
+	            </form>
+            </div>
+        </div>
+        <!--- //Content -->
+      </div>
+    </div>
+  </main>
+<foo-ter></foo-ter>
+
+  

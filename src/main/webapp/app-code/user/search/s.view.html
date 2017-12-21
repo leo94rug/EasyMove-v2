@@ -1,0 +1,147 @@
+<nav-bar></nav-bar>
+<main class="main" role="main">
+    <form role="form" name="searchForm" ng-cloak="" ng-submit="vm.submit()">
+        <div class="advanced-search color" id="booking">
+            <div class="wrap">
+                <!-- Row -->
+                <div class="f-row">
+                    <div class="form-group datepicker one-six" style="margin-right: 15px;">
+                        <label style="margin-top: 4px;"for="dep-date">Data</label>
+                        <md-datepicker ng-model="vm.search.date" md-placeholder="Enter date"></md-datepicker>
+                    </div>
+                    <div class="form-group select one-third">
+                        <label style="margin-top: 4px;">Partenza</label>
+                        <input type="text" g-places-autocomplete force-selection="true" required class="input_search" options="vm.autocompleteOptions" ng-click="vm.geolocate()" ng-model="vm.search.partenza" />
+                    </div>
+                    <div class="form-group select one-third">
+                        <label style="margin-top: 4px;">Arrivo</label>
+                        <input type="text" g-places-autocomplete force-selection="true" required class="input_search" options="vm.autocompleteOptions" ng-click="vm.geolocate()" ng-model="vm.search.arrivo" />
+                    </div>
+                    <div class="form-group one-seven">
+                        <input type="image" src="images/cerca.jpg"  class="input_button md-raised">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <side-bar-search></side-bar-search>
+    </form>
+    <div class="three-fourth content">
+        <div ng-if="vm.route.auto != undefined">
+            <md-content class="md-padding">
+                <md-nav-bar md-selected-nav-item="vm.currentNavItem" nav-bar-aria-label="navigation links">
+                    <md-nav-item md-nav-click="vm.cambio(1)" name="page1">
+                        <div>
+                            Passaggi in auto ({{vm.route.auto}})
+                        </div> 
+                    </md-nav-item>
+                    <md-nav-item md-nav-click="vm.cambio(2)" name="page2">
+                        Autobus ({{vm.route.bus}})
+                    </md-nav-item>
+                </md-nav-bar>
+                <div class="ext-content">
+                    <div ng-if="vm.pagina === 1">
+                        <div ng-if="vm.route.auto === 0">
+                            <h3>
+                                Non è stato trovato nessun passaggio
+                            </h3>
+                        </div>
+                        <md-list>
+                            <div ng-repeat="route in vm.route.success" style="color: black;">
+                                <div ng-if="route.tipo === 0">
+                                    <div ng-if="route.cambi === 0">
+                                    <a ng-href="#/prenotation/{{route.dettaglio1.idTrattaPartenza}}/{{route.dettaglio1.idTrattaArrivo}}">
+                                            <md-list-item  class="md-3-line">
+                                                <img data-ng-src="{{route.dettaglio1.foto_utente}}" class="md-avatar" style="width: 70px;height: 70px;">
+                                                <md-divider class="vertical-divider" style="width: 11%;"></md-divider>
+                                                <div class="md-list-item-text" style="text-align: left;margin-left: 15px;margin-right: 32px;">
+                                                    <h5>
+                                                        <img src="images/orologio.jpg" style="width: 20px;margin-right: 10px;">
+                                                        <b>{{route.dettaglio1.date | date : "H:mm - d/M/y"}}</b>
+                                                    </h5>
+                                                    <h5><b>Partenza:</b> {{route.dettaglio1.nomePartenza}}</h5>
+                                                    <h5><b>Arrivo:</b> {{route.dettaglio1.nomeArrivo}}</h5>
+                                                    <h5><b>Conducente</b> {{route.dettaglio1.nome}}   <b>Età:</b> {{route.dettaglio1.eta}}</h5>
+                                                </div>
+                                                <md-divider class="vertical-divider" style="width: 70%;"></md-divider>
+                                                <div class="md-list-item-text" style="text-align: left;margin-left: 30px;">
+                                                    <h3>{{route.dettaglio1.prezzo_auto}}</h3>
+                                                    <h4><b>Posti:</b> {{route.dettaglio1.posti}}</h4>
+                                                    <h4><b>Auto:</b> {{route.dettaglio1.auto}}</h4>
+                                                </div>
+                                                <md-divider md-inset="" ng-if="!$last"></md-divider>
+                                            </md-list-item>
+                                        </a>
+                                    </div>
+                                    <div ng-if="route.cambi === 1">
+                                    <div class="manina" ng-click="vm.dettaglioIbrido(route)">
+                                        <md-list-item  class="md-3-line">
+                                            <img ng-src="images/autoautobus.png" class="md-avatar" style="width: 70px;height: 70px;">
+                                            <md-divider class="vertical-divider" style="width: 11%;"></md-divider>
+                                            <div class="md-list-item-text" style="text-align: left;margin-left: 15px;margin-right: 32px;">
+                                                <h5><img src="images/orologio.jpg" style="width: 20px;margin-right: 10px;"><b>{{route.listaCambiPerPosizione[0].date | date : "H:mm - d/M/y"}}</b></h5>
+                                                <h5><b>Partenza:</b> {{route.dettaglio1.nomePartenza}}</h5>
+                                                <h5><div ng-if="route.dettaglio1.nome_autobus != undefined"><b>Con l'autobus</b> {{route.dettaglio1.nome_autobus}}</div></h5>
+                                            </div>
+                                            <div class="md-list-item-text" style="text-align: left;margin-left: 30px;">
+                                                <h5><i>Soluzione con cambio ibrido</i></h5>                                            
+                                            </div>
+                                            <md-divider md-inset="" ng-if="!$last"></md-divider>
+                                        </md-list-item>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </md-list>
+                    </div>
+                    <div ng-if="vm.pagina === 2">
+                        <div ng-if="vm.route.bus === 0">
+                            <h3>
+                                Non è stato trovato nessun percorso autobus
+                            </h3>
+
+                        </div>
+                        <md-list>
+                            <div ng-repeat="route in vm.route.success" | orderBy="{{route.cambi}}">
+                                <div ng-if="route.tipo === 1">
+                                    <div ng-if="route.cambi === 0">
+                                        <!--<div ng-click="vm.visualizza(route.dettaglio1.idTrattaPartenza,route.dettaglio1.idTrattaArrivo,0,0)">-->
+                                        <md-list-item class="md-3-line" >
+                                            <img ng-src="images/autobus.jpg" class="md-avatar" style="width: 70px;height: 70px;">
+                                            <md-divider class="vertical-divider" style="width: 11%;"></md-divider>
+                                            <div class="md-list-item-text" style="text-align: left;margin-left: 15px;">
+                                                <h5><b>Autobus:</b> {{route.dettaglio1.nome_autobus}}</h5>
+                                                <h5><b>Partenza:</b> {{route.dettaglio1.nomePartenza}}</h5>
+                                                <h5><b>Arrivo:</b> {{route.dettaglio1.nomeArrivo}}</h5>
+                                            </div>
+                                            <div class="md-list-item-text md-secondary" style="text-align: left;margin-left: 30px;width: 400px;">
+                                                <h3>Soluzione senza cambi</h3>
+                                            </div>
+                                            <md-divider md-inset="" ng-if="!$last"></md-divider>
+                                        </md-list-item>
+                                        <!-- </div>-->
+                                    </div>
+                                    <div ng-if="route.cambi === 1">
+                                        <md-list-item class="md-3-line">
+                                            <img ng-src="images/cambio.jpg" class="md-avatar" style="width: 70px;height: 70px;">
+                                            <md-divider class="vertical-divider" style="width: 11%;"></md-divider>
+                                            <div class="md-list-item-text" style="text-align: left;margin-left: 30px;width: 16%">
+                                                <h5><b>Autobus:</b> {{route.dettaglio1.nome_autobus}}</h5>
+                                                <h5><b>Partenza:</b> {{route.dettaglio1.nomePartenza}}</h5>
+                                            </div>
+                                            <div class="md-list-item-text md-secondary" style="text-align: left;margin-left: 30px;width: 400px;">
+                                                <h3>Soluzione con 1 cambio </h3>
+                                                <md-button ng-click="vm.dettaglioAutobus(route)" class="md-raised md-primary">Dettagli</md-button>
+                                            </div>
+                                            <md-divider md-inset="" ng-if="!$last"></md-divider>
+                                        </md-list-item>
+                                    </div>
+                                </div>
+                            </div>
+                        </md-list>
+                    </div>
+            </md-content>
+        </div>
+    </div>
+</main>
+<foo-ter></foo-ter>
+

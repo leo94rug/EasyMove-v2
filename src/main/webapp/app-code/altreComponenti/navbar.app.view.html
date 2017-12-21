@@ -1,0 +1,30 @@
+<div>							
+<side-bar></side-bar>
+		<header class="header" role="banner">
+
+			<div class="wrap">
+				<!-- Logo -->
+
+				<div class="logo">
+					<a ng-href="home" title="EasyMove"><img src="images/Immaginea2.png" alt="EasyMove" style="width: 230px;margin-left: 50px;min-width: 200px;"/></a>
+				</div>
+				<!-- //Logo -->
+
+
+				<!-- Main Nav -->
+				<nav role="navigation" class="main-nav">
+					<ul>
+						<li id="headerId"><a href="home">Home</a></li>
+						<li id="headerLogin" ng-if="vm.utente==null"><a href="login" title="Destinations">Login</a></li>
+						<li id="headerBacheca" ng-if="vm.utente!=null"><a href="bacheca">Pagina personale</a></li>
+						<li id="headerSearch" ng-if="vm.utente!=null"><a href="search">Cerca</a></li>
+						<li id="headerOffer" ng-if="vm.utente!=null"><a href="offer1">Offri</a></li>
+						<li id="headerRegister" ng-if="vm.utente==null"><a href="register">Registrazione</a></li>
+						<li id="headerLogout" ng-if="vm.utente!=null"><a ng-click="vm.logout()">Logout</a></li>
+					</ul>
+				</nav>
+				<!-- //Main Nav -->
+			</div>
+
+		</header>
+</div>

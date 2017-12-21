@@ -1,0 +1,42 @@
+<div>
+    <div class="floating-box" ng-repeat="x in vm.autobus" ng-click="vm.loadTratte(x.id)">
+        <b>{{x.nome}}</b>
+    </div>
+
+	<form name="gestioneTratteForm" ng-submit="vm.sub()" role="form">
+    Attenzione! Non modificare il campo ID
+        <div  ng-repeat="x in vm.tratte.fermata">
+            <div >
+                <div>
+                    <div class="floating-boxL">
+	                    ID: <input ng-model="x.id" type="text" style="border: 1px solid black;">
+                    </div>
+                    <div class="floating-boxL">
+                        Nome: <input ng-model="x.nome_succ" type="text" style="border: 1px solid black;">
+                    </div>
+                    <div class="floating-boxL">
+                        Fermata prec: <input ng-model="x.fermata_precedente" type="text" style="border: 1px solid black;">
+                    </div>
+                    <div class="floating-boxL">
+                        Fermata succ:<input ng-model="x.fermata_successiva" type="text" style="border: 1px solid black;">
+                    </div>
+                    <div class="floating-boxL">
+                        Tratta succ:<input ng-model="x.prossima_tratta" type="text" style="border: 1px solid black;">
+                    </div>
+                    <div class="floating-boxL">
+                        Numero:<input ng-model="x.enumerazione" type="text" style="border: 1px solid black;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="full-width">
+            <button type="submit" class="btn color medium " />Inserisci aggiornamento</button>
+        </div>
+	</form>
+    <div>
+      <input type="text" ng-model="vm.precedente" style="border: 1px solid black;">FERMATA SUCCESSIVA
+      <input type="text" ng-model="vm.posprec" style="border: 1px solid black;">POSIZIONE SUCCESSIVA
+      <div ng-click="vm.add(vm.precedente,vm.posprec)">AGGIUNGI TAPPA</div>
+
+    </div>
+</div>

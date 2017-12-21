@@ -1,0 +1,45 @@
+﻿<nav-bar></nav-bar>
+<main class="main" role="main">
+    <div style="margin-top: 20px;padding: 10px;width: 80%;">
+
+    <div class="one-third left">
+        <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
+        <img data-ng-src="{{vm.user.foto_utente}}" class="md-avatar" style="max-height: 307px;max-width: 307px;">
+
+    </div>
+    <div class="two-third right">
+        <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" style="height: 307px;" md-theme-watch>
+            <md-card-title>
+                <md-card-title-media style="width: 400px;">
+                    <div class="md-media-lg card-media" style="width: 400px;text-align: left;" >
+                        <p><b>Nome:</b> {{vm.user.nome}}</p>
+                        <div ng-if="vm.amicizia == true">
+                            <p><b>Cognome:</b> {{vm.user.cognome}}</p>
+                        </div>
+                        <p><b>Età:</b> {{vm.user.eta}}</p>
+                        <p><b>Biografia:</b> {{vm.user.biografia}}</p>
+                        <div ng-if="vm.amicizia == true">
+                            <p><b>Telefono:</b> {{vm.user.telefono1}}</p>
+                        </div>
+                        <div ng-if="vm.feedback.media_valutazione != 0">
+                            <p><b>Valutato:</b> {{vm.feedback.media_valutazione | number:2}} / 5</p>
+                            <p style="display: -webkit-inline-box">
+                                <img ng-src="images/star.png" class="icona_pers">   
+                                {{vm.feedback.cont}} 
+                                <img ng-src="images/car.ico" style="margin-left: 20px;" class="icona_pers">
+                                {{vm.numbertravel}}
+                            </p>
+                        </div>
+                        <div ng-if="vm.feedback.media_valutazione === 0">
+                            <p>L'utente non ha ancora feedback</p>
+                        </div>
+                        <div ng-if="vm.amicizia==false">
+                        <p><i>Quando {{vm.user.nome}} avrà accettato di condividere i suoi dati potrai visualizzare l'intero profilo</i></p>
+                        </div>
+                    </div>
+                </md-card-title-media>
+            </md-card-title>
+        </md-card>
+    </div>
+            <div class="full-width"><feed-back></feed-back></div>
+</main>

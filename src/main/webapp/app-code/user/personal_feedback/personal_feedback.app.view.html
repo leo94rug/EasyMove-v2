@@ -1,0 +1,91 @@
+<nav-bar></nav-bar>
+<!-- Main -->
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <!--- Sidebar -->
+            <side-bar-pers></side-bar-pers>
+            <!--- //Sidebar -->
+            <div class="three-fourth content">
+                <div id="feedback">
+                    <div class="one-third" style="float: right !important;margin-top: 62px;" >
+                        <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch style="margin-top: 0px;">
+                            <md-card-title>
+                                <md-card-title-text>
+                                    <div style="padding: 10px;">
+                                        <h1>Riassunto: </h1>
+                                    </div>
+                                    <div style="">
+                                        <div class="feedback-margin">
+                                            <h5 class="feedback-label">Valutazione guida:</h5>
+                                            <jk-rating-stars read-only="true" rating="vm.feedback.media_valutazione_1"></jk-rating-stars>
+                                        </div>
+                                        <div class="feedback-label">
+                                            <h5 class="feedback-margin">Valutazione puntualità:</h5>
+                                            <jk-rating-stars read-only="true" rating="vm.feedback.media_valutazione_2"></jk-rating-stars>
+                                        </div>
+                                        <div class="feedback-label">
+                                            <h5 style="feedback-margin">Valutazione viaggio:</h5>
+                                            <jk-rating-stars read-only="true" rating=vm.feedback.media_valutazione_3></jk-rating-stars>
+                                        </div>
+                                    </div>
+                                </md-card-title-text>
+                            </md-card-title>
+                        </md-card> 
+                    </div>
+                    <div ng-if="vm.feedback.cont != 0">
+                        <div class="two-third left" style="min-width: 270px;">
+                            <h2>Feedback</h2>
+                            <a ng-repeat="feed in vm.feedback.listaFeedback" ng-href="profilo-utenti/{{feed.utente.id}}" >
+                                <md-list-item  class="md-3-line options-block box fontPhone2" style="min-height: 150px;box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);" >
+                                    <div style="
+                                        min-height: 150px;  
+                                        width: 80px;  
+                                        display: -webkit-flex;
+                                        display: flex;">
+                                        <img data-ng-src="{{feed.utente.foto_utente}}" class="md-avatar" style="
+                                            width: 80px;
+                                            height: 80px;
+                                            margin: auto;">
+                                    </div>
+                                    <div class="md-list-item-text" style="
+                                        min-height: 150px;
+                                        padding: 10px;
+                                        text-align: left;
+                                        display: -webkit-flex;
+                                        display: flex;
+                                        -webkit-flex-direction: column;
+                                        flex-direction: column;
+                                        ">
+                                        <div style="-webkit-flex: 1;flex: 1;">
+                                            <p style="padding: 0px !important; ">Feedback inserito da: {{feed.utente.nome}} il {{feed.date | date : "d.M.y"}}</p>
+                                        </div>
+                                        <div style="-webkit-flex: 1;flex: 1;">
+                                            <i>{{feed.testo}}</i>
+                                        </div>
+                                        <div style="-webkit-flex: 1;flex: 1;display: flex;">
+                                            <div style="margin-right: 15px;margin-top: 3px;">
+                                                <img class="icona_piccola" ng-src="images/volante.png" style="width: 33px;"> {{feed.valutazione_guida}}
+                                            </div>
+                                            <div style="margin-right: 15px;">
+                                                <img  class="icona_piccola" ng-src="images/sbeglia.png"> {{feed.valutazione_puntualita}}
+                                            </div>
+                                            <div style="margin-right: 15px;">
+                                                <img  class="icona_piccola" ng-src="images/smile.png"> {{feed.valutazione_disponibilita}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </md-list-item>
+                            </a>
+                        </div>
+                    </div>
+                    <div ng-if="vm.feedback.cont == 0">
+                        <h2>Non sono ancora presenti feedback</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- //Main -->
+<foo-ter></foo-ter>

@@ -1,0 +1,174 @@
+﻿<nav-bar></nav-bar>
+<!-- Main -->
+<main class="main" role="main">
+
+    <div class="wrap">
+        <div class="row">
+            <!--- Sidebar -->
+            <side-bar-pers></side-bar-pers>
+            <!--- //Sidebar -->
+<div>
+    <div id="nome_pr">
+        Informazioni personali
+    </div>
+    <div id="notifiche">
+        <div class="options-block box profiloInPhone" style="width: 75%;">
+            <div class="notifica_p">
+                <div class="profilo_i">
+                    <h3>
+                        Anagrafica
+                    </h3>
+                </div>
+
+            </div>
+            <br>
+            <form name="gestioneTratteForm"  role="form">
+                <div id="blocco_anag">
+                    <div class="pp_pers_left">
+                        <div class="pp_cont_l">
+                            <div class="centre testo_form">
+                                Nome
+                            </div>
+                        </div>
+                        <div class="pp_cont_l">
+                            <div class="centre testo_form">
+                                Cognome
+                            </div>
+                        </div>
+                        <div class="pp_cont_l">
+                            <div class="centre testo_form">
+                                E-mail
+                            </div>
+                        </div>
+                        <div class="pp_cont_l">
+                            <div class="centre testo_form">
+                                Password
+                            </div>
+                        </div>
+                        <div class="pp_cont_l">
+                            <div class="centre testo_form">
+                                Telefono
+                            </div>
+                        </div>
+                        <div class="pp_cont_l">
+                            <div class="centre testo_form">
+                                Anno di nascita
+                            </div>
+                        </div>
+                        <div class="pp_cont_l" style="margin-top: 40px;">
+                            <div class="centre testo_form">
+                                Piccola biografia
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pp_pers_right">
+                        <div class="pp_cont_r">
+                            <input id="name" class="centre arrot testo_casella" name="name" value="Nome" type="text" ng-model="vm.utente.nome"> 
+                        </div>
+                        <div class="pp_cont_r">
+                            <input id="cognome" class="centre arrot testo_casella" name="cognome" value="Cognome" type="text" ng-model="vm.utente.cognome">
+                        </div>
+                        <div class="pp_cont_r">
+                            <input id="email" class="centre arrot testo_casella" name="email" value="E-mail" type="text" disabled="disabled" ng-model="vm.utente.email"> 
+                        </div>                        
+                        <div class="pp_cont_r">
+                            <h5 style="margin-top: auto;"><a ng-href="modificapsw">Modifica password</a> </h5>
+                        </div>
+                        <div class="pp_cont_r">
+                            <input id="telefono" class="centre arrot testo_casella" name="telefono" ng-model="vm.utente.telefono1"> 
+                            <div ng-if="vm.utente.telefono1===undefined" style="padding: 5px;font-size: 13px;color: red;">E' importante inserire il proprio numero di telefono, altrimenti gli altri utenti non potranno contattarti nel caso dovessi inserire un'offerta di passaggio</div>                            
+                            <div ng-if="vm.utente.telefono1===''" style="padding: 5px;font-size: 13px;color: red;">E' importante inserire il proprio numero di telefono, altrimenti gli altri utenti non potranno contattarti nel caso dovessi inserire un'offerta di passaggio</div>
+                        </div>
+                        <md-input-container flex="50">
+                            <md-datepicker ng-model="vm.utente.anno_nascita" name="date" md-min-date="vm.minDate" md-current-view="year"
+                                md-max-date="vm.maxDate"></md-datepicker>
+                            <div ng-messages="registerForm.date.$error">
+                                <div ng-message="valid">The entered value is not a date!</div>
+                                <div ng-message="required">This date is required!</div>
+                                <div ng-message="mindate">Date is too early!</div>
+                                <div ng-message="maxdate">Date is too late!</div>
+                            </div>
+                        </md-input-container>
+                        <div class="pp_cont_r">
+                            <textarea id="bio" class="start arrot_no_height testo_casella" name="bio" value="Ciao sono leonardo e vivo a Civitanova" rows="4" cols="50" ng-model="vm.utente.biografia"> </textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="full-width" style="margin-top: 60px;margin-left: 2%;">
+                    <md-button ng-click="vm.update(vm.utente)" class="md-raised">Aggiorna profilo</md-button>
+                    {{vm.messaggio_aggiornamento}}
+                </div>
+
+                
+                <!--<input type="submit" class="btn medium color right"></input>-->
+            </form>
+        </div>
+        <div class="options-block box profiloInPhone" style="width: 75%;">
+            <form name="myForm">
+                <div class="full-width">
+                    <h2>Immagine</h2>
+                    <md-button ng-click="vm.showImage()"ngf-select ng-model="picFile" accept="image/*" class="md-raised">Seleziona immagine</md-button>
+                    <!--<button ngf-select ng-model="picFile" accept="image/*">
+                        Inserisci immagine
+                    </button>-->
+                </div>
+                <div style="display: inline-flex;" ng-show="vm.showPic">
+                    <div ngf-drop ng-model="picFile" ngf-pattern="image/*" class="cropArea one-half">
+                        <img-crop image="picFile  | ngfDataUrl" result-image="croppedDataUrl" ng-init="croppedDataUrl=''">
+                        </img-crop>
+                    </div>
+                    <div class="one-half">
+                        <img ng-src="{{croppedDataUrl}}" style="border: 1px solid grey;" />
+                    </div>
+                </div>
+                <md-button ng-show="vm.showPic" ng-click="vm.upload(croppedDataUrl, picFile.name)" class="md-raised">Inserisci immagine</md-button>
+
+                <!--<button ng-click="vm.upload(croppedDataUrl, picFile.name)">Submit</button> -->
+                <span class="progress" ng-show="vm.progress >= 0">
+                    <div style="width:{{vm.progress}}%" ng-bind="vm.progress + '%'"></div>
+                </span>
+                <span >{{vm.image_loading}}</span>
+                <span class="err" ng-show="vm.errorMsg">{{errorMsg}}</span>
+            </form>
+        </div>
+        <div class="options-block box profiloInPhone" style="width: 75%;float: right;">
+                <div class="full-width">
+                    <h2>Auto</h2>
+                </div>
+                <div class="one-half">
+                    <div ng-repeat="car in vm.autolist" >
+                        <div style="display: inline-flex;" >
+                            <h4 style="margin-top: auto;width: 275px;"><b>Auto:</b> {{car.marca}} {{car.modello}} {{car.colore}}</h4>       
+                            <md-button ng-click="vm.deletecar(car.id)" class="md-raised" style="margin-left: 30px;">Elimina</md-button>
+                        </div>
+                        <md-divider ng-if="!$last" style="width: 400px;"></md-divider>
+                    </div>
+                </div>
+                <div class="full-width">
+                    <h2 class="full-width">Aggiungi auto</h2>
+                    <md-content layout-gt-sm="row" layout-padding >
+                        <div>
+                            <md-input-container >
+                                <label>Marca: </label>
+                                <input ng-model="vm.auto.marca">
+                            </md-input-container>
+                            <md-input-container>
+                                <label>Modello: </label>
+                                <input ng-model="vm.auto.modello">
+                            </md-input-container>                            
+                            <md-input-container>
+                                <label>Colore: </label>
+                                <input ng-model="vm.auto.colore">
+                            </md-input-container>
+                        </div>
+                    </md-content>
+                <md-button ng-click="vm.addcar(vm.auto)" class="md-raised">Inserisci</md-button>
+                </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+</main>
+<!-- //Main -->
+<foo-ter></foo-ter>

@@ -1,0 +1,37 @@
+﻿<nav-bar></nav-bar>
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <!--- Content -->
+            <div class="full-width">
+                <h3>L'autobus di cui stai visualizzando i cambi è:</h3>
+                <md-list-item class="md-3-line" style="background-color: skyblue;">
+                    <img ng-src="images/autobus.jpg" class="md-avatar" style="width: 70px;height: 70px;">
+                    <md-divider class="vertical-divider" style="width: 11%;"></md-divider>
+                    <div class="md-list-item-text" style="text-align: left;margin-left: 30px;">
+                        <h5><b>Autobus:</b> {{vm.route.dettaglio1.nome_autobus}}</h5>
+                        <h5><b>Partenza:</b> {{vm.route.dettaglio1.nomePartenza}}</h5>
+                    </div>
+                    <md-divider md-inset="" ng-if="!$last"></md-divider>
+                </md-list-item>
+                <h3>Sono state trovate le seguenti soluzioni per raggiungere la tua destinazione!</h3>
+                <md-list>
+                    <div ng-repeat="route in vm.route.listaCambiPerPosizione">
+                        <md-list-item class="md-3-line">
+                            <img ng-src="images/cambio.jpg" class="md-avatar" style="width: 70px;height: 70px;">
+                            <md-divider class="vertical-divider" style="width: 11%;"></md-divider>
+                            <div class="md-list-item-text" style="text-align: left;margin-left: 30px;">
+                                <h5><b>Scendi dal precedente autobus presso:</b> {{route.cambioDa}}</h5>
+                                <h5><b>Risali sull'autobus:</b> {{route.nome_autobus}} <b>presso:</b> {{route.nomePartenza}} <b>e arriva fino a:</b> {{route.nomeArrivo}}</h5>
+                            </div>
+                            <md-divider md-inset="" ng-if="!$last"></md-divider>
+                        </md-list-item>
+                    </div>
+                </md-list>
+            </div>
+        </div>
+    </div></div>
+</main>
+<foo-ter></foo-ter>
+
+

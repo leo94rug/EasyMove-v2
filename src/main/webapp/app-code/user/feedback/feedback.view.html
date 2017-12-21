@@ -1,0 +1,62 @@
+<nav-bar></nav-bar>
+  <main class="main" role="main">  
+    <div class="wrap">
+      <div class="row">
+        <!--- Content -->
+        <div class="content one-half modal">
+          <!--Login-->
+          <div class="box">
+            <form name="userForm" ng-submit="vm.inserisci()" role="form">
+              <div class="f-row">
+                <p>La prima valutazione riguarda l'abilità alla guida, con questo parametro vai a valutare il rispetto delle norme stradali, la prudenza, l'attenzione e la sicurezza alla guida dell'autista </p>
+              </div>
+              <div class="f-row">
+                <div class="full-width">
+                    <jk-rating-stars read-only="false" required rating=vm.feedback.valutazione_guida></jk-rating-stars>
+                </div>
+              </div>
+              <div class="f-row">
+                <p>Con la seconda valutazione vai a valutare la precisione nell'orario da parte dell'autista, ricordati di tenere conto che può aver segnato un eventuale ritardo nel passaggio </p>
+              </div>
+              <div class="f-row">
+                <div class="full-width">
+                    <jk-rating-stars read-only="false" required rating=vm.feedback.valutazione_puntualita></jk-rating-stars>
+                </div>
+              </div>
+              <div class="f-row">
+                <p>Con la terza opzione si può valutare se il viaggio è stato piacevole</p>
+              </div>
+              <div class="f-row">
+                <div class="full-width">
+                    <jk-rating-stars read-only="false" required rating=vm.feedback.valutazione_disponibilita></jk-rating-stars>
+                </div>
+              </div>
+              <div class="f-row">
+                <div class="full-width">
+                  <md-input-container class="md-block">
+                    <label>Commenta il tuo viaggio!</label>
+                    <textarea md-maxlength="200" required md-no-asterisk name="description" rows="4" ng-model="vm.feedback.testo"></textarea>
+                    <div ng-messages="userForm.description.$error">
+                      <div ng-message="required">E' necessario inserire un commento</div>
+                      <div ng-message="md-maxlength">Il commento deve essere lungo meno di 200 caratteri</div>
+                    </div>
+                  </md-input-container>
+
+                </div>
+              </div>
+              <div class="f-row">
+                <div class="full-width">
+                  <md-button type="submit" ng-if=vm.disable class="btn color medium full" >
+                    Inserisci
+                  </md-button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!--//Login-->
+        </div>
+        <!--- //Content -->
+      </div>
+    </div>
+  </main>
+<foo-ter></foo-ter>

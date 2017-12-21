@@ -1,0 +1,63 @@
+<nav-bar></nav-bar>
+  <main class="main" role="main">
+    <div class="wrap">
+      <div class="row">
+        <!--- Content -->
+        <div class="content one-half modal">
+            <div class="box">
+	            <form name="modificapswForm" ng-submit="vm.modificaPsw()" role="form">
+                        <div class="f-row">
+                            <md-input-container flex="50">
+                                <label>Vecchia Password</label>
+                                <input required name="vecchia_password" ng-model="vm.password.vecchia_password" type="password" minlength="6" maxlength="20">
+                                <div ng-messages="modificapswForm.vecchia_password.$error" role="alert">
+                                    <div ng-message-exp="['required', 'minlength', 'maxlength']">
+                                        Your password must be between 6 and 20 characters long.
+                                    </div>
+                                </div>
+                                <div ng-messages="modificapswForm.password.$error">
+                                    <div ng-message="required">This is required.</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+                        <div class="f-row">
+                            <md-input-container flex="50">
+                                <label>Nuova Password</label>
+                                <input required name="nuova_password" ng-model="vm.password.nuova_password" type="password" minlength="6" maxlength="20">
+                                <div ng-messages="modificapswForm.nuova_password.$error" role="alert">
+                                    <div ng-message-exp="['required', 'minlength', 'maxlength']">
+                                        Your password must be between 6 and 20 characters long.
+                                    </div>
+                                </div>
+                                <div ng-messages="modificapswForm.password.$error">
+                                    <div ng-message="required">This is required.</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+                        <div class="f-row">
+                            <md-input-container flex="50">
+                                <label>Ripeti Password</label>
+                                <input required name="ripeti_password" ng-model="vm.password.ripeti_password" type="password" minlength="6" maxlength="20" ng-pattern=vm.password.nuova_password>
+                                <div ng-messages="modificapswForm.ripeti_password.$error" role="alert">
+                                    <div ng-message="pattern">Le due password non combaciano</div>
+                                </div>
+                                <div ng-messages="modificapswForm.ripeti_password.$error">
+                                    <div ng-message="required">This is required.</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+	                <div class="f-row">
+	                    <div class="full-width">
+	                        <button type="submit" class="btn color medium full" />Invia</button>
+	                    </div>
+	                </div>
+	            </form>
+            </div>
+        </div>
+        <!--- //Content -->
+      </div>
+    </div>
+  </main>
+<foo-ter></foo-ter>
+
+  

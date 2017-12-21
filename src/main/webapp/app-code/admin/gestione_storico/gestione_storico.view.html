@@ -1,0 +1,114 @@
+<nav-bar-ad></nav-bar-ad>
+<div ng-show="vm.bool1">
+    <table  >
+        <h2>Seleziona l'azienda</h2>
+        <tr>
+            <th>Id</th>
+            <th>Nome</th>
+            <th>Località</th>
+            <th>Seleziona</th>
+        </tr>
+    <tr ng-repeat="p in vm.azienda">
+        <td>{{p.id}}</td>
+        <td>{{ p.nome }}</td>
+        <td>{{ p.citta }}</td>
+        <td ng-click="vm.selectAzienda(p.id)">Clicca</td>
+    </tr>
+</table>
+</div>
+
+<div ng-if="vm.bool2" >
+    <div  class="radioDemo2 bidi">
+      <h2>Lista storico, selezionato: {{vm.selectedId}}</h2>
+        <md-divider></md-divider>
+
+        <md-radio-group ng-model="vm.selectedId" >
+          <div ng-repeat='storico in vm.storico' class="row">
+            <div flex layout='row' layout-padding layout-align="start center" >
+              <div flex style="max-width:200px;">
+                {{storico.id}}
+              </div> 
+
+              <md-radio-button flex
+                  ng-value="storico.id"
+                  class="md-primary" >
+
+                {{storico.descrizione}}
+
+              </md-radio-button>
+             
+              <div flex style="max-width:200px;">
+                {{storico.date | date : "H:mm - d/M/y"}}
+              </div>
+            </div>
+          </div>
+        </md-radio-group>
+    </div>
+</div>
+<style>
+.radioButtondemoMultiColumn div.radioDemo2 {
+  margin-bottom: 20px; }
+
+.radioButtondemoMultiColumn h2 {
+  margin-left: 15px; }
+
+.radioButtondemoMultiColumn p {
+  width: 400px;
+  margin-top: 10px;
+  margin-left: 10px;
+  padding-top: 10px;
+  border-top: 2px solid #ddd; }
+
+.radioButtondemoMultiColumn .md-checked {
+  background-color: #ECFAFB;
+  border-radius: 2px; }
+
+.radioButtondemoMultiColumn md-button.md-raised, .radioButtondemoMultiColumn button.md-raised {
+  width: 200px; }
+
+.radioButtondemoMultiColumn .row {
+  border-bottom: 1px dashed #ddd; }
+
+.radioButtondemoMultiColumn div.row:last-child {
+  border-bottom: 0px dashed #ddd; }
+
+.radioButtondemoMultiColumn .summary {
+  width: 100%;
+  padding-top: 10px;
+  margin-left: 25px;
+  margin-top: 20px;
+  margin-bottom: -5px; }
+
+.radioButtondemoMultiColumn .title {
+  font-weight: bolder; }
+
+.radioButtondemoMultiColumn .selectedUser .md-checked {
+  padding: 8px;
+  width: 100px; }
+  html[dir="rtl"] .bidi {
+    padding-right: 20px;
+    padding-left:0;
+  }
+
+#map{
+    height: 600px;
+    width: 600px;
+    text-align: center;
+    margin: 20px;
+}
+table {
+    border-collapse: collapse;
+    width: 60%;
+    margin-bottom: 40px;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>

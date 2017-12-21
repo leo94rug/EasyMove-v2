@@ -1,0 +1,59 @@
+﻿
+
+<nav-bar></nav-bar>
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <!--- Content -->
+            <div class="full-width">
+                <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
+                    <md-card-title>
+                        <div style="display:inline-flex;">
+                            <div ng-repeat="tratte in vm.travel.tratte.tratte track by $index">
+                                <div>
+                                    <h2 style="display:inline-flex;">
+                                        <div style="padding: 3px;">{{tratte}}</div>
+                                        <div ng-if="!$last" style="padding: 3px;">-></div>
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                    </md-card-title>
+                </md-card>
+            </div>
+            <div class="two-third left">
+                <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
+                    <md-card-title>
+                    <md-card-title-text>
+                        <div style="padding: 10px;">Autobus: {{vm.travel.data_ora_partenza}}</div>
+                        <div style="padding: 10px;">Partenza: {{vm.travel.partenza.formatted_address}}</div>
+                        <div style="padding: 10px;">Arrivo: {{vm.travel.arrivo.formatted_address}}</div>
+                    </md-card-title-text>
+                </md-card>
+            </div>
+            <div class="one-third content">
+                <md-card  md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
+                    <md-card-title>
+                        <md-card-title-text>
+                            <img ng-src="images/1111.jpg" class="md-avatar" style="width: 120px;height: 120px;">
+                        </md-card-title-text>
+                        <md-card-title-media>
+                            <div class="md-media-lg card-media">
+                                <p>Nome: {{vm.travel.utente.nome}}</p>
+                                <p>Cognome: {{vm.travel.utente.cognome}}</p>
+                                <p>Età: {{vm.travel.utente.eta}}</p>
+                                <p>Valutato: {{vm.travel.feedback.media_valutazione}}</p>
+                            </div>
+                        </md-card-title-media>
+                    </md-card-title>
+                    <md-card-actions layout="row" layout-align="end center">
+                        <md-button ng-click="vm.visualizzautente(vm.travel.utente.email)">Visualizza profilo</md-button>
+                    </md-card-actions>
+                </md-card>
+            </div>
+        </div>
+    </div>
+</main>
+<foo-ter></foo-ter>
+
+

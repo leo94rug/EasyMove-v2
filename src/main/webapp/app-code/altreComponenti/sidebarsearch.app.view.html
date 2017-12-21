@@ -1,0 +1,21 @@
+<aside class="one-fifth22 sidebar left deleteSearchWidget">
+    <!-- Widget -->
+    <div class="widget">
+        <div class="textwidget" style="text-align: left;">
+        <h5>Seleziona il numero di cambi</h5>
+            <md-radio-group ng-model="vm.search.cambio" class="md-primary">
+                <md-radio-button ng-repeat="d in vm.cambioData" ng-value="d.value" ng-disabled=" d.isDisabled">
+                    {{ d.label }}<br/>
+
+                </md-radio-button>
+            </md-radio-group>
+        <h5>Seleziona la grandezza dell'area di ricerca</h5>
+            <md-radio-group ng-model="vm.search.distanza" class="md-primary">
+                <md-radio-button ng-repeat="d in vm.distanzaData" ng-value="d.value" ng-disabled=" d.isDisabled">
+                    {{ d.label }}<br/>
+
+                </md-radio-button>
+            </md-radio-group>
+        </div>
+    </div>
+</aside>

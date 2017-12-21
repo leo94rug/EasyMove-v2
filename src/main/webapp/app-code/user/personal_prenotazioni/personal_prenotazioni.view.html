@@ -1,0 +1,44 @@
+<nav-bar></nav-bar>
+<!-- Main -->
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <side-bar-pers></side-bar-pers>
+            <div id="pag_passaggi">
+                <div id="intest_passaggi" class="ampio">
+                    Riepilogo prenotazioni
+                </div>
+                <div ng-if="vm.prenotazioni.length!=0" style="    display: flow-root;">
+                    <div ng-repeat="route in vm.prenotazioni" class="two-third">
+                        <a ng-href="profilo-utenti/{{route.utente.id}}">
+                            <md-list-item  class="md-3-line">
+                                <img data-ng-src="{{route.utente.foto_utente}}" class="md-avatar" style="width: 70px;height: 70px;">
+                                <!--<md-divider class="vertical-divider" style="width: 11%;"></md-divider>-->
+                                <div class="md-list-item-text" style="text-align: left;margin-left: 15px;margin-right: 32px;">
+                                    <h5>
+                                        <img src="images/orologio.jpg" style="width: 20px;margin-right: 10px;">
+                                        <b>{{route.tratta_auto.orario_partenza | date : "H:mm - d/M/y"}}</b>
+                                    </h5>
+                                    <h5><b>Partenza:</b> {{route.tratta_auto.denominazione_partenza}}</h5>
+                                    <h5><b>Arrivo:</b> {{route.tratta_auto.denominazione_arrivo}}</h5>
+                                    <h5><b>Conducente</b> {{route.utente.nome}}</h5>
+                                </div>
+                                <md-divider md-inset="" ng-if="!$last"></md-divider>
+                            </md-list-item>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="vm.prenotazioni.length===0">
+                <h2>Non sono presenti prenotazioni</h2>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- //Main -->
+<foo-ter></foo-ter>
+
+
+
+
+

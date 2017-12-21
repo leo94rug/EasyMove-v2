@@ -1,0 +1,45 @@
+<md-dialog aria-label="Mango (Fruit)">
+    <form ng-submit="answer()" role="form" name="offer" ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <!--<h2>Prenota</h2>-->
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cancel()">
+                    <img ng-click="vm.rifiuta(item)" ng-src="images/close.png" class="grandezza_img">
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <h2>Seleziona il numero di posti che vuoi prenotare</h2>
+                <div class="two-third">
+                    <p>Seleziona il numero di posti che vuoi bloccare per il viaggio <b>{{item.nomeViaggio}}</b> e clicca su prenota
+                </div>
+                <div class="two-third">
+                    <b>{{attenzione}}</b> <i>sono disponibili {{item.posti}} posti</i></p>
+                </div>
+                <div class="one-third">
+                    <md-input-container>
+                        <md-select ng-model="posti" placeholder="Posti" required name="submit">
+                            <md-optgroup label="Posti">
+                                <md-option ng-value="option.value"  ng-repeat="option in options| filter: {category: 'posti' }">{{option.name}}</md-option>
+                            </md-optgroup>
+                        </md-select>
+                        <div class="errors" ng-messages="offer.submit.$error">
+                            <div ng-message="required">Indica i posti che vuoi prenotare</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="cancel()">
+                Annulla
+            </md-button>
+            <md-button type="submit">
+                Useful
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

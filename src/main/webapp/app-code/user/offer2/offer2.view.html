@@ -1,0 +1,162 @@
+<nav-bar></nav-bar>
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <!--- Content -->
+            <div class="full-width content">
+                <h1 >Offri un passaggio!</h1>
+            </div>
+            <!--- //Content -->
+            <div class="three-fourth">
+                <form ng-submit="vm.submit()" role="form" layout-padding name="offer" ng-cloak="">
+                    <div class="itinerario-block box" style="display: inline-flex;">
+                        <div style="width: 60%">
+
+                            <div ng-repeat="t in vm.andata | orderBy:numero" class="f-row" style="display: inline-flex;display: 10px 20px 10px 20px">
+                                <div class="flex-container2" style="width: 300px;">{{t.denominazione_partenza}}->{{t.denominazione_arrivo}}</div>
+                                <p>{{t.numero}}</p>
+                                <div style="display: inline-flex;">
+                                    <div class="flex-container2" style="margin-right: 5px;">
+                                        {{t.prezzo | number:0}}
+                                    </div>
+                                    <span us-spinner="{radius:30, width:8, length: 16}" spinner-on="showSpinner"></span>
+                                    <div class="flex-container">
+                                        <img ng-src="images/up.png" ng-click="vm.up($index)" class="md-raised" style="width: 20px;">
+                                        <img ng-src="images/down.png" ng-click="vm.down($index)" class="md-raised" style="width: 20px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="options-block box">
+                        <div class="f-row" style="padding: 0px;">
+                            <div ng-cloak>
+                                <div layout="row">
+                                    <div class="one-half" style="margin-top: 23px;">
+                                        <h1 class="md-title">Indica il numero di posti disponibili*</h1>
+                                    </div>
+                                    <div class="one-fourth">
+                                        <md-input-container>
+                                            <md-select ng-model="vm.posti" placeholder="Posti" required name="selectBag">
+                                                <md-optgroup label="Posti">
+                                                    <md-option ng-value="option.name" required md-no-asterisk="false" ng-repeat="option in vm.options| filter: {category: 'posti' }">{{option.name}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                            <div class="errors" ng-messages="offer.selectBag.$error">
+                                                <div ng-message="required">inserisci il numero di posti che hai a disposizione, faciliterà la ricerca di chi ha bisogno di più posti</div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="f-row" style="padding: 0px;" >
+                            <div ng-cloak>
+                                <div layout="row">
+                                    <div class="one-half" style="margin-top: 23px;">
+                                        <h1 class="md-title">Indica la disponibilità a deviazioni</h1>
+                                    </div>
+                                    <div class="one-fourth">
+                                        <md-input-container>
+                                            <md-select ng-model="vm.offerDetail.viaggio.disponibilita_deviazioni" placeholder="Deviazioni" required name="selectBag">
+                                                <md-optgroup label="Deviazioni">
+                                                    <md-option ng-value="option.name" required md-no-asterisk="false" ng-repeat="option in vm.options| filter: {category: 'deviazioni' }">{{option.name}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                            <div class="errors" ng-messages="offer.selectBag.$error">
+                                                <div ng-message="required">Indica la tua disponibilità a eventuali deviazioni</div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="f-row" style="padding: 0px;">
+                            <div ng-cloak>
+                                <div layout="row">
+                                    <div class="one-half" style="margin-top: 23px;">
+                                        <h1 class="md-title">Indica il tipo di bagaglio</h1>
+                                    </div>
+                                    <div class="one-fourth">
+                                        <md-input-container>
+                                            <md-select ng-model="vm.offerDetail.viaggio.bagaglio_max" placeholder="Bagaglio" required name="selectBag">
+                                                <md-optgroup label="Bagaglio">
+                                                    <md-option ng-value="option.name" required md-no-asterisk="false" ng-repeat="option in vm.options| filter: {category: 'bagaglio' }">{{option.name}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                            <div class="errors" ng-messages="offer.selectBag.$error">
+                                                <div ng-message="required">Indica che tipo di bagaglio è consentito portare</div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="f-row" style="padding: 0px;">
+                            <div ng-cloak>
+                                <div layout="row">
+                                    <div class="one-half" style="margin-top: 23px;">
+                                        <h1 class="md-title">Indica se sarai puntuale</h1>
+                                    </div>
+                                    <div class="one-fourth">
+                                        <md-input-container>
+                                            <md-select ng-model="vm.offerDetail.viaggio.ritardo_max" placeholder="Puntualità" required name="selectPunt" >
+                                                <md-optgroup label="Puntualità">
+                                                    <md-option ng-value="option.name" required md-no-asterisk="false" ng-repeat="option in vm.options| filter: {category: 'ritardo' }">{{option.name}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                            <div class="errors" ng-messages="offer.selectPunt.$error">
+                                                <div ng-message="required">Indica se sarai puntuale, è un informazione importante per chi cerca un passaggio</div>
+                                            </div>
+
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="f-row" style="padding: 0px;">
+                            <div ng-cloak>
+                                <div layout="row">
+                                    <div class="one-half" style="margin-top: 23px;">
+                                        <h1 class="md-title">Seleziona l'auto *</h1>
+                                    </div>
+                                    <div class="one-fourth">
+                                        <md-input-container>
+                                            <md-select ng-model="vm.offerDetail.viaggio.auto" placeholder="Auto" required name="selectAuto" >
+                                                <md-optgroup label="Auto">
+                                                    <md-option ng-value="option.value" required md-no-asterisk="false" ng-repeat="option in vm.options| filter: {category: 'cars' }">{{option.name}}</md-option>
+                                                </md-optgroup>
+                                            </md-select>
+                                            <div class="errors" ng-messages="offer.selectAuto.$error">
+                                                <div ng-message="required">Per offrire un passaggio devi selezionare un auto, se ancora non l'hai inserita puoi farlo nella tua pagina personale</div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                        
+                        <div class="f-row" style="padding: 0px;">
+                            <div ng-cloak>
+                                <div layout="row">
+                                    <div class="one-half" style="margin-top: 23px;">
+                                        <h1 class="md-title">Aggiungi una descrizione</h1>
+                                    </div>
+                                    <div class="one-fourth">
+                                        <md-input-container>
+                                            <textarea ng-model="vm.offerDetail.viaggio.descrizione" md-maxlength="250" rows="5" name="descrizione" md-select-on-focus></textarea>
+                                            <div class="errors" ng-messages="offer.descrizione.$error">
+                                                <div ng-message="md-maxlength">Puoi inserire al massimo 250 caratteri</div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="submit" class="btn medium color right"></input>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- //Main -->
