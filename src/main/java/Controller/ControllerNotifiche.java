@@ -161,7 +161,7 @@ public class ControllerNotifiche {
             return Response.ok(new Gson().toJson(notificationNumber)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //500           
+            return Response.ok(ex).build(); //500           
         }
     }
 }

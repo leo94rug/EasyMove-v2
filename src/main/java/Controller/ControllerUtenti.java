@@ -22,7 +22,6 @@ import Repository.PrenotazioneRepository;
 import Repository.RouteRepository;
 import Repository.UserRepository;
 import Utilita.Crypt;
-import Utilita.SendMailTLS;
 import com.google.gson.Gson;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -40,7 +39,6 @@ import javax.annotation.Resource;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.mail.MessagingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -54,7 +52,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -118,7 +115,6 @@ public class ControllerUtenti {
             return Response.serverError().build();
         }
     }
-
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("getviaggi/{id: [0-9]+}")
@@ -142,11 +138,9 @@ public class ControllerUtenti {
             List<Viaggio_autoRes> viaggio_auto = UserRepository.getViaggi(id, ds);
             return Response.ok(new Gson().toJson(viaggio_auto)).build();
         } catch (SQLException ex) {
-            //
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
-
     }
 
     @GET
@@ -189,12 +183,13 @@ public class ControllerUtenti {
             return Response.ok().build();
         } catch (SQLException |
                 BadPaddingException |
-                UnsupportedEncodingException |
                 NoSuchPaddingException |
                 NoSuchAlgorithmException |
                 IllegalBlockSizeException |
-                InvalidAlgorithmParameterException |
                 InvalidKeyException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+        } catch (Exception ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
         }
@@ -243,67 +238,6 @@ public class ControllerUtenti {
 
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
-        }
-    }
-
-    @POST
-    @Path("login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response login(@Context UriInfo context, String payload) {
-        try {
-
-            JSONObject obj = new JSONObject(payload);
-            String email = obj.getString("email");
-            String password = Crypt.encrypt(obj.getString("password"));
-            UtenteRes utenteRes = UserRepository.getUtente(email, password, ds);
-            if (utenteRes != null) {
-                //String token = Utilita.MyToken.getToken(email);
-                utenteRes.calcolaEta();
-                //utenteRes.setToken(token);
-                return Response.ok(new Gson().toJson(utenteRes)).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-
-        } catch (JSONException |
-                SQLException |
-                BadPaddingException |
-                UnsupportedEncodingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                InvalidAlgorithmParameterException |
-                InvalidKeyException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
-        }
-    }
-
-    @POST
-    @Path("modificapsw")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response modificapsw(@Context UriInfo context, String payload) {
-        try {
-            JSONObject obj = new JSONObject(payload);
-            int id = Integer.parseInt(obj.getString("id"));
-            String new_psw_crypt = Crypt.encrypt(obj.getString("password"));
-            int i = UserRepository.setPassword(id, new_psw_crypt, ds);
-            if (i == 0) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            } else {
-                return Response.ok().build();
-            }
-        } catch (JSONException |
-                SQLException |
-                BadPaddingException |
-                UnsupportedEncodingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                InvalidAlgorithmParameterException |
-                InvalidKeyException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
         }
     }
 
@@ -357,77 +291,6 @@ public class ControllerUtenti {
         }
     }
 
-    @POST
-    @Path("register")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response post2(@Context UriInfo context, String payload) {
-        UtenteRqt utenteRqt = null;
-        try {
-            JSONObject obj = new JSONObject(payload);
-            utenteRqt = new UtenteRqt(obj);
-            if (Repository.UserRepository.existingUser(utenteRqt.getEmail(), ds)) {
-                return Response.status(Response.Status.CONFLICT).build();
-            }
-            int rsint = UserRepository.insertUser(utenteRqt, ds);
-            SendMailTLS.sendMailConfermaRegistrazione(utenteRqt.getEmail());
-            return Response.ok().build();
-
-        } catch (JSONException |
-                SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-                Repository.UserRepository.deleteUser(utenteRqt.getId(), ds);
-            } catch (SQLException ex1) {
-                Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex1);
-            }
-            return Response.serverError().build();
-        } catch (NoSuchAlgorithmException |
-                MessagingException |
-                InvalidKeyException |
-                InvalidAlgorithmParameterException |
-                IllegalBlockSizeException |
-                NoSuchPaddingException |
-                UnsupportedEncodingException |
-                BadPaddingException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
-
-    @POST
-    @Path("recuperapsw")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response recuperopsw(@Context UriInfo context, String payload) {
-        try (Connection connection = ds.getConnection()) {
-            String email = payload;
-            String new_psw = RandomStringUtils.randomAlphabetic(6);
-            String new_psw_crypt = Crypt.encrypt(new_psw);
-            Utente utente = UserRepository.getUtenteByEmail(email, ds);
-            if (utente != null) {
-                int i = UserRepository.setPassword(utente.getId(), new_psw_crypt, ds);
-                if (i == 0) {
-                    return Response.status(Response.Status.NOT_FOUND).build();
-                } else {
-                    SendMailTLS.sendMailCambiaPassword(email, new_psw);
-                    return Response.ok().build();
-                }
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-
-        } catch (SQLException |
-                BadPaddingException |
-                UnsupportedEncodingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                MessagingException |
-                InvalidAlgorithmParameterException |
-                InvalidKeyException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
-        }
-    }
 
     @PUT
     @Path("updateprofilo/{id: [0-9]+}")
@@ -451,6 +314,9 @@ public class ControllerUtenti {
                 JSONException |
                 InvalidAlgorithmParameterException |
                 InvalidKeyException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+        } catch (Exception ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
         }
@@ -583,58 +449,6 @@ public class ControllerUtenti {
         } catch (JSONException | SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @POST
-    @Path(value = "resendemail")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    public Response resendemail(@Context final UriInfo context, final String payload) {
-        try {
-            SendMailTLS.sendMailConfermaRegistrazione(payload);
-            return Response.ok().build();
-        } catch (BadPaddingException |
-                UnsupportedEncodingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                MessagingException |
-                InvalidAlgorithmParameterException |
-                InvalidKeyException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
-        }
-    }
-
-    @PUT
-    @Path("confermaemail")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response confermaemail(@Context UriInfo context, String payload) {
-        try {
-            JSONObject obj = new JSONObject(payload);
-            String hash = obj.getString("hash");
-            String email = obj.getString("email");
-            if (Crypt.encrypt(email).equalsIgnoreCase(hash)) {
-                boolean result = UserRepository.userConfirm(email, ds);
-                if (result) {
-                    return Response.noContent().build();
-                } else {
-                    return Response.status(Response.Status.BAD_REQUEST).build();
-                }
-            } else {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-        } catch (BadPaddingException |
-                UnsupportedEncodingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                JSONException |
-                SQLException |
-                InvalidAlgorithmParameterException |
-                InvalidKeyException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
         }
     }
 

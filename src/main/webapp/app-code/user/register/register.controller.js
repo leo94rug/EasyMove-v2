@@ -4,9 +4,9 @@
         .module('app')
         .controller('RegisterController', RegisterController);
 
-    RegisterController.$inject = ['$timeout','$scope','UserService', '$location', '$store', 'FlashService'];
+    RegisterController.$inject = ['$timeout','$scope','AccountService', '$location', '$store', 'FlashService'];
 
-    function RegisterController($timeout,$scope,UserService, $location, $store, FlashService) {
+    function RegisterController($timeout,$scope,AccountService, $location, $store, FlashService) {
         var vm = this;
         $('body,html').animate({scrollTop:0},0);
         vm.utente = $store.get('utente');
@@ -21,7 +21,7 @@
         function register() {
             if ($scope.registerForm.$valid) {
                 vm.user.anno_nascita = vm.data.getTime(); 
-                UserService.Create(vm.user).then(function(response) {
+                AccountService.Create(vm.user).then(function(response) {
                     if(response.success===false){
                         switch(response.res.status){
                             case 500:{

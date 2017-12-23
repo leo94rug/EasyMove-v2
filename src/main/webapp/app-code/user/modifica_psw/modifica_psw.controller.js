@@ -4,9 +4,9 @@ angular
   .module('app')
   .controller('ModificaPswController', ModificaPswController);
 
-    ModificaPswController.$inject = ['$timeout','FlashService','UserService','AuthenticationService','$store','$location'];
+    ModificaPswController.$inject = ['$timeout','FlashService','AccountService','AuthenticationService','$store','$location'];
 
-    function ModificaPswController($timeout,FlashService,UserService,AuthenticationService,$store,$location){
+    function ModificaPswController($timeout,FlashService,AccountService,AuthenticationService,$store,$location){
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.utente = $store.get('utente');
@@ -31,7 +31,7 @@ angular
                     email:vm.utente.email,
                     password:vm.password.vecchia_password
                 }
-                UserService.Login(utente).then(function (response) {
+                AccountService.Login(utente).then(function (response) {
                     if(response.success===false){
                         $location.path('/error');
                     }
@@ -45,7 +45,7 @@ angular
                                 email:vm.utente.email,
                                 password:vm.password.nuova_password
                             }   
-                            UserService.ModificaPsw(utente_mod).then(function (response) {
+                            AccountService.ModificaPsw(utente_mod).then(function (response) {
                                 if(response.success===false){
                                     $location.path('/error');
                                 }

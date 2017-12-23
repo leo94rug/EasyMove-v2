@@ -4,9 +4,9 @@ angular
   .module('app')
   .controller('RecuperaPswController', RecuperaPswController);
 
-    RecuperaPswController.$inject = ['$timeout','UserService','AuthenticationService', '$scope','$routeParams','$store','$location','FlashService'];
+    RecuperaPswController.$inject = ['$timeout','AccountService','AuthenticationService', '$scope','$routeParams','$store','$location','FlashService'];
 
-    function RecuperaPswController($timeout,UserService,AuthenticationService,$scope,$routeParams,$store,$location,FlashService){
+    function RecuperaPswController($timeout,AccountService,AuthenticationService,$scope,$routeParams,$store,$location,FlashService){
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.recuperaPsw=recuperaPsw;
@@ -15,7 +15,7 @@ angular
             myEl.addClass('active');           
         }); 
         function recuperaPsw() {
-            UserService.RecuperaPsw(vm.email).then(function (response) {
+            AccountService.RecuperaPsw(vm.email).then(function (response) {
                 if(response.success===false){
                     $location.path('/error');
                 }

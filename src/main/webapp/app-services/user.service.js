@@ -17,7 +17,6 @@
         var host=CONFIG.HOST;
         service.GetByEmail = GetByEmail;
         service.GetProfiloUtenti = GetProfiloUtenti;
-        service.Create = Create;
         service.GetAuto = GetAuto;
         service.Update = Update;
         service.UpdateImage = UpdateImage;
@@ -30,11 +29,6 @@
         service.CheckFriend = CheckFriend;
         service.TravelNumber=TravelNumber;
         service.Check=Check;
-        service.ConfermaEmail=ConfermaEmail;
-        service.RecuperaPsw=RecuperaPsw;
-        service.Login=Login;
-        service.ModificaPsw=ModificaPsw;
-        service.ResendEmail=ResendEmail;
         service.possibilitaInserireFeedback=possibilitaInserireFeedback;
         service.checkIsPossibleInsertFeedback=checkIsPossibleInsertFeedback;
         service.GetPrenotazioni=GetPrenotazioni;
@@ -50,18 +44,6 @@
         }
         function possibilitaInserireFeedback(item){
             return $http.post(host + 'rest/user/possibilitainserirefeedback', item, config).then(handleSuccess, handleError);            
-        }
-        function ResendEmail(utente){
-            return $http.post(host + 'rest/user/resendemail', utente, config).then(handleSuccess, handleError);
-        }        
-        function ModificaPsw(utente){
-            return $http.post(host + 'rest/user/modificapsw', utente, config).then(handleSuccess, handleError);
-        }
-        function Login(user){
-            return $http.post(host + 'rest/user/login', user, config).then(handleSuccess, handleError);
-        }
-        function RecuperaPsw(email){
-            return $http.post(host + 'rest/user/recuperapsw', email, config).then(handleSuccess, handleError);
         }
         function CheckFriend(user1,user2){
             return $http.get(host + 'rest/user/checkfriend/' + user1 + '/' + user2).then(handleSuccess, handleError);
@@ -90,9 +72,6 @@
         function GetAuto(email) {
             return $http.get(host + 'rest/user/getauto/' + email).then(handleSuccess, handleError);
         }
-        function Create(user) {
-            return $http.post(host + 'rest/user/register', user, config).then(handleSuccess, handleError);
-        }
         function CreateCar(car) {
             return $http.post(host + 'rest/user/addcar', car, config).then(handleSuccess, handleError);
         }
@@ -101,10 +80,7 @@
         }
         function Update(user,id) {
             return $http.put(host + 'rest/user/updateprofilo/' + id, user,config).then(handleSuccess, handleError);
-        }        
-        function ConfermaEmail(user) {
-            return $http.put(host + 'rest/user/confermaemail', user,config).then(handleSuccess, handleError);
-        }        
+        }                
         function UpdateImage(user) {
             return $http.put(host + 'rest/user/updateimage', user,config).then(handleSuccess, handleError);
         }

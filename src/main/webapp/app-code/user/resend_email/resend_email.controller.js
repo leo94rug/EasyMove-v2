@@ -4,9 +4,9 @@ angular
   .module('app')
   .controller('ResendEmailController', ResendEmailController);
 
-    ResendEmailController.$inject = ['$timeout','UserService','$location','FlashService'];
+    ResendEmailController.$inject = ['$timeout','AccountService','$location','FlashService'];
 
-    function ResendEmailController($timeout,UserService,$location,FlashService){
+    function ResendEmailController($timeout,AccountService,$location,FlashService){
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.resendEmail=ResendEmail;
@@ -16,7 +16,7 @@ angular
         }); 
         function ResendEmail() {
             if(vm.utente!=undefined){
-                UserService.Login(vm.utente).then(function (response) {
+                AccountService.Login(vm.utente).then(function (response) {
                     if(response.success===false){
                         $location.path('/error');
                     }
@@ -40,7 +40,7 @@ angular
                             case 3:{
                                 $('body,html').animate({scrollTop:0},800);
                                 vm.notconfirmed=true;
-                                UserService.ResendEmail(vm.utente.email).then(function (response) {
+                                AccountService.ResendEmail(vm.utente.email).then(function (response) {
                                     if(response.success===false){
                                         $location.path('/error');
                                     }

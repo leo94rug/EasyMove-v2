@@ -4,9 +4,9 @@ angular
   .module('app')
   .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$timeout','AuthenticationService','UserService','FlashService','$location','$store'];
+    LoginController.$inject = ['$timeout','AuthenticationService','AccountService','FlashService','$location','$store'];
 
-    function LoginController($timeout,AuthenticationService,UserService,FlashService,$location,$store){
+    function LoginController($timeout,AuthenticationService,AccountService,FlashService,$location,$store){
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.login = login;
@@ -22,7 +22,7 @@ angular
             if(vm.loginUser!=undefined){
                 vm.email=vm.loginUser.email;
             }
-            UserService.Login(vm.loginUser).then(function (response) {
+            AccountService.Login(vm.loginUser).then(function (response) {
                 if(response.res.success===false){
                     vm.email=undefined;
                     
@@ -82,7 +82,7 @@ angular
           return result;   
         }
         function resendEmail() {
-            UserService.ResendEmail(vm.email).then(function (response) {
+            AccountService.ResendEmail(vm.email).then(function (response) {
                 if(response.success===false){
                     $location.path('/error');
                 }

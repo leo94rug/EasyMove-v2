@@ -26,7 +26,7 @@ public class UtenteRqt extends Utente {
 
     private String psw;
 
-    public UtenteRqt(JSONObject obj) throws JSONException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchPaddingException, UnsupportedEncodingException, BadPaddingException {
+    public UtenteRqt(JSONObject obj) throws JSONException, Exception {
         super();
         if (obj.has("email")) {
             super.setEmail(obj.getString("email"));

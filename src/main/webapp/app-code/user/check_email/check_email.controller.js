@@ -4,9 +4,9 @@ angular
   .module('app')
   .controller('CheckEmailController', CheckEmailController);
 
-    CheckEmailController.$inject = ['$timeout','FlashService','UserService','AuthenticationService','$routeParams','$store','$location'];
+    CheckEmailController.$inject = ['$timeout','FlashService','AccountService','AuthenticationService','$routeParams','$store','$location'];
 
-    function CheckEmailController($timeout,FlashService,UserService,AuthenticationService,$routeParams,$store,$location){
+    function CheckEmailController($timeout,FlashService,AccountService,AuthenticationService,$routeParams,$store,$location){
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.message="Stiamo confermando la tua email ... ";
@@ -28,7 +28,7 @@ angular
             obj.email = $routeParams.email;
             obj.hash  = $routeParams.hash;
             var jsonString= JSON.stringify(obj);
-            UserService.ConfermaEmail(jsonString).then(function (response) {
+            AccountService.ConfermaEmail(jsonString).then(function (response) {
                 if(response.res.success===false){
                     $location.path('/error');
                 }
