@@ -10,7 +10,6 @@ import Model.Request.UtenteRqt;
 import Model.Response.UtenteRes;
 import Repository.UserRepository;
 import Utilita.Crypt;
-import Utilita.SendMailTLS;
 import Utilita.email.MsgFactory;
 import Utilita.email.SendEmail;
 import com.google.gson.Gson;
@@ -48,7 +47,7 @@ import org.json.JSONObject;
 public class ControllerAccount {
 
     @Resource(name = "jdbc/webdb2")
-    private DataSource ds; 
+    private DataSource ds;
     @Context
     private UriInfo context;
 
@@ -115,7 +114,7 @@ public class ControllerAccount {
                 InvalidKeyException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
-        } 
+        }
     }
 
     @POST
@@ -130,7 +129,9 @@ public class ControllerAccount {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             int rsint = UserRepository.insertUser(utenteRqt, ds);
-            SendMailTLS.sendMailConfermaRegistrazione(utenteRqt.getEmail());
+            SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.CambiaPassword);
+            msg.buildEmail(new String[]{utenteRqt.getEmail(), Crypt.encrypt(utenteRqt.getEmail())});
+            msg.sendEmail(utenteRqt.getEmail());
             return Response.ok().build();
 
         } catch (JSONException |
@@ -187,7 +188,7 @@ public class ControllerAccount {
         } catch (MessagingException ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Impossibile inviare l'email").build(); //415           
-        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException  ex) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415           
         }
@@ -231,7 +232,7 @@ public class ControllerAccount {
             }
         } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();         
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
