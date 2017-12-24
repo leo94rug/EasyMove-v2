@@ -62,8 +62,9 @@ public class ControllerAccount {
     public Response login(@Context UriInfo context, String payload) {
         try {
 
+            
             JSONObject obj = new JSONObject(payload);
-            String email = obj.getString("email");
+            String email = obj.getString("email"); 
             String password = Crypt.encrypt(obj.getString("password"));
             UtenteRes utenteRes = UserRepository.getUtente(email, password,ds);
             if (utenteRes != null) {
