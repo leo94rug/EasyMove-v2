@@ -11,8 +11,8 @@
   $mdThemingProvider.theme('dark-blue').backgroundPalette('blue').dark();
 });
 
-    FeedbackRicevutiController.$inject = ['$timeout','UserService', '$location', '$store', 'FlashService','AuthenticationService'];
-    function FeedbackRicevutiController($timeout,UserService, $location, $store, FlashService,AuthenticationService) {
+    FeedbackRicevutiController.$inject = ['$timeout','FeedbackService', '$location', '$store', 'FlashService','AuthenticationService'];
+    function FeedbackRicevutiController($timeout,FeedbackService, $location, $store, FlashService,AuthenticationService) {
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.initialize=initialize;
@@ -38,7 +38,7 @@
 
         function initialize(){
             vm.utente = $store.get('utente');
-            UserService.GetFeedback(vm.utente.id).then(function (response) {
+            FeedbackService.GetFeedback(vm.utente.id).then(function (response) {
                 if(response.success===false){                    
                     $location.path('/error');
                 }

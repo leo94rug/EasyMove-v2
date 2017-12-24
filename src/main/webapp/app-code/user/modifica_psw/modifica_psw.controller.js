@@ -42,7 +42,7 @@ angular
                         }
                         else{
                             var utente_mod = {
-                                email:vm.utente.email,
+                                id:vm.utente.id,
                                 password:vm.password.nuova_password
                             }   
                             AccountService.ModificaPsw(utente_mod).then(function (response) {

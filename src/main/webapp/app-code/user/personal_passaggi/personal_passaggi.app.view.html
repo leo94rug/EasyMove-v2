@@ -10,6 +10,8 @@
                 </div>
                 <div ng-if="vm.travel.length!=0">
                     <div ng-repeat="route in vm.travel" class="two-third">
+                            <a ng-href="prenotation/{{route.id_partenza}}/{{route.id_arrivo}}">
+                                
                         <md-list-item  class="md-3-line box options-block " >
                             <div class="md-list-item-text">
                                 <p><b style="color: green;">Partenza:</b> {{route.tratta_auto.denominazione_partenza}}</p>
@@ -18,6 +20,7 @@
                             </div>
                             <md-button class="md-secondary md-raised" ng-click="vm.delete(route.id)">Elimina</md-button>
                         </md-list-item>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -5,8 +5,8 @@
         .module('app')
         .controller('BachecaController', BachecaController);
 
-    BachecaController.$inject = ['$timeout','NotificationsService','RouteService','$scope','$mdDialog','$store','UserService', '$location', 'FlashService','AuthenticationService'];
-    function BachecaController($timeout,NotificationsService,RouteService,$scope,$mdDialog,$store,UserService, $location, FlashService,AuthenticationService) {
+    BachecaController.$inject = ['$timeout','FeedbackService','NotificationsService','RouteService','$scope','$mdDialog','$store','UserService', '$location', 'FlashService','AuthenticationService'];
+    function BachecaController($timeout,FeedbackService,NotificationsService,RouteService,$scope,$mdDialog,$store,UserService, $location, FlashService,AuthenticationService) {
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.attenzione="";
@@ -462,7 +462,7 @@ debugger;
                 'id_tappa':item.id_partenza
             };
             debugger;
-            UserService.possibilitaInserireFeedback(send1).then(function(response) {
+            FeedbackService.possibilitaInserireFeedback(send1).then(function(response) {
                 if(response.success===false){
                     $location.path('/error');
                 }
@@ -486,7 +486,7 @@ debugger;
                     }
                 }
             });            
-            UserService.possibilitaInserireFeedback(send2).then(function(response) {
+            FeedbackService.possibilitaInserireFeedback(send2).then(function(response) {
                 if(response.success===false){
                     $location.path('/error');
                 }

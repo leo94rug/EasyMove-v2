@@ -4,9 +4,9 @@ angular
   .module('app')
   .controller('FeedbackController', FeedbackController);
 
-    FeedbackController.$inject = ['UserService','FlashService','AuthenticationService','$routeParams','$store','$scope','$location'];
+    FeedbackController.$inject = ['FeedbackService','FlashService','AuthenticationService','$routeParams','$store','$scope','$location'];
 
-    function FeedbackController(UserService,FlashService,AuthenticationService,$routeParams,$store,$scope,$location){
+    function FeedbackController(FeedbackService,FlashService,AuthenticationService,$routeParams,$store,$scope,$location){
         var vm = this;
         vm.utente = $store.get('utente');
         $('body,html').animate({scrollTop:0},800);
@@ -26,7 +26,7 @@ angular
                 "mittente":vm.utente.id,
                 "destinatario":vm.destinatario
             }
-            UserService.checkIsPossibleInsertFeedback(user).then(function (response) {
+            FeedbackService.checkIsPossibleInsertFeedback(user).then(function (response) {
                 if(response.success===false){                    
                     $location.path('/error');
                 }
@@ -60,7 +60,7 @@ angular
             if (vm.feedback.valutazione_guida != undefined && vm.feedback.valutazione_puntualita!= undefined && vm.feedback.valutazione_disponibilita != undefined) {
                 vm.feedback.utente_recensito=parseInt(vm.destinatario);
                 vm.feedback.utente_recensore=vm.utente.id;
-                UserService.InsertFeedback(vm.feedback).then(function (response) {
+                FeedbackService.InsertFeedback(vm.feedback).then(function (response) {
                     if(response.success===false){                    
                         $location.path('/error');
                     }

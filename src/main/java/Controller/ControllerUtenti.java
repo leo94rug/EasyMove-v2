@@ -90,18 +90,7 @@ public class ControllerUtenti {
         }
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("getfeedback/{id: [0-9]+}")
-    public Response getfeedback(@PathParam("id") int id) {
-        try {
-            FeedbackRes feedbackRes = UserRepository.getFeedback(id, ds);
-            return Response.ok(new Gson().toJson(feedbackRes)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
+
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
@@ -181,17 +170,9 @@ public class ControllerUtenti {
                 UserRepository.updateUserEmailStatus(user1, ds);
             }
             return Response.ok().build();
-        } catch (SQLException |
-                BadPaddingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                InvalidKeyException ex) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
-        } catch (Exception ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();            
         }
     }
 
@@ -200,10 +181,9 @@ public class ControllerUtenti {
     @Produces({MediaType.APPLICATION_JSON})
     public Response checkfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
         try {
-            boolean flag = Repository.UserRepository.checkFriend(user1, user2, ds);
-            return Response.ok(new Gson().toJson(flag)).build();
+            int friend = Repository.UserRepository.checkFriend(user1, user2, ds);
+            return Response.ok(new Gson().toJson(friend)).build();
         } catch (SQLException ex) {
-
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
@@ -224,72 +204,7 @@ public class ControllerUtenti {
         }
     }
 
-    @POST
-    @Path("insertfeedback")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response insertfeedback(@Context UriInfo context, FeedbackRqt feedbackRqt) {
-        try {
 
-            //TODO controllare se feedback esiste da relazione 
-            //TODO cambiare stato relazione
-            int i = UserRepository.addFeedback(feedbackRqt, ds);
-            return Response.ok().build();
-        } catch (SQLException ex) {
-
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
-
-    @POST
-    @Path("possibilitainserirefeedback")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response possibilitainserirefeedback(@Context UriInfo context, String payload) {
-        try (Connection connection = ds.getConnection()) {
-            JSONObject obj = new JSONObject(payload);
-            int utente_1 = obj.getInt("passeggero");
-            int utente_2 = obj.getInt("autista");
-            int id_tappa = obj.getInt("id_tappa");
-            Tratta_auto tratta_auto = RouteRepository.getTravelDetail(id_tappa, id_tappa, ds);
-            Relazione relazione = UserRepository.getRelazione(utente_1, utente_2, ds);
-
-            if (relazione != null) {
-                switch (relazione.getDa_valutare()) {
-                    case 0: {
-                        int i = UserRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza(), ds);
-                        return Response.ok(new Gson().toJson(0)).build();
-                    }
-                    case 1: {
-                        Timestamp timestamp = relazione.getDa_valutare_data();
-                        if (tratta_auto.getOrario_partenza().after(timestamp)) {
-                            int i = UserRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza(), ds);
-                            return Response.ok(new Gson().toJson(0)).build();
-                        }
-                        return Response.ok(new Gson().toJson(1)).build();
-                    }
-                    case 2: {
-                        return Response.ok(new Gson().toJson(2)).build();
-                    }
-                    case 3: {
-                        return Response.ok(new Gson().toJson(3)).build();
-
-                    }
-                }
-            } else {
-                throw new ObjectNotFound();
-            }
-            return Response.ok(new Gson().toJson(0)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        } catch (JSONException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        } catch (ObjectNotFound ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
 
 
     @PUT
@@ -322,50 +237,7 @@ public class ControllerUtenti {
         }
     }
 
-    @POST
-    @Path(value = "checkispossibleinsertfeedback")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    public Response checkispossibleinsertfeedback(@Context final UriInfo context, final String payload) {
-        try {
-            JSONObject obj = new JSONObject(payload);
-            int mittente = obj.getInt("mittente");
-            int destinatario = obj.getInt("destinatario");
-            Relazione relazione = UserRepository.getRelazione(mittente, destinatario, ds);
-            if (relazione != null) {
-                switch (relazione.getDa_valutare()) {
-                    case 0: {
-                        return Response.ok(new Gson().toJson(0)).build();
-                    }
-                    case 1: {
-                        Date date = new Date();
-                        Timestamp timestamp = relazione.getDa_valutare_data();
-                        if (timestamp.after(new Timestamp(date.getTime()))) {
-                            return Response.ok(new Gson().toJson(2)).build();
-                        } else {
-                            return Response.ok(new Gson().toJson(1)).build();
-                        }
-                    }
-                    case 2: {
-                        return Response.ok(new Gson().toJson(2)).build();
-                    }
-                    case 3: {
-                        return Response.ok(new Gson().toJson(3)).build();
 
-                    }
-                }
-            } else {
-                throw new ObjectNotFound();
-            }
-            return Response.ok(new Gson().toJson(0)).build();
-        } catch (SQLException | JSONException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        } catch (ObjectNotFound ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.ok(new Gson().toJson(0)).build();
-        }
-
-    }
 
     /*
     @POST

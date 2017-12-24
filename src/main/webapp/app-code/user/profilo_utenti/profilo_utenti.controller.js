@@ -5,9 +5,9 @@ angular
   .module('app')
   .controller('ProfiloController', ProfiloController);
 
-        ProfiloController.$inject = ['$timeout','UserService','FlashService','$location','$routeParams','$store','AuthenticationService'];
+        ProfiloController.$inject = ['$timeout','FeedbackService','UserService','FlashService','$location','$routeParams','$store','AuthenticationService'];
 
-function ProfiloController($timeout,UserService,FlashService,$location,$routeParams,$store,AuthenticationService){
+function ProfiloController($timeout,FeedbackService,UserService,FlashService,$location,$routeParams,$store,AuthenticationService){
     var vm = this;
     vm.utente = $store.get('utente');
     $('body,html').animate({scrollTop:0},800);
@@ -38,7 +38,7 @@ function ProfiloController($timeout,UserService,FlashService,$location,$routePar
                 vm.numbertravel=response.res.data;
             }
         });
-        UserService.GetFeedback(vm.id).then(function(response) {          
+        FeedbackService.GetFeedback(vm.id).then(function(response) {          
             if(response.success===false){
                 $location.path('/error');
             }

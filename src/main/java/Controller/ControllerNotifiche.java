@@ -10,6 +10,7 @@ import Model.ModelDB.Notifica;
 import Model.ModelDB.Tratta_auto;
 import Model.Request.NotificaRqt;
 import Model.Response.NotificaRes;
+import Repository.NotificationRepository;
 import Repository.RouteRepository;
 import Repository.UserRepository;
 import com.google.gson.Gson;
@@ -62,21 +63,20 @@ public class ControllerNotifiche {
     @Path("getnotifiche/{id: [0-9]+}")
     public Response getnotifiche(@PathParam("id") int id) {
         try {
-            List<NotificaRes> notificaRes = UserRepository.getNotifiche(id, ds);
+            List<NotificaRes> notificaRes = NotificationRepository.getNotifiche(id, ds);
             return Response.ok(new Gson().toJson(notificaRes)).build();
         } catch (SQLException ex) {
             //Utilita.Utilita.segErrore(ex, ds);
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
-
     }
 
     @DELETE
     @Path("deletenotification/{id: [0-9]+}")
     public Response delete(@PathParam("id") int id) {
         try {
-            Notifica notifica = UserRepository.getNotifica(id, ds);
+            Notifica notifica = NotificationRepository.getNotifica(id, ds);
             if (notifica == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else if (notifica.getStato() == 2 || notifica.getStato() == 3) {
@@ -87,16 +87,14 @@ public class ControllerNotifiche {
                 if (notifica.getFine_validita().before(timestamp)) {
                     return Response.status(Response.Status.GONE).build();
                 } else {
-                    int i = UserRepository.eliminaNotifica(id, ds);
+                    int i = NotificationRepository.eliminaNotifica(id, ds);
                     if (i == 0) {
                         return Response.status(Response.Status.NOT_FOUND).build();
                     } else {
                         return Response.noContent().build();
                     }
                 }
-
             }
-
         } catch (SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
@@ -124,7 +122,7 @@ public class ControllerNotifiche {
                     break;
                 }
                 case 7: {
-                    UserRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia(), ds);
+                    NotificationRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia(), ds);
                     Tratta_auto tratta_auto = RouteRepository.getTravelDetail(notifica.getId_partenza(), notifica.getId_arrivo(), ds);
                     Calendar calendar = Calendar.getInstance();
                     //notifica.setInizio_validita(tratta_auto.getOrario_partenza());
@@ -141,7 +139,7 @@ public class ControllerNotifiche {
                 }
             }
             //UserRepository.eliminaNotifica(notifica.getId(), ds);
-            int id = UserRepository.insertNotifica(notifica, ds);
+            int id = NotificationRepository.insertNotifica(notifica, ds);
             return Response.ok(new Gson().toJson(id)).build();
         } catch (JSONException | SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
@@ -157,7 +155,7 @@ public class ControllerNotifiche {
     @Path("notificationnumber/{id: [0-9]+}")
     public Response notificationnumber(@PathParam("id") int id) {
         try {
-            int notificationNumber = UserRepository.getNoticationNumber(id, ds);
+            int notificationNumber = NotificationRepository.getNoticationNumber(id, ds);
             return Response.ok(new Gson().toJson(notificationNumber)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);

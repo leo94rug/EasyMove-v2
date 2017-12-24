@@ -50,7 +50,7 @@
                                     </div>
                                 </div>
                             </div>
-                                            <div ng-if="vm.amicizia === 'true'">
+                                            <div ng-if="vm.amicizia === 1">
 
                             <md-button class="md-primary md-raised" style="width: 200px;height: 0px;" ng-click="vm.showAlert($event)">
                                 <p>Visualiazza numero</p>
@@ -68,7 +68,7 @@
                         <md-card-title-media >
                             <div class="md-media-lg card-media aaa" >
                                 <p class="aaa"><b>Nome:</b> {{vm.utenteProfilo.nome}}</p>
-                                <div ng-if="vm.amicizia === 'true'">
+                                <div ng-if="vm.amicizia === 1 || vm.amicizia === 2">
                                 <p class="aaa"><b>Cognome:</b> {{vm.utenteProfilo.cognome}}</p>
                                 </div>
                                 <p class="aaa"><b>Età:</b> {{vm.utenteProfilo.eta}}</p>
@@ -80,15 +80,15 @@
                         </md-card-title-media>
                     </md-card-title>
                     <md-card-actions layout="row" layout-align="end center">
-                        <md-button ng-click="vm.visualizzautente(vm.utenteProfilo.email)">Visualizza profilo</md-button>
+                        <md-button ng-click="vm.visualizzautente(vm.utenteProfilo.id)">Visualizza profilo</md-button>
                     </md-card-actions>
                 </md-card>
-                <div ng-if="vm.amicizia === false">
+                <div ng-if="vm.amicizia === 0">
                     <md-button ng-disabled=vm.disabled class="md-primary md-raised" ng-click="vm.richiestaAmicizia($event)"  >
                         PRENOTA
                     </md-button>
                 </div>
-                <div ng-if="vm.amicizia === true">
+                <div ng-if="vm.amicizia === 1">
                     <form ng-submit="vm.prenota()" role="form" name="offer" ng-cloak>
                         <md-input-container>
                             <md-select ng-model="vm.posti" required name="sub" placeholder="Posti">
@@ -114,14 +114,14 @@
                 <div class="two-third left" style="min-width: 270px;">
                     <h2>Feedback</h2>
                     <div class="options-block box fontPhone2">
-                        <a ng-repeat="feed in vm.feedback.feedback" ng-href="profilo-utenti/{{feed.anagrafica.email}}" >
+                        <a ng-repeat="feed in vm.feedback.listaFeedback" ng-href="profilo-utenti/{{feed.utente.id}}" >
                             <md-list-item  class="md-3-line " style="min-height: 150px;" >
                                 <div style="
                                     min-height: 150px;  
                                     width: 80px;  
                                     display: -webkit-flex;
                                     display: flex;">
-                                    <img data-ng-src="{{feed.anagrafica.foto_utente}}" class="md-avatar" style="
+                                    <img data-ng-src="{{feed.utente.foto_utente}}" class="md-avatar" style="
                                         width: 80px;
                                         height: 80px;
                                         margin: auto;">
@@ -136,20 +136,20 @@
                                     flex-direction: column;
                                     ">
                                     <div style="-webkit-flex: 1;flex: 1;">
-                                        <p style="padding: 0px !important; ">Feedback inserito da: {{feed.anagrafica.nome}} il {{feed.feedback.data | date : "d.M.y"}}</p>
+                                        <p style="padding: 0px !important; ">Feedback inserito da: {{feed.utente.nome}} il {{feed.dateString | date : "d.M.y"}}</p>
                                     </div>
                                     <div style="-webkit-flex: 1;flex: 1;">
-                                        <i>{{feed.feedback.testo}}</i>
+                                        <i>{{feed.testo}}</i>
                                     </div>
                                     <div style="-webkit-flex: 1;flex: 1;display: flex;">
                                         <div style="margin-right: 15px;margin-top: 3px;">
-                                            <img class="icona_piccola" ng-src="images/volante.png" style="width: 33px;"> {{feed.feedback.valutazione_guida}}
+                                            <img class="icona_piccola" ng-src="images/volante.png" style="width: 33px;"> {{feed.valutazione_guida}}
                                         </div>
                                         <div style="margin-right: 15px;">
-                                            <img  class="icona_piccola" ng-src="images/sbeglia.png"> {{feed.feedback.valutazione_puntualita}}
+                                            <img  class="icona_piccola" ng-src="images/sbeglia.png"> {{feed.valutazione_puntualita}}
                                         </div>
                                         <div style="margin-right: 15px;">
-                                            <img  class="icona_piccola" ng-src="images/smile.png"> {{feed.feedback.valutazione_disponibilita}}
+                                            <img  class="icona_piccola" ng-src="images/smile.png"> {{feed.valutazione_disponibilita}}
                                         </div>
                                     </div>
                                 </div>

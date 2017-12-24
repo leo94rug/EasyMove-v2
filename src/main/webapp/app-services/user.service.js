@@ -22,28 +22,18 @@
         service.UpdateImage = UpdateImage;
         service.DeleteCar = DeleteCar;
         service.GetProfilo = GetProfilo;
-        service.GetFeedback = GetFeedback;
         service.GetViaggi = GetViaggi;
         service.GetPercorsi = GetPercorsi; 
         service.CreateCar = CreateCar;
         service.CheckFriend = CheckFriend;
         service.TravelNumber=TravelNumber;
         service.Check=Check;
-        service.possibilitaInserireFeedback=possibilitaInserireFeedback;
-        service.checkIsPossibleInsertFeedback=checkIsPossibleInsertFeedback;
         service.GetPrenotazioni=GetPrenotazioni;
         service.Prenotazione=Prenotazione;
-        service.InsertFeedback=InsertFeedback;
         return service;
 
         function GetPrenotazioni(id){
             return $http.get(host + 'rest/user/getprenotazioni/' + id).then(handleSuccess, handleError);
-        }
-        function checkIsPossibleInsertFeedback(item){
-            return $http.post(host + 'rest/user/checkispossibleinsertfeedback', item, config).then(handleSuccess, handleError);            
-        }
-        function possibilitaInserireFeedback(item){
-            return $http.post(host + 'rest/user/possibilitainserirefeedback', item, config).then(handleSuccess, handleError);            
         }
         function CheckFriend(user1,user2){
             return $http.get(host + 'rest/user/checkfriend/' + user1 + '/' + user2).then(handleSuccess, handleError);
@@ -56,10 +46,7 @@
         }
         function GetProfilo(email) {
             return $http.get(host + 'rest/user/getprofilo/' + email).then(handleSuccess, handleError);
-        }        
-        function GetFeedback(email) {
-            return $http.get(host + 'rest/user/getfeedback/' + email).then(handleSuccess, handleError);
-        }        
+        }               
         function GetViaggi(email) {
             return $http.get(host + 'rest/user/getviaggi/' + email).then(handleSuccess, handleError);
         }           
@@ -87,12 +74,6 @@
         function DeleteCar(id) {
             return $http.delete(host + 'rest/user/deletecar/' + id).then(handleSuccess, handleError);
         }
-        function InsertFeedback(feedback){
-            debugger;
-            return $http.post(host + 'rest/user/insertfeedback', feedback, config).then(handleSuccess, handleError);
-        }            
-
-        
         function TravelNumber(email) {
             return $http.get(host + 'rest/user/travelnumber/' + email).then(handleSuccess, handleError);
         }        

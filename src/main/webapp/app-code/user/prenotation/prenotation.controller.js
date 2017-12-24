@@ -11,8 +11,8 @@
   $mdThemingProvider.theme('dark-blue').backgroundPalette('blue').dark();
 });
 
-    PrenotationController.$inject = ['$timeout','NotificationsService','$scope','$store', 'RouteService','$location','UserService', '$rootScope', 'FlashService','$routeParams','$mdDialog','AuthenticationService'];
-    function PrenotationController($timeout,NotificationsService,$scope,$store,RouteService, $location,UserService, $rootScope, FlashService,$routeParams,$mdDialog,AuthenticationService) {
+    PrenotationController.$inject = ['$timeout','FeedbackService','NotificationsService','$scope','$store', 'RouteService','$location','UserService', '$rootScope', 'FlashService','$routeParams','$mdDialog','AuthenticationService'];
+    function PrenotationController($timeout,FeedbackService,NotificationsService,$scope,$store,RouteService, $location,UserService, $rootScope, FlashService,$routeParams,$mdDialog,AuthenticationService) {
         var vm = this;
         vm.tratta1=$routeParams.tratta1;
         vm.tratta2=$routeParams.tratta2;
@@ -29,6 +29,86 @@
             { category: 'posti', name: '4',value:4 },
         ];      
         initialize();
+        function initialize(){
+            vm.utente = $store.get('utente');
+            $('body,html').animate({scrollTop:0},800);
+            vm.disabled=false;
+            vm.messaggio="";
+            if (vm.utente) {
+                RouteService.GetDettaglioPercorso(vm.tratta1,vm.tratta2).then(function(response) {
+                    if(response.success===false){
+                        $location.path('/error');
+                    }
+                    else{
+                        vm.dettaglioPercorso=response.res.data;
+                        vm.dettaglioPercorso.orario_partenza = Date.createFromMysql(vm.dettaglioPercorso.orario_partenza_string);
+                        RouteService.GetPercorso(vm.dettaglioPercorso.viaggio_fk).then(function(response) {
+                            if(response.success===false){
+                                $location.path('/error');
+                            }
+                            else{
+                                vm.percorso=response.res.data;
+                                vm.stringaPercorso="";
+                                for(var i=0;i<vm.percorso.length;i++){
+                                    vm.stringaPercorso += vm.percorso[i].denominazione_partenza;
+                                    vm.stringaPercorso += " -> ";
+                                    if(i==vm.percorso.length-1){
+                                        vm.stringaPercorso += vm.percorso[i].denominazione_arrivo;
+                                    }
+                                }
+                            }
+                        });
+                        RouteService.GetViaggio(vm.dettaglioPercorso.viaggio_fk).then(function(response){
+                            if(response.success===false){
+                                $location.path('/error');
+                            }
+                            else{
+                                vm.viaggio=response.res.data;
+                                UserService.GetProfilo(vm.viaggio.utente_fk).then(function(response){
+                                    if(response.success===false){
+                                        $location.path('/error');
+                                    }
+                                    else{
+                                        vm.utenteProfilo=response.res.data;
+                                        UserService.TravelNumber(vm.utenteProfilo.id).then(function (response) {
+                                            if(response.success===false){
+                                                $location.path('/error');
+                                            }
+                                            else{
+                                                vm.numbertravel=response.res.data;
+                                            }
+                                        });
+                                        FeedbackService.GetFeedback(vm.utenteProfilo.id).then(function(response) {          
+                                            if(response.success===false){
+                                                $location.path('/error');
+                                            }
+                                            else{
+                                                vm.feedback=response.res.data;
+                                                vm.feedback.listaFeedback.forEach( function (arrayItem){
+                                                    arrayItem.dateString = Date.createFromMysql(arrayItem.dateString);
+                                                });
+                                                debugger;
+                                            }    
+                                        });
+                                        UserService.CheckFriend(vm.utenteProfilo.id,vm.utente.id).then(function(response){
+                                            if(response.success===false){
+                                                $location.path('/error');
+                                            }
+                                            else{  
+                                                vm.amicizia=response.res.data;
+                                            }
+                                        });
+                                    }
+                                });
+                            }                            
+                        });
+                    }
+                });
+            }
+            else {
+                $location.path('/');
+            }
+       }
         $timeout(function(){
             var myEl = angular.element( document.querySelector( '#headerSearch' ) );
             myEl.addClass('active');           
@@ -134,81 +214,5 @@
           }
           return result;   
         }
-        function initialize(){
-            vm.utente = $store.get('utente');
-            $('body,html').animate({scrollTop:0},800);
-            vm.disabled=false;
-            vm.messaggio="";
-            if (vm.utente) {
-                RouteService.GetDettaglioPercorso(vm.tratta1,vm.tratta2).then(function(response) {
-                    if(response.success===false){
-                        $location.path('/error');
-                    }
-                    else{
-                        vm.dettaglioPercorso=response.res.data;
-                        vm.dettaglioPercorso.orario_partenza = Date.createFromMysql(vm.dettaglioPercorso.orario_partenza_string);
-                        RouteService.GetPercorso(vm.dettaglioPercorso.viaggio_fk).then(function(response) {
-                            if(response.success===false){
-                                $location.path('/error');
-                            }
-                            else{
-                                vm.percorso=response.res.data;
-                                vm.stringaPercorso="";
-                                for(var i=0;i<vm.percorso.length;i++){
-                                    vm.stringaPercorso += vm.percorso[i].denominazione_partenza;
-                                    vm.stringaPercorso += " -> ";
-                                    if(i==vm.percorso.length-1){
-                                        vm.stringaPercorso += vm.percorso[i].denominazione_arrivo;
-                                    }
-                                }
-                            }
-                        });
-                        RouteService.GetViaggio(vm.dettaglioPercorso.viaggio_fk).then(function(response){
-                            if(response.success===false){
-                                $location.path('/error');
-                            }
-                            else{
-                                vm.viaggio=response.res.data;
-                                UserService.GetProfilo(vm.viaggio.utente_fk).then(function(response){
-                                    if(response.success===false){
-                                        $location.path('/error');
-                                    }
-                                    else{
-                                        vm.utenteProfilo=response.res.data;
-                                        UserService.TravelNumber(vm.utenteProfilo.id).then(function (response) {
-                                            if(response.success===false){
-                                                $location.path('/error');
-                                            }
-                                            else{
-                                                vm.numbertravel=response.res.data;
-                                            }
-                                        });
-                                        UserService.GetFeedback(vm.utenteProfilo.id).then(function(response) {          
-                                            if(response.success===false){
-                                                $location.path('/error');
-                                            }
-                                            else{
-                                                vm.feedback=response.res.data;
-                                            }    
-                                        });
-                                        UserService.CheckFriend(vm.utenteProfilo.id,vm.utente.id).then(function(response){
-                                            if(response.success===false){
-                                                $location.path('/error');
-                                            }
-                                            else{  
-                                                vm.amicizia=response.res.data;
-                                            }
-                                        });
-                                    }
-                                });
-                            }                            
-                        });
-                    }
-                });
-            }
-            else {
-                $location.path('/');
-            }
-       }
     }
 })();

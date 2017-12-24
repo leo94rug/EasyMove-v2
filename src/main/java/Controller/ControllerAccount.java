@@ -50,7 +50,6 @@ public class ControllerAccount {
     private DataSource ds;
     @Context
     private UriInfo context;
-
     /**
      * Creates a new instance of ControllerAccount
      */
@@ -66,7 +65,7 @@ public class ControllerAccount {
             JSONObject obj = new JSONObject(payload);
             String email = obj.getString("email");
             String password = Crypt.encrypt(obj.getString("password"));
-            UtenteRes utenteRes = UserRepository.getUtente(email, password, ds);
+            UtenteRes utenteRes = UserRepository.getUtente(email, password,ds);
             if (utenteRes != null) {
                 //String token = Utilita.MyToken.getToken(email);
                 utenteRes.calcolaEta();
@@ -76,16 +75,7 @@ public class ControllerAccount {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-        } catch (JSONException |
-                SQLException |
-                BadPaddingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                InvalidKeyException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
-        } catch (Exception ex) {
+        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
         }

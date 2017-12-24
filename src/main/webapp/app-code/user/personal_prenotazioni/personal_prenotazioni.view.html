@@ -10,8 +10,8 @@
                 </div>
                 <div ng-if="vm.prenotazioni.length!=0" style="    display: flow-root;">
                     <div ng-repeat="route in vm.prenotazioni" class="two-third">
-                        <a ng-href="profilo-utenti/{{route.utente.id}}">
-                            <md-list-item  class="md-3-line">
+                            <a ng-href="prenotation/{{route.id_partenza}}/{{route.id_arrivo}}">
+                                <md-list-item  class="md-3-line">
                                 <img data-ng-src="{{route.utente.foto_utente}}" class="md-avatar" style="width: 70px;height: 70px;">
                                 <!--<md-divider class="vertical-divider" style="width: 11%;"></md-divider>-->
                                 <div class="md-list-item-text" style="text-align: left;margin-left: 15px;margin-right: 32px;">
