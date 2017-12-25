@@ -25,13 +25,16 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
-import javax.ws.rs.core.Context;
+//import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang.RandomStringUtils;
@@ -53,7 +56,23 @@ public class ControllerAccount {
     /**
      * Creates a new instance of ControllerAccount
      */
-    public ControllerAccount() {
+    UserRepository userRepository = null;
+    /**
+     * Creates a new instance of ControllerUtenti
+     */
+    public ControllerAccount()  {
+        DataSource ds = null;
+        try {
+                 //Context initCtx = (Context) new InitialContext().lookup("java:comp/env");
+
+     // Get data source
+     //ds = (DataSource) initCtx.lookup("jdbc/webdb2");
+            ds = (javax.sql.DataSource) new InitialContext().lookup("java:/comp/env/jdbc/webdb2");
+        } catch (NamingException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        userRepository= new UserRepository(ds);
     }
 
     @POST
@@ -61,12 +80,13 @@ public class ControllerAccount {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(@Context UriInfo context, String payload) {
         try {
+            DataSource ds = (javax.sql.DataSource) new InitialContext().lookup("java:/comp/env/jdbc/webdb2");
 
             
             JSONObject obj = new JSONObject(payload);
             String email = obj.getString("email"); 
             String password = Crypt.encrypt(obj.getString("password"));
-            UtenteRes utenteRes = UserRepository.getUtente(email, password,ds);
+            UtenteRes utenteRes = userRepository.getUtente(email, password);
             if (utenteRes != null) {
                 //String token = Utilita.MyToken.getToken(email);
                 utenteRes.calcolaEta();
@@ -76,9 +96,10 @@ public class ControllerAccount {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+        }  catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+
         }
     }
 

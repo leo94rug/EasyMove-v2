@@ -39,6 +39,8 @@ import javax.annotation.Resource;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -67,11 +69,14 @@ public class ControllerUtenti {
     private DataSource ds;
     @Context
     private UriInfo context;
-
+    UserRepository userRepository = null;
     /**
      * Creates a new instance of ControllerUtenti
      */
-    public ControllerUtenti() {
+    public ControllerUtenti() throws NamingException {
+                DataSource ds = (javax.sql.DataSource) new InitialContext().lookup("jdbc/webdb2");
+
+        userRepository= new UserRepository(ds);
     }
 
     @GET
@@ -167,7 +172,7 @@ public class ControllerUtenti {
         try {
             String encript = Crypt.encrypt(user1);
             if (encript.equalsIgnoreCase(user2)) {
-                UserRepository.updateUserEmailStatus(user1, ds);
+                userRepository.updateUserEmailStatus(user1);
             }
             return Response.ok().build();
         } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
@@ -181,7 +186,7 @@ public class ControllerUtenti {
     @Produces({MediaType.APPLICATION_JSON})
     public Response checkfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
         try {
-            int friend = Repository.UserRepository.checkFriend(user1, user2, ds);
+            int friend = userRepository.checkFriend(user1, user2);
             return Response.ok(new Gson().toJson(friend)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);

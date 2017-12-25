@@ -19,6 +19,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 /**
@@ -26,6 +30,13 @@ import javax.sql.DataSource;
  * @author leo
  */
 public class UserRepository {
+
+    DataSource ds;
+
+    public UserRepository(DataSource dataSource) {
+        ds = dataSource;
+
+    }
 
     public static int deleteUser(int id, DataSource ds) throws SQLException {
         try (Connection connection = ds.getConnection()) {
@@ -144,7 +155,7 @@ public class UserRepository {
         }
     }
 
-    public static void updateUserEmailStatus(String user1, DataSource ds) throws SQLException {
+    public void updateUserEmailStatus(String user1) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "UPDATE utente SET tipo=1 WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -153,7 +164,7 @@ public class UserRepository {
         }
     }
 
-    public static int checkFriend(int user1, int user2, DataSource ds) throws SQLException {
+    public int checkFriend(int user1, int user2) throws SQLException {
         if (user1 == user2) {
             return 2;
         }
@@ -171,10 +182,8 @@ public class UserRepository {
         }
     }
 
-    public static UtenteRes getUtente(String email, String password, DataSource ds) throws SQLException {
+    public UtenteRes getUtente(String email, String password) throws SQLException, ClassNotFoundException, NamingException {
         try (Connection connection = ds.getConnection()) {
-            //Class.forName("com.mysql.jdbc.Driver");
-            //Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/easytravel2", "root", "");
             String query = "SELECT * FROM utente AS u WHERE email=? AND psw=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, email);

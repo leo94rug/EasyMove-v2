@@ -23,6 +23,7 @@ angular
                 vm.email=vm.loginUser.email;
             }
             AccountService.Login(vm.loginUser).then(function (response) {
+                debugger;
                 if(response.res.success===false){
                     vm.email=undefined;
                     
