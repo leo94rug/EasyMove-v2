@@ -110,7 +110,7 @@ public class ControllerAccount {
     @POST
     @Path("register")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response post2(@Context UriInfo context, String payload) {
+    public Response register(@Context UriInfo context, String payload) {
         UtenteRqt utenteRqt = null;
         try {
             JSONObject obj = new JSONObject(payload);
@@ -119,7 +119,7 @@ public class ControllerAccount {
                 return Response.status(Response.Status.CONFLICT).build();
             }
             int rsint = UserRepository.insertUser(utenteRqt, ds);
-            SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.CambiaPassword);
+            SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.ConfermaRegistrazione);
             msg.buildEmail(new String[]{utenteRqt.getEmail(), Crypt.encrypt(utenteRqt.getEmail())});
             msg.sendEmail(utenteRqt.getEmail());
             return Response.ok().build();

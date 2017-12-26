@@ -5,8 +5,8 @@
         .config(config)
         .run(run)
         .constant('CONFIG', {
-           // 'HOST' : 'http://easymove.me/',
-            'HOST' : 'http://localhost:8085/EasyMove-maven/'
+            'HOST' : 'http://easymove.me/',
+           // 'HOST' : 'http://localhost:8085/EasyMove-maven/'
         })        
         .config(function($mdDateLocaleProvider) {
             $mdDateLocaleProvider.formatDate = function(date) {
