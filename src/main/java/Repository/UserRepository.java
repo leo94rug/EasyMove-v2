@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 /**
@@ -27,7 +28,14 @@ import javax.sql.DataSource;
  */
 public class UserRepository {
 
-    public static int deleteUser(int id, DataSource ds) throws SQLException {
+    DataSource ds;
+
+    public UserRepository(DataSource dataSource) {
+        ds = dataSource;
+
+    }
+
+    public int deleteUser(int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("DELETE FROM utente WHERE id=?");
             ps.setInt(1, id);
@@ -35,7 +43,7 @@ public class UserRepository {
         }
     }
 
-    public static boolean existingUser(String email, DataSource ds) throws SQLException {
+    public boolean existingUser(String email) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT email FROM utente WHERE email=?");
             ps.setString(1, email);
@@ -44,7 +52,7 @@ public class UserRepository {
         }
     }
 
-    public static String getNomeCognome(int id, DataSource ds) throws SQLException {
+    public String getNomeCognome(int id) throws SQLException {
         String nome = "";
         try (Connection connection = ds.getConnection()) {
             String query = "SELECT nome,cognome FROM utente WHERE id=?";
@@ -58,7 +66,7 @@ public class UserRepository {
         }
     }
 
-    public static int updateUser(Utente anagrafica, int id, DataSource ds) throws SQLException {
+    public int updateUser(Utente anagrafica, int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "UPDATE utente SET "
                     + "cognome = ?, "
@@ -80,18 +88,19 @@ public class UserRepository {
         }
     }
 
-    public static List<Viaggio_autoRes> getViaggi(int utente_fk, DataSource ds) throws SQLException {
+    public List<Viaggio_autoRes> getViaggi(int utente_fk) throws SQLException {
         List<Viaggio_autoRes> viaggiolist = new ArrayList();
         java.util.Date utilDate = new java.util.Date();
         java.sql.Timestamp oggi = new java.sql.Timestamp(utilDate.getTime());
         try (Connection connection = ds.getConnection()) {
+            RouteRepository routeRepository = new RouteRepository(ds);
             String query = "SELECT * FROM viaggio_auto AS vi WHERE vi.utente_fk=? AND vi.visibile=1";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, utente_fk);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes(rs);
-                Tratta_auto tratte_auto = RouteRepository.getTravelDetailByEnum(viaggio_autoRes.getId(), ds);
+                Tratta_auto tratte_auto = routeRepository.getTravelDetailByEnum(viaggio_autoRes.getId());
                 viaggio_autoRes.setTratta_auto(tratte_auto);
                 viaggiolist.add(viaggio_autoRes);
             }
@@ -99,7 +108,7 @@ public class UserRepository {
         return viaggiolist;
     }
 
-    public static UtenteRes getUtente(int id, DataSource ds) throws SQLException {
+    public UtenteRes getUtente(int id) throws SQLException {
         UtenteRes utente = null;
         String query = "SELECT * FROM utente AS u WHERE u.id=?";
         try (Connection connection = ds.getConnection()) {
@@ -113,7 +122,7 @@ public class UserRepository {
         return utente;
     }
 
-    public static void setFriendship(int mittente, int destinatario, DataSource ds) throws SQLException {
+    public void setFriendship(int mittente, int destinatario) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "INSERT INTO relazione(utente_1, utente_2, approvato) VALUES (?,?,?)";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -129,7 +138,7 @@ public class UserRepository {
         }
     }
 
-    public static int getFermataSuccessiva(int i, int viaggio_fk, DataSource ds) throws SQLException {
+    public int getFermataSuccessiva(int i, int viaggio_fk) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "SELECT id FROM tratta_auto WHERE viaggio_fk=? AND enumerazione=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -139,12 +148,12 @@ public class UserRepository {
             if (rs.next()) {
                 return rs.getInt("id");
             } else {
-                return getFermataSuccessiva(i - 1, viaggio_fk, ds);
+                return getFermataSuccessiva(i - 1, viaggio_fk);
             }
         }
     }
 
-    public static void updateUserEmailStatus(String user1, DataSource ds) throws SQLException {
+    public void updateUserEmailStatus(String user1) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "UPDATE utente SET tipo=1 WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -153,7 +162,7 @@ public class UserRepository {
         }
     }
 
-    public static int checkFriend(int user1, int user2, DataSource ds) throws SQLException {
+    public int checkFriend(int user1, int user2) throws SQLException {
         if (user1 == user2) {
             return 2;
         }
@@ -171,10 +180,8 @@ public class UserRepository {
         }
     }
 
-    public static UtenteRes getUtente(String email, String password, DataSource ds) throws SQLException {
+    public UtenteRes getUtente(String email, String password) throws SQLException, ClassNotFoundException, NamingException {
         try (Connection connection = ds.getConnection()) {
-            //Class.forName("com.mysql.jdbc.Driver");
-            //Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/easytravel2", "root", "");
             String query = "SELECT * FROM utente AS u WHERE email=? AND psw=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, email);
@@ -188,7 +195,7 @@ public class UserRepository {
         }
     }
 
-    public static Utente getUtenteByEmail(String email, DataSource ds) throws SQLException {
+    public Utente getUtenteByEmail(String email) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM utente AS u WHERE email=? AND tipo!=0");
             ps.setString(1, email);
@@ -200,7 +207,7 @@ public class UserRepository {
         return null;
     }
 
-    public static boolean userConfirm(String email, DataSource ds) throws SQLException {
+    public boolean userConfirm(String email) throws SQLException {
         try (Connection connection = ds.getConnection()) {
 
             String query = "UPDATE utente SET tipo = 1 WHERE email=?";
@@ -210,7 +217,7 @@ public class UserRepository {
         }
     }
 
-    public static int insertUser(UtenteRqt utenteRqt, DataSource ds) throws SQLException {
+    public int insertUser(UtenteRqt utenteRqt) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO utente(email, nome, cognome, psw,professione, anno_nascita, sesso, tipo) VALUES (?,?,?,?,?,?,?,?)");
             ps.setString(1, utenteRqt.getEmail());
@@ -225,7 +232,7 @@ public class UserRepository {
         }
     }
 
-    public static int setPassword(int id, String new_psw_crypt, DataSource ds) throws SQLException {
+    public int setPassword(int id, String new_psw_crypt) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("UPDATE utente SET psw=? WHERE id=?");
             ps.setString(1, new_psw_crypt);
@@ -234,7 +241,7 @@ public class UserRepository {
         }
     }
 
-    public static int updateUtenteImage(int id, String immagine, DataSource ds) throws SQLException {
+    public int updateUtenteImage(int id, String immagine) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "UPDATE utente SET foto_utente = ? WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -244,7 +251,7 @@ public class UserRepository {
         }
     }
 
-    public static int getTravelNumber(int id, Date date, DataSource ds) throws SQLException {
+    public int getTravelNumber(int id, Date date) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "SELECT COUNT(viaggio_fk) AS numero FROM tratta_auto AS t "
                     + "JOIN viaggio_auto AS v ON t.viaggio_fk=v.id "
@@ -263,7 +270,7 @@ public class UserRepository {
         }
     }
 
-    public static Relazione getRelazione(int mittente, int destinatario, DataSource ds) throws SQLException {
+    public Relazione getRelazione(int mittente, int destinatario) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM relazione WHERE utente_1=? AND utente_2=?");
             ps.setInt(1, mittente);
@@ -277,7 +284,7 @@ public class UserRepository {
         }
     }
 
-    public static int updateRelazioneDaValutare(int utente_1, int utente_2, int index, Timestamp orario_partenza, DataSource ds) throws SQLException {
+    public int updateRelazioneDaValutare(int utente_1, int utente_2, int index, Timestamp orario_partenza) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=?,da_valutare_data=? WHERE utente_1=? AND utente_2=?");
             ps.setInt(1, index);
@@ -288,7 +295,7 @@ public class UserRepository {
         }
     }
 
-    public static int updateRelazioneDaValutare(int utente_1, int utente_2, int index, DataSource ds) throws SQLException {
+    public int updateRelazioneDaValutare(int utente_1, int utente_2, int index) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=? WHERE utente_1=? AND utente_2=?");
             ps.setInt(1, index);

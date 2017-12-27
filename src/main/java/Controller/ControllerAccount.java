@@ -18,6 +18,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -25,13 +27,20 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang.RandomStringUtils;
@@ -50,22 +59,96 @@ public class ControllerAccount {
     private DataSource ds;
     @Context
     private UriInfo context;
-    /**
-     * Creates a new instance of ControllerAccount
-     */
+    private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
+
     public ControllerAccount() {
+
     }
 
     @POST
-    @Path("login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response login(@Context UriInfo context, String payload) {
-        try {
+    @Path(value = "login")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void login(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doLogin(context, payload));
+        });
+    }
 
+    @PUT
+    @Path(value = "confermaemail")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void confermaEmail(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doConfermaEmail(context, payload));
+        });
+    }
+
+    @POST
+    @Path(value = "modificapsw")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void modificaPassword(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        Future<?> submit = executorService.submit(() -> {
+            asyncResponse.resume(doModificaPassword(context, payload, ds));
+        });
+    }
+
+    @POST
+    @Path(value = "register")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void register(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doRegister(context, payload));
+        });
+    }
+
+    @POST
+    @Path(value = "resendemail")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void resendEmail(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String email) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doResendEmail(context, email));
+        });
+    }
+
+    @POST
+    @Path(value = "recuperapsw")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void recuperopsw(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doRecuperoPassword(context, payload));
+        });
+    }
+
+    @GET
+    @Path(value = "check/{user1: [0-9]+}/{user2: [0-9]+}")
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public void updateEmailStatus(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "user1") final String user1, @PathParam(value = "user2") final String user2) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doUpdateEmailStatus(user1, user2));
+        });
+    }
+
+    private Response doUpdateEmailStatus(@PathParam("user1") String user1, @PathParam("user2") String user2) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
+            String encript = Crypt.encrypt(user1);
+            if (encript.equalsIgnoreCase(user2)) {
+                userRepository.updateUserEmailStatus(user1);
+            }
+            return Response.ok().build();
+        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private Response doLogin(@Context UriInfo context, String payload) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
             JSONObject obj = new JSONObject(payload);
             String email = obj.getString("email");
             String password = Crypt.encrypt(obj.getString("password"));
-            UtenteRes utenteRes = UserRepository.getUtente(email, password,ds);
+            UtenteRes utenteRes = userRepository.getUtente(email, password);
             if (utenteRes != null) {
                 //String token = Utilita.MyToken.getToken(email);
                 utenteRes.calcolaEta();
@@ -75,21 +158,42 @@ public class ControllerAccount {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException | ClassNotFoundException | NamingException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
+
         }
     }
 
-    @POST
-    @Path("modificapsw")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response modificapsw(@Context UriInfo context, String payload) {
+    private Response doConfermaEmail(@Context UriInfo context, String payload) {
         try {
+            UserRepository userRepository = new UserRepository(ds);
+            JSONObject obj = new JSONObject(payload);
+            String hash = obj.getString("hash");
+            String email = obj.getString("email");
+            if (Crypt.encrypt(email).equalsIgnoreCase(hash)) {
+                boolean result = userRepository.userConfirm(email);
+                if (result) {
+                    return Response.noContent().build();
+                } else {
+                    return Response.status(Response.Status.BAD_REQUEST).build();
+                }
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private Response doModificaPassword(@Context UriInfo context, String payload, DataSource ds) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
             JSONObject obj = new JSONObject(payload);
             int id = Integer.parseInt(obj.getString("id"));
             String new_psw_crypt = Crypt.encrypt(obj.getString("password"));
-            int i = UserRepository.setPassword(id, new_psw_crypt, ds);
+            int i = userRepository.setPassword(id, new_psw_crypt);
             if (i == 0) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else {
@@ -103,22 +207,20 @@ public class ControllerAccount {
                 IllegalBlockSizeException |
                 InvalidKeyException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
         }
     }
 
-    @POST
-    @Path("register")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response post2(@Context UriInfo context, String payload) {
+    private Response doRegister(@Context UriInfo context, String payload) {
         UtenteRqt utenteRqt = null;
+        UserRepository userRepository = new UserRepository(ds);
         try {
             JSONObject obj = new JSONObject(payload);
             utenteRqt = new UtenteRqt(obj);
-            if (Repository.UserRepository.existingUser(utenteRqt.getEmail(), ds)) {
+            if (userRepository.existingUser(utenteRqt.getEmail())) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
-            int rsint = UserRepository.insertUser(utenteRqt, ds);
+            int rsint = userRepository.insertUser(utenteRqt);
             SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.CambiaPassword);
             msg.buildEmail(new String[]{utenteRqt.getEmail(), Crypt.encrypt(utenteRqt.getEmail())});
             msg.sendEmail(utenteRqt.getEmail());
@@ -128,7 +230,7 @@ public class ControllerAccount {
                 SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             try {
-                Repository.UserRepository.deleteUser(utenteRqt.getId(), ds);
+                userRepository.deleteUser(utenteRqt.getId());
             } catch (SQLException ex1) {
                 Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex1);
             }
@@ -149,17 +251,30 @@ public class ControllerAccount {
         }
     }
 
-    @POST
-    @Path("recuperapsw")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response recuperopsw(@Context UriInfo context, String payload) {
+    private Response doResendEmail(@Context final UriInfo context, final String email) {
         try {
+            SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.CambiaPassword);
+            msg.buildEmail(new String[]{email, Crypt.encrypt(email)});
+            msg.sendEmail(email);
+            return Response.ok().build();
+        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415
+        } catch (MessagingException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Impossibile inviare l'email").build(); //415
+        }
+    }
+
+    private Response doRecuperoPassword(@Context UriInfo context, String payload) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
             String email = payload;
             String new_psw = RandomStringUtils.randomAlphabetic(6);
             String new_psw_crypt = Crypt.encrypt(new_psw);
-            Utente utente = UserRepository.getUtenteByEmail(email, ds);
+            Utente utente = userRepository.getUtenteByEmail(email);
             if (utente != null) {
-                int i = UserRepository.setPassword(utente.getId(), new_psw_crypt, ds);
+                int i = userRepository.setPassword(utente.getId(), new_psw_crypt);
                 if (i == 0) {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 } else {
@@ -171,58 +286,15 @@ public class ControllerAccount {
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-
         } catch (SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415           
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
         } catch (MessagingException ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Impossibile inviare l'email").build(); //415           
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Impossibile inviare l'email").build(); //415
         } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415           
-        }
-    }
-
-    @POST
-    @Path(value = "resendemail")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    public Response resendemail(@Context final UriInfo context, final String email) {
-        try {
-            SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.CambiaPassword);
-            msg.buildEmail(new String[]{email, Crypt.encrypt(email)});
-            msg.sendEmail(email);
-            return Response.ok().build();
-        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
-            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415           
-        } catch (MessagingException ex) {
-            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Impossibile inviare l'email").build(); //415           
-        }
-    }
-
-    @PUT
-    @Path("confermaemail")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response confermaemail(@Context UriInfo context, String payload) {
-        try {
-            JSONObject obj = new JSONObject(payload);
-            String hash = obj.getString("hash");
-            String email = obj.getString("email");
-            if (Crypt.encrypt(email).equalsIgnoreCase(hash)) {
-                boolean result = UserRepository.userConfirm(email, ds);
-                if (result) {
-                    return Response.noContent().build();
-                } else {
-                    return Response.status(Response.Status.BAD_REQUEST).build();
-                }
-            } else {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415
         }
     }
 

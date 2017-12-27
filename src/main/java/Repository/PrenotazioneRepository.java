@@ -30,16 +30,22 @@ import javax.sql.DataSource;
  */
 public class PrenotazioneRepository {
 
-    public static void setPrenotation(PrenotazioneRqt prenotazione, DataSource ds) throws SQLException {
+    DataSource ds;
+
+    public PrenotazioneRepository(DataSource dataSource) {
+        ds = dataSource;
+    }
+
+    public void setPrenotation(PrenotazioneRqt prenotazione) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "INSERT INTO " + PRENOTAZIONE + 
-                    "(" + AUTISTA
-                    +", "+ PASSEGGERO 
-                    +", "+ ID_PARTENZA
-                    +", "+ ID_ARRIVO
-                    +", "+ POSTI
-                    +", "+ PREZZO
-                    +") VALUES (?,?,?,?,?,?)";
+            String query = "INSERT INTO " + PRENOTAZIONE
+                    + "(" + AUTISTA
+                    + ", " + PASSEGGERO
+                    + ", " + ID_PARTENZA
+                    + ", " + ID_ARRIVO
+                    + ", " + POSTI
+                    + ", " + PREZZO
+                    + ") VALUES (?,?,?,?,?,?)";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, prenotazione.getAutista());
             ps.setInt(2, prenotazione.getPasseggero());
@@ -50,8 +56,10 @@ public class PrenotazioneRepository {
             ps.executeUpdate();
         }
     }
-        public static void setPrenotation(int messaggio, int id_partenza, int id_arrivo, DataSource ds) throws SQLException {
+
+    public void setPrenotation(int messaggio, int id_partenza, int id_arrivo) throws SQLException {
         try (Connection connection = ds.getConnection()) {
+            UserRepository userRepository = new UserRepository(ds);
             String query = "SELECT * FROM tratta_auto WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id_partenza);
@@ -59,7 +67,7 @@ public class PrenotazioneRepository {
             while (rs.next()) {
                 int enumerazione = rs.getInt("enumerazione");
                 int viaggio_fk = rs.getInt("viaggio_fk");
-                int id_tratta_successiva = UserRepository.getFermataSuccessiva(enumerazione + 1, viaggio_fk, ds);
+                int id_tratta_successiva = userRepository.getFermataSuccessiva(enumerazione + 1, viaggio_fk);
                 int posti = rs.getInt("posti");
                 int posti_aggiornato = posti - messaggio;
                 if (posti_aggiornato < 0) {
@@ -78,20 +86,23 @@ public class PrenotazioneRepository {
             }
         }
     }
-    public static int getDisponibilitaPrenotazione(PrenotazioneRqt prenotazione,DataSource ds) throws SQLException {
-        int posti=RouteRepository.calcoloPosti(prenotazione.getId_partenza(),prenotazione.getId_arrivo(),ds);
-        if(posti==-1){
+
+    public int getDisponibilitaPrenotazione(PrenotazioneRqt prenotazione) throws SQLException {
+        RouteRepository routeRepository = new RouteRepository(ds);
+        int posti = routeRepository.calcoloPosti(prenotazione.getId_partenza(), prenotazione.getId_arrivo());
+        if (posti == -1) {
             return -1;
-        } else if(posti<prenotazione.getPosti()){
+        } else if (posti < prenotazione.getPosti()) {
             return 0;
-        }
-        else{
+        } else {
             return 1;
         }
     }
 
-    public static List<PrenotazioneRes> getPrenotazione(int id, DataSource ds) throws SQLException {
-         List<PrenotazioneRes> prenotazioni = new ArrayList<>();
+    public List<PrenotazioneRes> getPrenotazione(int id) throws SQLException {
+        List<PrenotazioneRes> prenotazioni = new ArrayList<>();
+        UserRepository userRepository = new UserRepository(ds);
+        RouteRepository routeRepository = new RouteRepository(ds);
         try (Connection connection = ds.getConnection()) {
             String query = "SELECT * FROM " + PRENOTAZIONE + "  WHERE " + PASSEGGERO + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -99,13 +110,13 @@ public class PrenotazioneRepository {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 PrenotazioneRes prenotazione = new PrenotazioneRes(rs);
-                Tratta_auto tratta_auto =RouteRepository.getTravelDetail(prenotazione.getId_partenza(),prenotazione.getId_arrivo(),ds);
+                Tratta_auto tratta_auto = routeRepository.getTravelDetail(prenotazione.getId_partenza(), prenotazione.getId_arrivo());
                 prenotazione.setTratte_auto(tratta_auto);
-                Utente utente = UserRepository.getUtente(prenotazione.getAutista(), ds);
+                Utente utente = userRepository.getUtente(prenotazione.getAutista());
                 prenotazione.setUtente(utente);
                 prenotazioni.add(prenotazione);
             }
             return prenotazioni;
-        }    
+        }
     }
 }

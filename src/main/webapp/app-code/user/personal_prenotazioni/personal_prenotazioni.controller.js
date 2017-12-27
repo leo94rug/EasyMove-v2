@@ -5,8 +5,8 @@
         .module('app')
         .controller('PersonalPrenotazioniController', PersonalPrenotazioniController);
 
-    PersonalPrenotazioniController.$inject = ['$timeout','UserService', '$location', '$store', 'FlashService','AuthenticationService'];
-    function PersonalPrenotazioniController($timeout,UserService, $location, $store, FlashService,AuthenticationService) {
+    PersonalPrenotazioniController.$inject = ['$timeout','PrenotationService', '$location', '$store', 'FlashService','AuthenticationService'];
+    function PersonalPrenotazioniController($timeout,PrenotationService, $location, $store, FlashService,AuthenticationService) {
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.initialize=initialize;
@@ -32,7 +32,7 @@
 
         function initialize(){
             vm.utente = $store.get('utente');
-            UserService.GetPrenotazioni(vm.utente.id).then(function (response) {
+            PrenotationService.GetPrenotazioni(vm.utente.id).then(function (response) {
                 if(response.success===false){                    
                     $location.path('/error');
                 }

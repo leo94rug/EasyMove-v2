@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -32,6 +33,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.json.JSONException;
@@ -47,6 +50,7 @@ public class ControllerNotifiche {
 
     @Context
     private UriInfo context;
+    private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
 
     /**
      * Creates a new instance of ControllerNotifiche
@@ -57,13 +61,57 @@ public class ControllerNotifiche {
     @Resource(name = "jdbc/webdb2")
     private DataSource ds;
 
-
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    @Path("getnotifiche/{id: [0-9]+}")
-    public Response getnotifiche(@PathParam("id") int id) {
+    @Path("notificationnumber/{id: [0-9]+}")
+    public void notificationnumber(@Suspended
+            final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doNotificationnumber(id));
+        });
+    }
+
+    @POST
+    @Path(value = "invianotifica")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void invianotifica(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doInvianotifica(context, payload));
+        });
+    }
+
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    @Path(value = "getnotifiche/{id: [0-9]+}")
+    public void getnotifiche(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doGetnotifiche(id));
+        });
+    }
+
+    @DELETE
+    @Path(value = "deletenotification/{id: [0-9]+}")
+    public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doDelete(id));
+        });
+    }
+
+    private Response doNotificationnumber(@PathParam("id") int id) {
         try {
-            List<NotificaRes> notificaRes = NotificationRepository.getNotifiche(id, ds);
+            NotificationRepository notificationRepository = new NotificationRepository(ds);
+            int notificationNumber = notificationRepository.getNoticationNumber(id);
+            return Response.ok(new Gson().toJson(notificationNumber)).build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.ok(ex).build(); //500           
+        }
+    }
+
+    private Response doGetnotifiche(@PathParam("id") int id) {
+        try {
+            NotificationRepository notificationRepository = new NotificationRepository(ds);
+            List<NotificaRes> notificaRes = notificationRepository.getNotifiche(id);
             return Response.ok(new Gson().toJson(notificaRes)).build();
         } catch (SQLException ex) {
             //Utilita.Utilita.segErrore(ex, ds);
@@ -72,11 +120,10 @@ public class ControllerNotifiche {
         }
     }
 
-    @DELETE
-    @Path("deletenotification/{id: [0-9]+}")
-    public Response delete(@PathParam("id") int id) {
+    private Response doDelete(@PathParam("id") int id) {
         try {
-            Notifica notifica = NotificationRepository.getNotifica(id, ds);
+            NotificationRepository notificationRepository = new NotificationRepository(ds);
+            Notifica notifica = notificationRepository.getNotifica(id);
             if (notifica == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else if (notifica.getStato() == 2 || notifica.getStato() == 3) {
@@ -87,7 +134,7 @@ public class ControllerNotifiche {
                 if (notifica.getFine_validita().before(timestamp)) {
                     return Response.status(Response.Status.GONE).build();
                 } else {
-                    int i = NotificationRepository.eliminaNotifica(id, ds);
+                    int i = notificationRepository.eliminaNotifica(id);
                     if (i == 0) {
                         return Response.status(Response.Status.NOT_FOUND).build();
                     } else {
@@ -99,18 +146,17 @@ public class ControllerNotifiche {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
-
     }
 
-    @POST
-    @Path(value = "invianotifica")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    public Response invianotifica(@Context final UriInfo context, final String payload) {
+    private Response doInvianotifica(@Context final UriInfo context, final String payload) {
         try {
+            NotificationRepository notificationRepository = new NotificationRepository(ds);
+            UserRepository userRepository = new UserRepository(ds);
+            RouteRepository routeRepository = new RouteRepository(ds);
             NotificaRqt notifica = new NotificaRqt(new JSONObject(payload), ds);
             switch (notifica.getTipologia()) {
                 case 2: {
-                    UserRepository.setFriendship(notifica.getMittente(), notifica.getDestinatario(), ds);
+                    userRepository.setFriendship(notifica.getMittente(), notifica.getDestinatario());
                     break;
                 }
                 case 3: {
@@ -118,12 +164,12 @@ public class ControllerNotifiche {
                 }
                 case 4: {
                     //PrenotazioneRepository.setPrenotation(notifica.getPosti_da_prenotare(), notifica.getId_partenza(), notifica.getId_arrivo(), ds);
-                    //TODO creare tabella prenotazioni              
+                    //TODO creare tabella prenotazioni
                     break;
                 }
                 case 7: {
-                    NotificationRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia(), ds);
-                    Tratta_auto tratta_auto = RouteRepository.getTravelDetail(notifica.getId_partenza(), notifica.getId_arrivo(), ds);
+                    notificationRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia());
+                    Tratta_auto tratta_auto = routeRepository.getTravelDetail(notifica.getId_partenza(), notifica.getId_arrivo());
                     Calendar calendar = Calendar.getInstance();
                     //notifica.setInizio_validita(tratta_auto.getOrario_partenza());
                     java.util.Date now = calendar.getTime();
@@ -139,7 +185,7 @@ public class ControllerNotifiche {
                 }
             }
             //UserRepository.eliminaNotifica(notifica.getId(), ds);
-            int id = NotificationRepository.insertNotifica(notifica, ds);
+            int id = notificationRepository.insertNotifica(notifica);
             return Response.ok(new Gson().toJson(id)).build();
         } catch (JSONException | SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
@@ -147,19 +193,6 @@ public class ControllerNotifiche {
         } catch (ObjectNotFound ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-    }
-        @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("notificationnumber/{id: [0-9]+}")
-    public Response notificationnumber(@PathParam("id") int id) {
-        try {
-            int notificationNumber = NotificationRepository.getNoticationNumber(id, ds);
-            return Response.ok(new Gson().toJson(notificationNumber)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.ok(ex).build(); //500           
         }
     }
 }
