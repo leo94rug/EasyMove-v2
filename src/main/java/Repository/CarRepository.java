@@ -21,7 +21,11 @@ import javax.sql.DataSource;
  */
 public class CarRepository {
 
-    public static int deleteCar(int id, DataSource ds) throws SQLException {
+    DataSource ds;
+    public CarRepository(DataSource dataSource) {
+        ds = dataSource;
+    }
+    public int deleteCar(int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "DELETE FROM auto WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -30,7 +34,7 @@ public class CarRepository {
         }
     }
 
-    public static void addCar(AutoRqt autoRqt, DataSource ds) throws SQLException {
+    public void addCar(AutoRqt autoRqt) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "INSERT INTO auto(modello, marca, colore, utente_fk) VALUES (?,?,?,?)";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -42,7 +46,7 @@ public class CarRepository {
         }
     }
 
-    public static List<Auto> getAuto(int id, DataSource ds) throws SQLException {
+    public List<Auto> getAuto(int id) throws SQLException {
         List<Auto> autolist = new ArrayList();
         ResultSet rs;
         String query = "SELECT * FROM auto AS a WHERE a.utente_fk=?";
@@ -56,4 +60,6 @@ public class CarRepository {
         }
         return autolist;
     }
+
+
 }

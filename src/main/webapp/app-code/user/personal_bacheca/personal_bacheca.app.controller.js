@@ -399,7 +399,7 @@ debugger;
                 id_arrivo:item.id_arrivo,
                 posti:item.posti
             }
-            UserService.Prenotazione(prenotazione).then(function(response){
+            PrenotationService.Prenotazione(prenotazione).then(function(response){
                 debugger;
                 if(response.success===false){
                     switch(response.res.status){

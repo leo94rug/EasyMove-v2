@@ -20,6 +20,7 @@ public class NotificaRqt extends Notifica {
 
     public NotificaRqt(JSONObject obj, DataSource ds) throws JSONException, SQLException {
         super();
+        UserRepository userRepository = new UserRepository(ds);
         if (obj.has("id")) {
             super.setId(obj.getInt("id"));
         }
@@ -37,12 +38,12 @@ public class NotificaRqt extends Notifica {
         if (obj.has("nome_mittente")) {
             super.setNome_mittente(obj.getString("nome_mittente"));
         } else {
-            super.setNome_mittente(UserRepository.getNomeCognome(super.getMittente(), ds));
+            super.setNome_mittente(userRepository.getNomeCognome(super.getMittente()));
         }
         if (obj.has("nome_destinatario")) {
             super.setNome_destinatario(obj.getString("nome_destinatario"));
         } else {
-            String nomeCognome = UserRepository.getNomeCognome(super.getDestinatario(), ds);
+            String nomeCognome = userRepository.getNomeCognome(super.getDestinatario());
             if (!nomeCognome.equals("")) {
                 super.setNome_destinatario(nomeCognome);
             }

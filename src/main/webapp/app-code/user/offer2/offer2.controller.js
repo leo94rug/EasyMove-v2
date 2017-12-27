@@ -5,9 +5,9 @@
             .module('app')
             .controller('Offer2Controller', Offer2Controller);
 
-        Offer2Controller.$inject = ['$timeout','FlashService','$store', '$scope', 'UserService', '$location', '$rootScope', 'RouteService', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService'];
+        Offer2Controller.$inject = ['$timeout','FlashService','$store', '$scope', 'CarService', '$location', '$rootScope', 'RouteService', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService'];
 
-        function Offer2Controller($timeout,FlashService,$store, $scope, UserService, $location, $rootScope, RouteService, $mdpDatePicker, $mdpTimePicker, AuthenticationService) {
+        function Offer2Controller($timeout,FlashService,$store, $scope, CarService, $location, $rootScope, RouteService, $mdpDatePicker, $mdpTimePicker, AuthenticationService) {
             var vm = this;
             vm.utente = $store.get('utente');
             $('body,html').animate({scrollTop:0},800);
@@ -156,7 +156,7 @@
                         viaggio: $rootScope.offerDetail.viaggio
                     };
                     vm.andata=vm.offerDetail.andata;
-                    UserService.GetAuto(vm.utente.id).then(function(response) {
+                    CarService.GetAuto(vm.utente.id).then(function(response) {
                         if (response.success === false) {
                             $location.path('/error');
                         } else {

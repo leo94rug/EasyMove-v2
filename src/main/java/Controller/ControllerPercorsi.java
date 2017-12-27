@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -30,6 +31,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.json.JSONArray;
@@ -53,58 +56,95 @@ public class ControllerPercorsi {
     public ControllerPercorsi() {
     }
 
-   @Resource(name = "jdbc/webdb2")
+    @Resource(name = "jdbc/webdb2")
     private DataSource ds;
+    private ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("viaggio/{id}")
-    public Response getviaggio(@PathParam("id") int id) {
-        try {
-            return Response.ok(new Gson().toJson(RouteRepository.getViaggioAuto(id, ds))).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    @Path(value = "viaggio/{id}")
+    public void getviaggio(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doGetviaggio(id));
+        });
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("percorso/{viaggio_fk}")
-    public Response gettravel(@PathParam("viaggio_fk") int viaggio_fk) {
-        try {
-            List<Tratta_auto> tratteList = RouteRepository.getListTratteAuto(viaggio_fk, ds);
-            return Response.ok(new Gson().toJson(tratteList)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
+    @DELETE
+    @Path("delete/{id: [0-9]+}")
+    public void delete(@Suspended
+            final AsyncResponse asyncResponse, @PathParam(value = "id")
+            final int id) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doDelete(id));
+        });
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("dettagliopercorso/{tratta1}/{tratta2}")
-    public Response gettraveldetail(@PathParam("tratta1") int tratta1, @PathParam("tratta2") int tratta2) {
-        try {
-            Tratta_auto tratta_auto = RouteRepository.getTravelDetail(tratta1, tratta2, ds);
-            return Response.ok(new Gson().toJson(tratta_auto)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
     @POST
-    @Path("getDistanceMatrix")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getDistanceMatrix(@Context UriInfo context, String payload) {
-                    return Response.ok().build();
-
+    @Path(value = "cercaauto")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    public void cercaAuto(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doCercaAuto(context, payload));
+        });
     }
+
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    @Path(value = "percorso/{viaggio_fk}")
+    public void gettravel(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "viaggio_fk") final int viaggio_fk) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doGettravel(viaggio_fk));
+        });
+    }
+
+    @GET
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    @Path(value = "dettagliopercorso/{tratta1}/{tratta2}")
+    public void gettraveldetail(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "tratta1") final int tratta1, @PathParam(value = "tratta2") final int tratta2) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doGettraveldetail(tratta1, tratta2));
+        });
+    }
+
     @POST
-    @Path("insert")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response post2(@Context UriInfo context, String payload) {
+    @Path(value = "insert")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void post2(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doPost2(context, payload));
+        });
+    }
+
+    private Response doDelete(@PathParam("id") int id) {
+        try {
+            RouteRepository routeRepository = new RouteRepository(ds);
+            routeRepository.deleteTravel(id);
+            return Response.noContent().build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    private Response doCercaAuto(@Context UriInfo context, String payload) {
+        try {
+            JSONObject obj = new JSONObject(payload);
+            Ricerca ricerca = new Ricerca(obj);
+            RouteRepository routeRepository = new RouteRepository(ds);
+
+            List<Viaggio_autoRes> cercaAuto = routeRepository.cercaAuto(ricerca);
+            return Response.ok(new Gson().toJson(cercaAuto)).build();
+        } catch (JSONException ex) {
+            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    private Response doPost2(@Context UriInfo context, String payload) {
         try {
             JSONObject obj = new JSONObject(payload);
             JSONArray andata = obj.getJSONArray("andata");
@@ -120,7 +160,7 @@ public class ControllerPercorsi {
                 tratta_auto.setViaggio_fk(idviaggio);
                 tratta_auto.insert(ds);
             }
-            if(ritorno.length()>0){
+            if (ritorno.length() > 0) {
                 idviaggio = ottieniIdValido("viaggio_auto", ds);
                 viaggio_auto.setId(idviaggio);
                 viaggio_auto.insert(ds);
@@ -141,37 +181,36 @@ public class ControllerPercorsi {
         }
     }
 
-    @POST
-    @Path("cercaauto")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response cercaAuto(@Context UriInfo context, String payload) {
+    private Response doGettraveldetail(@PathParam("tratta1") int tratta1, @PathParam("tratta2") int tratta2) {
         try {
-            JSONObject obj = new JSONObject(payload);
-            Ricerca ricerca = new Ricerca(obj);
-            List<Viaggio_autoRes> cercaAuto = RouteRepository.cercaAuto(ricerca, ds);
-            return Response.ok(new Gson().toJson(cercaAuto)).build();
-        } catch (JSONException ex) {
-            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
+            RouteRepository routeRepository = new RouteRepository(ds);
+
+            Tratta_auto tratta_auto = routeRepository.getTravelDetail(tratta1, tratta2);
+            return Response.ok(new Gson().toJson(tratta_auto)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
 
-    @DELETE
-    @Path("delete/{id: [0-9]+}")
-    public Response delete1(@PathParam("id") int id) {
-        try (Connection connection = ds.getConnection()) {
-            String query = "UPDATE viaggio_auto SET visibile=0 WHERE id=?";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, id);
-            int i = ps.executeUpdate();
+    private Response doGettravel(@PathParam("viaggio_fk") int viaggio_fk) {
+        try {
+            RouteRepository routeRepository = new RouteRepository(ds);
+            List<Tratta_auto> tratteList = routeRepository.getListTratteAuto(viaggio_fk);
+            return Response.ok(new Gson().toJson(tratteList)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
-        return Response.noContent().build();
+    }
+
+    private Response doGetviaggio(@PathParam("id") int id) {
+        try {
+            RouteRepository routeRepository = new RouteRepository(ds);
+            return Response.ok(new Gson().toJson(routeRepository.getViaggioAuto(id))).build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
     }
 }

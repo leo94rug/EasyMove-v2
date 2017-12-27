@@ -30,9 +30,11 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(Controller.ControllerAccount.class);
+        resources.add(Controller.ControllerAuto.class);
         resources.add(Controller.ControllerFeedback.class);
         resources.add(Controller.ControllerNotifiche.class);
         resources.add(Controller.ControllerPercorsi.class);
+        resources.add(Controller.ControllerPrenotazioni.class);
         resources.add(Controller.ControllerUtenti.class);
     }
     
