@@ -34,9 +34,9 @@ public class FeedbackRepository {
         UserRepository userRepository = new UserRepository(ds);
         List<FeedbackRes> feedbacklist = new ArrayList();
         try (Connection connection = ds.getConnection()) {
-            String query = "SELECT * "
-                    + "FROM " + Table.FEEDBACK
-                    + "AS f WHERE f." + Feedback.UTENTE_RECENSITO + "=?";
+            String query = "SELECT * " 
+                    + "FROM " + Table.FEEDBACK + " "
+                    + " AS f WHERE f." + Feedback.UTENTE_RECENSITO + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();

@@ -23,11 +23,10 @@ angular
                 vm.email=vm.loginUser.email;
             }
             AccountService.Login(vm.loginUser).then(function (response) {
-                debugger;
-                if(response.res.success===false){
+                if(response.success===false){
                     vm.email=undefined;
                     
-                    switch(response.status){
+                    switch(response.res.status){
                         case 500:{
                             $location.path('/error');
                             break;
