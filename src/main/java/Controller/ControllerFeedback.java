@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -33,6 +34,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.json.JSONException;
@@ -57,12 +60,48 @@ public class ControllerFeedback {
     public ControllerFeedback() {
     }
 
+    private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
+
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("getfeedback/{id: [0-9]+}")
-    public Response getfeedback(@PathParam("id") int id) {
+    @Produces(value = {MediaType.APPLICATION_JSON})
+    @Path(value = "getfeedback/{id: [0-9]+}")
+    public void getfeedback(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doGetfeedback(id));
+        });
+    }
+
+    @POST
+    @Path(value = "checkispossibleinsertfeedback")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void checkispossibleinsertfeedback(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doCheckispossibleinsertfeedback(context, payload));
+        });
+    }
+
+    @POST
+    @Path(value = "insertfeedback")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void insertfeedback(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final FeedbackRqt feedbackRqt) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doInsertfeedback(context, feedbackRqt));
+        });
+    }
+
+    @POST
+    @Path(value = "possibilitainserirefeedback")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void possibilitainserirefeedback(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doPossibilitainserirefeedback(context, payload));
+        });
+    }
+
+    private Response doGetfeedback(@PathParam("id") int id) {
         try {
-            FeedbackRes feedbackRes = FeedbackRepository.getFeedback(id, ds);
+            FeedbackRepository feedbackRepository = new FeedbackRepository(ds);
+            FeedbackRes feedbackRes = feedbackRepository.getFeedback(id);
             return Response.ok(new Gson().toJson(feedbackRes)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
@@ -70,18 +109,59 @@ public class ControllerFeedback {
         }
     }
 
-    @POST
-    @Path("insertfeedback")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response insertfeedback(@Context UriInfo context, FeedbackRqt feedbackRqt) {
+    private Response doCheckispossibleinsertfeedback(@Context final UriInfo context, final String payload) {
         try {
-            if(FeedbackRepository.existingFeedback(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), ds)){
+            UserRepository userRepository = new UserRepository(ds);
+            JSONObject obj = new JSONObject(payload);
+            int mittente = obj.getInt("mittente");
+            int destinatario = obj.getInt("destinatario");
+            Relazione relazione = userRepository.getRelazione(mittente, destinatario);
+            if (relazione != null) {
+                switch (relazione.getDa_valutare()) {
+                    case 0: {
+                        return Response.ok(new Gson().toJson(0)).build();
+                    }
+                    case 1: {
+                        Date date = new Date();
+                        Timestamp timestamp = relazione.getDa_valutare_data();
+                        if (timestamp.after(new Timestamp(date.getTime()))) {
+                            return Response.ok(new Gson().toJson(2)).build();
+                        } else {
+                            return Response.ok(new Gson().toJson(1)).build();
+                        }
+                    }
+                    case 2: {
+                        return Response.ok(new Gson().toJson(2)).build();
+                    }
+                    case 3: {
+                        return Response.ok(new Gson().toJson(3)).build();
+                    }
+                }
+            } else {
+                throw new ObjectNotFound();
+            }
+            return Response.ok(new Gson().toJson(0)).build();
+        } catch (SQLException | JSONException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        } catch (ObjectNotFound ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.ok(new Gson().toJson(0)).build();
+        }
+    }
+
+    private Response doInsertfeedback(@Context UriInfo context, FeedbackRqt feedbackRqt) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
+            NotificationRepository notificationRepository = new NotificationRepository(ds);
+            FeedbackRepository feedbackRepository = new FeedbackRepository(ds);
+            if (feedbackRepository.existingFeedback(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito())) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
-            int i = FeedbackRepository.addFeedback(feedbackRqt, ds);
-            if(i!=0){
-                UserRepository.updateRelazioneDaValutare(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(),Relazione_da_valutare.FEEDBACK_GIA_INSERITO ,null, ds);
-                NotificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Notifica_tipologia.INSERISCI_FEEDBACK, ds);
+            int i = feedbackRepository.addFeedback(feedbackRqt);
+            if (i != 0) {
+                userRepository.updateRelazioneDaValutare(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Relazione_da_valutare.FEEDBACK_GIA_INSERITO, null);
+                notificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Notifica_tipologia.INSERISCI_FEEDBACK);
             }
             return Response.ok().build();
         } catch (SQLException ex) {
@@ -90,28 +170,27 @@ public class ControllerFeedback {
         }
     }
 
-    @POST
-    @Path("possibilitainserirefeedback")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response possibilitainserirefeedback(@Context UriInfo context, String payload) {
+    private Response doPossibilitainserirefeedback(@Context UriInfo context, String payload) {
         try {
+            UserRepository userRepository = new UserRepository(ds);
+            RouteRepository routeRepository = new RouteRepository(ds);
             JSONObject obj = new JSONObject(payload);
             int utente_1 = obj.getInt("passeggero");
             int utente_2 = obj.getInt("autista");
             int id_tappa = obj.getInt("id_tappa");
-            Tratta_auto tratta_auto = RouteRepository.getTravelDetail(id_tappa, id_tappa, ds);
-            Relazione relazione = UserRepository.getRelazione(utente_1, utente_2, ds);
+            Tratta_auto tratta_auto = routeRepository.getTravelDetail(id_tappa, id_tappa);
+            Relazione relazione = userRepository.getRelazione(utente_1, utente_2);
 
             if (relazione != null) {
                 switch (relazione.getDa_valutare()) {
                     case 0: {
-                        int i = UserRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza(), ds);
+                        int i = userRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
                         return Response.ok(new Gson().toJson(0)).build();
                     }
                     case 1: {
                         Timestamp timestamp = relazione.getDa_valutare_data();
                         if (tratta_auto.getOrario_partenza().after(timestamp)) {
-                            int i = UserRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza(), ds);
+                            int i = userRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
                             return Response.ok(new Gson().toJson(0)).build();
                         }
                         return Response.ok(new Gson().toJson(1)).build();
@@ -138,50 +217,5 @@ public class ControllerFeedback {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
-    }
-
-    @POST
-    @Path(value = "checkispossibleinsertfeedback")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    public Response checkispossibleinsertfeedback(@Context final UriInfo context, final String payload) {
-        try {
-            JSONObject obj = new JSONObject(payload);
-            int mittente = obj.getInt("mittente");
-            int destinatario = obj.getInt("destinatario");
-            Relazione relazione = UserRepository.getRelazione(mittente, destinatario, ds);
-            if (relazione != null) {
-                switch (relazione.getDa_valutare()) {
-                    case 0: {
-                        return Response.ok(new Gson().toJson(0)).build();
-                    }
-                    case 1: {
-                        Date date = new Date();
-                        Timestamp timestamp = relazione.getDa_valutare_data();
-                        if (timestamp.after(new Timestamp(date.getTime()))) {
-                            return Response.ok(new Gson().toJson(2)).build();
-                        } else {
-                            return Response.ok(new Gson().toJson(1)).build();
-                        }
-                    }
-                    case 2: {
-                        return Response.ok(new Gson().toJson(2)).build();
-                    }
-                    case 3: {
-                        return Response.ok(new Gson().toJson(3)).build();
-
-                    }
-                }
-            } else {
-                throw new ObjectNotFound();
-            }
-            return Response.ok(new Gson().toJson(0)).build();
-        } catch (SQLException | JSONException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        } catch (ObjectNotFound ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.ok(new Gson().toJson(0)).build();
-        }
-
     }
 }

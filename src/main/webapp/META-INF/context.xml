@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--<Context path="/EasyMove"> SERVERMOD-->
+<<<<<<< HEAD
 <Context path="/EasyMove-maven" >
   <Resource 
       auth="Container" 
@@ -12,5 +13,12 @@
       type="javax.sql.DataSource" 
       url="jdbc:mysql://localhost/easytravel2" 
       username="root"/>
+=======
+<Context path="/EasyMove-maven">
+     <ResourceLink name="jdbc/webdb2"
+         global="jdbc/webdb2"
+         auth="Container"
+         type="javax.sql.DataSource"/>
+>>>>>>> 7faa153da0f2daf217dda22663a91b65dc467613
 </Context>
 <!--password="c951279889ca0dcc735be3924ff17e9b00e4c1703340d815"-->

@@ -5,8 +5,8 @@
         .module('app')
         .controller('ProfiloUtenteController', ProfiloUtenteController);
 
-    ProfiloUtenteController.$inject = ['$timeout','UserService', '$location', '$store', 'FlashService','AuthenticationService'];
-    function ProfiloUtenteController($timeout,UserService, $location, $store, FlashService,AuthenticationService) {
+    ProfiloUtenteController.$inject = ['$timeout','CarService','UserService', '$location', '$store', 'FlashService','AuthenticationService'];
+    function ProfiloUtenteController($timeout,CarService,UserService, $location, $store, FlashService,AuthenticationService) {
         var vm = this;
         vm.initialize=initialize;
         vm.image_loading="";
@@ -49,7 +49,7 @@
                 else{
                     response.res.data.anno_nascita = Date.createFromMysql(response.res.data.anno_nascita_string);
                     vm.utente=response.res.data;
-                    UserService.GetAuto(vm.utente.id).then(function (response) {
+                    CarService.GetAuto(vm.utente.id).then(function (response) {
                         if(response.success===false){
                             $location.path('/error');
                         }
@@ -110,7 +110,7 @@
                 "colore":auto.colore,
                 "utente_fk":vm.utente.id
             }
-            UserService.CreateCar(autoToSend).then(function (response){
+            CarService.CreateCar(autoToSend).then(function (response){
                 if(response.success===false){
                     $location.path('/error');
                 }            
@@ -125,7 +125,7 @@
             });
         }
         function deletecar(id) {
-            UserService.DeleteCar(id).then(function (response){
+            CarService.DeleteCar(id).then(function (response){
                 if(response.success===false){
                     $location.path('/error');
                 }  

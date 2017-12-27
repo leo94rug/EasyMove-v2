@@ -6,7 +6,12 @@
 package Repository;
 
 import DatabaseConstants.NotificaTable;
+import static DatabaseConstants.NotificaTable.DESTINATARIO;
+import static DatabaseConstants.NotificaTable.ID;
+import static DatabaseConstants.NotificaTable.MITTENTE;
+import static DatabaseConstants.NotificaTable.TIPOLOGIA;
 import DatabaseConstants.Table;
+import static DatabaseConstants.Table.NOTIFICA;
 import DatabaseConstants.TableConstants.Notifica_stato;
 import Model.ModelDB.Notifica;
 import Model.Request.NotificaRqt;
@@ -27,18 +32,23 @@ import javax.sql.DataSource;
  * @author leo
  */
 public class NotificationRepository {
+    DataSource ds;
 
-    public static void checkNotificationExistAndDelete(int mittente, int destinatario, int tipologia, DataSource ds) throws SQLException {
+    public NotificationRepository(DataSource dataSource) {
+        ds = dataSource;
+
+    }
+    public void checkNotificationExistAndDelete(int mittente, int destinatario, int tipologia) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "SELECT " + NotificaTable.ID + " FROM " + Table.NOTIFICA + " AS n WHERE " + NotificaTable.MITTENTE + "=? AND " + NotificaTable.DESTINATARIO + "=? AND " + NotificaTable.TIPOLOGIA + "=?";
+            String query = "SELECT " + ID + " FROM " + NOTIFICA + " AS n WHERE " + MITTENTE + "=? AND " + DESTINATARIO + "=? AND " + TIPOLOGIA + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, mittente);
             ps.setInt(2, destinatario);
             ps.setInt(3, tipologia);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                int id = rs.getInt("n." + NotificaTable.ID);
-                query = "DELETE FROM " + Table.NOTIFICA + " WHERE " + NotificaTable.ID + "=?";
+                int id = rs.getInt("n." + ID);
+                query = "DELETE FROM " + NOTIFICA + " WHERE " + ID + "=?";
                 ps = connection.prepareStatement(query);
                 ps.setInt(1, id);
                 ps.executeUpdate();
@@ -46,44 +56,36 @@ public class NotificationRepository {
         }
     }
 
-    public static Notifica getNotifica(int id, DataSource ds) throws SQLException {
-        Notifica notifica = null;
+    public  Notifica getNotifica(int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "SELECT * FROM notifica AS n WHERE id=?";
+            String query = "SELECT * FROM " + NOTIFICA + " AS n WHERE "+ID+"=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                notifica = new Notifica(rs);
-            }
-            return notifica;
+            return rs.next() ? new Notifica(rs) : null;
         }
     }
 
-    public static int getNoticationNumber(int id, DataSource ds) throws SQLException {
+    public int getNoticationNumber(int idUtente) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             java.util.Date utilDate = new java.util.Date();
             java.sql.Timestamp date = new java.sql.Timestamp(utilDate.getTime());
             PreparedStatement ps = connection.prepareStatement(""
                     + "SELECT COUNT(id) AS numero "
-                    + "FROM notifica "
-                    + "WHERE destinatario=? "
+                    + "FROM " + NOTIFICA
+                    + " WHERE destinatario=? "
                     + "AND (stato=0 OR stato=1) "
                     + "AND inizio_validita<=? "
                     + "AND fine_validita>=?");
-            ps.setInt(1, id);
+            ps.setInt(1, idUtente);
             ps.setTimestamp(2, date);
             ps.setTimestamp(3, date);
             ResultSet rs = ps.executeQuery();
-            int i = 0;
-            if (rs.next()) {
-                i = rs.getInt("numero");
-            }
-            return i;
+            return rs.next() ? rs.getInt("numero") : 0;
         }
     }
 
-    public static List<NotificaRes> getNotifiche(int id, DataSource ds) throws SQLException {
+    public List<NotificaRes> getNotifiche(int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             List<NotificaRes> notifiche = new ArrayList();
             GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
@@ -109,7 +111,7 @@ public class NotificationRepository {
         }
     }
 
-    public static int insertNotifica(NotificaRqt notifica, DataSource ds) throws SQLException {
+    public int insertNotifica(NotificaRqt notifica) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             int id_notifica = ottieniIdValido("notifica", ds);
             String query = "INSERT INTO notifica("
@@ -153,7 +155,7 @@ public class NotificationRepository {
         }
     }
 
-    public static int eliminaNotifica(int id, DataSource ds) throws SQLException {
+    public int eliminaNotifica(int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "UPDATE notifica SET stato=2 WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -161,4 +163,5 @@ public class NotificationRepository {
             return ps.executeUpdate();
         }
     }
+
 }
