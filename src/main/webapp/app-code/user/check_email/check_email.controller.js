@@ -29,7 +29,7 @@ angular
             obj.hash  = $routeParams.hash;
             var jsonString= JSON.stringify(obj);
             AccountService.ConfermaEmail(jsonString).then(function (response) {
-                if(response.res.success===false){
+                if(response.success===false){
                     switch (response.res.status) {
                         case 500:
                         {
