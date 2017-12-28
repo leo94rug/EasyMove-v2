@@ -5,16 +5,11 @@
  */
 package Model.Request;
 
+import Interfaces.ICrypt;
 import Model.ModelDB.Utente;
 import Utilita.Crypt;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import Utilita.Encryptor;
 import java.sql.Timestamp;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,7 +30,8 @@ public class UtenteRqt extends Utente {
             super.setId(obj.getInt("id"));
         }
         if (obj.has("psw")) {
-            this.psw = Crypt.encrypt(obj.getString("psw"));
+            ICrypt crypt = new Encryptor();
+            this.psw = crypt.encrypt(obj.getString("psw"));
         }
         if (obj.has("professione")) {
             super.setProfessione(obj.getString("professione"));

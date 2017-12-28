@@ -5,6 +5,7 @@
  */
 package Utilita;
 
+import Interfaces.ICrypt;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -28,7 +29,7 @@ import org.apache.commons.codec.binary.Base64;
  *
  * @author leo
  */
-public class Crypt {
+public class Crypt implements ICrypt {
 
     static Cipher ecipher;
     static Cipher dcipher;
@@ -45,7 +46,8 @@ public class Crypt {
 
     }
 
-    public static String encrypt(String strClearText) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+    @Override
+    public String encrypt(String strClearText) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         String strData = "";
 
         SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(), "Blowfish");
@@ -56,7 +58,8 @@ public class Crypt {
         return strData;
     }
 
-    public static String decrypt(String strEncrypted) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+    @Override
+    public String decrypt(String strEncrypted) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         String strData = "";
         SecretKeySpec skeyspec = new SecretKeySpec(key.getBytes(), "Blowfish");
         Cipher cipher = Cipher.getInstance("Blowfish");

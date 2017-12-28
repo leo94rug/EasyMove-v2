@@ -17,6 +17,7 @@ angular
         function recuperaPsw() {
             AccountService.RecuperaPsw(vm.email).then(function (response) {
                 if(response.success===false){
+                    debugger;
                     switch(response.res.status){
                         case 500:{
                             $location.path('/error');
@@ -31,7 +32,8 @@ angular
                             $location.path('/error');
                             break;                             
                         }
-                    }                }
+                    }                
+                }
                 else{
                     FlashService.set({title: "Abbiamo reinviato una email di conferma", body: "", type: "info"});
                     $location.path('/modificapsw');

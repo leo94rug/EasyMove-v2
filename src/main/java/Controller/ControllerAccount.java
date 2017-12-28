@@ -5,11 +5,12 @@
  */
 package Controller;
 
+import Interfaces.ICrypt;
 import Model.ModelDB.Utente;
 import Model.Request.UtenteRqt;
 import Model.Response.UtenteRes;
 import Repository.UserRepository;
-import Utilita.Crypt;
+import Utilita.Encryptor;
 import Utilita.email.MsgFactory;
 import Utilita.email.SendEmail;
 import com.google.gson.Gson;
@@ -27,8 +28,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
@@ -131,23 +130,25 @@ public class ControllerAccount {
     private Response doUpdateEmailStatus(@PathParam("user1") String user1, @PathParam("user2") String user2) {
         try {
             UserRepository userRepository = new UserRepository(ds);
-            String encript = Crypt.encrypt(user1);
+            ICrypt crypt = new Encryptor();
+            String encript = crypt.encrypt(user1);
             if (encript.equalsIgnoreCase(user2)) {
                 userRepository.updateUserEmailStatus(user1);
             }
             return Response.ok().build();
-        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
         }
     }
 
     private Response doLogin(@Context UriInfo context, String payload) {
         try {
             UserRepository userRepository = new UserRepository(ds);
+            ICrypt crypt = new Encryptor();
             JSONObject obj = new JSONObject(payload);
             String email = obj.getString("email");
-            String password = Crypt.encrypt(obj.getString("password"));
+            String password = crypt.encrypt(obj.getString("password"));
             UtenteRes utenteRes = userRepository.getUtente(email, password);
             if (utenteRes != null) {
                 //String token = Utilita.MyToken.getToken(email);
@@ -158,20 +159,21 @@ public class ControllerAccount {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException | ClassNotFoundException | NamingException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
-
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     private Response doConfermaEmail(@Context UriInfo context, String payload) {
         try {
             UserRepository userRepository = new UserRepository(ds);
+            ICrypt crypt = new Encryptor();
+
             JSONObject obj = new JSONObject(payload);
             String hash = obj.getString("hash");
             String email = obj.getString("email");
-            if (Crypt.encrypt(email).equalsIgnoreCase(hash)) {
+            if (crypt.encrypt(email).equalsIgnoreCase(hash)) {
                 boolean result = userRepository.userConfirm(email);
                 if (result) {
                     return Response.noContent().build();
@@ -181,7 +183,7 @@ public class ControllerAccount {
             } else {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
-        } catch (JSONException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
@@ -190,32 +192,27 @@ public class ControllerAccount {
     private Response doModificaPassword(@Context UriInfo context, String payload, DataSource ds) {
         try {
             UserRepository userRepository = new UserRepository(ds);
+            ICrypt crypt = new Encryptor();
             JSONObject obj = new JSONObject(payload);
             int id = Integer.parseInt(obj.getString("id"));
-            String new_psw_crypt = Crypt.encrypt(obj.getString("password"));
+            String new_psw_crypt = crypt.encrypt(obj.getString("password"));
             int i = userRepository.setPassword(id, new_psw_crypt);
             if (i == 0) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else {
                 return Response.ok().build();
             }
-        } catch (JSONException |
-                SQLException |
-                BadPaddingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                InvalidKeyException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
         }
     }
 
-
     private Response doRegister(@Context UriInfo context, String payload) {
         UtenteRqt utenteRqt = null;
         UserRepository userRepository = new UserRepository(ds);
         try {
+            ICrypt crypt = new Encryptor();
             JSONObject obj = new JSONObject(payload);
             utenteRqt = new UtenteRqt(obj);
             if (userRepository.existingUser(utenteRqt.getEmail())) {
@@ -224,7 +221,7 @@ public class ControllerAccount {
             int rsint = userRepository.insertUser(utenteRqt);
             SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.ConfermaRegistrazione);
 
-            msg.buildEmail(new String[]{utenteRqt.getEmail(), Crypt.encrypt(utenteRqt.getEmail())});
+            msg.buildEmail(new String[]{utenteRqt.getEmail(), crypt.encrypt(utenteRqt.getEmail())});
             msg.sendEmail(utenteRqt.getEmail());
             return Response.ok().build();
 
@@ -256,15 +253,16 @@ public class ControllerAccount {
     private Response doResendEmail(@Context final UriInfo context, final String email) {
         try {
             SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.CambiaPassword);
-            msg.buildEmail(new String[]{email, Crypt.encrypt(email)});
+            ICrypt crypt = new Encryptor();
+            msg.buildEmail(new String[]{email, crypt.encrypt(email)});
             msg.sendEmail(email);
             return Response.ok().build();
-        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
-            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415
         } catch (MessagingException ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Impossibile inviare l'email").build(); //415
+        } catch (Exception ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415
         }
     }
 
@@ -273,7 +271,8 @@ public class ControllerAccount {
             UserRepository userRepository = new UserRepository(ds);
             String email = payload;
             String new_psw = RandomStringUtils.randomAlphabetic(6);
-            String new_psw_crypt = Crypt.encrypt(new_psw);
+            ICrypt crypt = new Encryptor();
+            String new_psw_crypt = crypt.encrypt(new_psw);
             Utente utente = userRepository.getUtenteByEmail(email);
             if (utente != null) {
                 int i = userRepository.setPassword(utente.getId(), new_psw_crypt);
@@ -294,7 +293,7 @@ public class ControllerAccount {
         } catch (MessagingException ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Impossibile inviare l'email").build(); //415
-        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415
         }
