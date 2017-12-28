@@ -60,7 +60,7 @@ public class ControllerAuto {
     }
 
     @POST
-    /*@Path(value = "")*/
+    @Path(value = "")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void addcar(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final AutoRqt autoRqt) {
         executorService.submit(() -> {
@@ -69,7 +69,7 @@ public class ControllerAuto {
     }
 
     @DELETE
-    @Path(value = "{id: [0-9]+}")
+    @Path(value = "delete/{id: [0-9]+}")
     public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
         executorService.submit(() -> {
             asyncResponse.resume(doDelete(id));

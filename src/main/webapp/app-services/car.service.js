@@ -21,13 +21,13 @@
         return service;
 
         function GetAuto(email) {
-            return $http.get(BASEURL + '/' + email).then(handleSuccess, handleError);
+            return $http.get(BASEURL + '' + email).then(handleSuccess, handleError);
         }
         function CreateCar(car) {
             return $http.post(BASEURL + '', car, config).then(handleSuccess, handleError);
         }
         function DeleteCar(id) {
-            return $http.delete(BASEURL + '/' + id).then(handleSuccess, handleError);
+            return $http.delete(BASEURL + 'delete/' + id).then(handleSuccess, handleError);
         }
 
         // private functions

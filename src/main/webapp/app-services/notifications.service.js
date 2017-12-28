@@ -11,7 +11,7 @@
         var host = CONFIG.HOST;
         var root = CONFIG.ROOT;
         var controller = "notification";
-        var BASEURL = host +'/'+ root + '/' + controller + '/';
+        var BASEURL = host + root + '/' + controller + '/';
 
         var config = {
             headers: {

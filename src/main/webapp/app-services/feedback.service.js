@@ -15,7 +15,7 @@
 
         var host = CONFIG.HOST;
         var root = CONFIG.ROOT;
-        var BASEURL = host +'/'+ root + '/' + controller + '/';
+        var BASEURL = host + root + '/' + controller + '/';
         service.GetFeedback = GetFeedback;
         service.possibilitaInserireFeedback = possibilitaInserireFeedback;
         service.checkIsPossibleInsertFeedback = checkIsPossibleInsertFeedback;

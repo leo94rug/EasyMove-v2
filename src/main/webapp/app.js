@@ -6,7 +6,7 @@
         .run(run)
         .constant('CONFIG', {
             'HOST' : 'http://easymove.me/',
-           // 'HOST' : 'http://localhost:8085/EasyMove-maven/'
+           // 'HOST' : 'http://localhost:8085/EasyMove-maven/',
            'ROOT' : 'rest'           
         })        
         .config(function($mdDateLocaleProvider) {

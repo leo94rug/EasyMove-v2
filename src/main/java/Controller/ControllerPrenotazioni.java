@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -43,8 +44,8 @@ public class ControllerPrenotazioni {
     @Context
     private UriInfo context;
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
-    DataSource ds;
-
+    @Resource(name = "jdbc/webdb2")
+    private DataSource ds;
     public ControllerPrenotazioni() {
     }
     @POST
