@@ -17,7 +17,7 @@
         var host = CONFIG.HOST;
         var root = CONFIG.ROOT;
         var controller = 'user';
-        var BASEURL = host + root + '/' + controller + '/';
+        var BASEURL = host +'/'+ root + '/' + controller + '/';
         service.GetByEmail = GetByEmail;
         service.GetProfiloUtenti = GetProfiloUtenti;
         service.GetAuto = GetAuto;

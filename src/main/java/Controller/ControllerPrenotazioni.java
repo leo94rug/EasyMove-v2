@@ -45,8 +45,7 @@ public class ControllerPrenotazioni {
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
     DataSource ds;
 
-    public ControllerPrenotazioni(DataSource dataSource) {
-        ds=dataSource;
+    public ControllerPrenotazioni() {
     }
     @POST
     @Path(value = "prenotazione")

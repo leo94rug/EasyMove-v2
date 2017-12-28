@@ -17,7 +17,7 @@
         //        };
         var host = CONFIG.HOST;
         var root = CONFIG.ROOT;
-        var BASEURL = host + root + '/' + controller + '/';
+        var BASEURL = host +'/'+ root + '/' + controller + '/';
 
         service.Create = Create;
         service.ConfermaEmail = ConfermaEmail;

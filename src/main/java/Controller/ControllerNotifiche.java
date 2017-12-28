@@ -47,7 +47,8 @@ import org.json.JSONObject;
  */
 @Path("notification")
 public class ControllerNotifiche {
-
+    @Resource(name = "jdbc/webdb2")
+    private DataSource ds;
     @Context
     private UriInfo context;
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
@@ -58,8 +59,6 @@ public class ControllerNotifiche {
     public ControllerNotifiche() {
     }
 
-    @Resource(name = "jdbc/webdb2")
-    private DataSource ds;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})

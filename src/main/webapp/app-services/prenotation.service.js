@@ -14,7 +14,7 @@
         var host = CONFIG.HOST;
         var root = CONFIG.ROOT;
         var controller = 'prenotation';
-        var BASEURL = host + root + '/' + controller + '/';
+        var BASEURL = host +'/'+ root + '/' + controller + '/';
 
         service.GetPrenotazioni = GetPrenotazioni;
         service.Prenotazione = Prenotazione;
