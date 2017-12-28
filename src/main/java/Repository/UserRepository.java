@@ -5,6 +5,11 @@
  */
 package Repository;
 
+import static DatabaseConstants.Table.UTENTE;
+import static DatabaseConstants.TableConstants.Utente_tipologia.NON_CONFERMATO;
+import static DatabaseConstants.TableConstants.Utente_tipologia.OSPITE;
+import static DatabaseConstants.Utente.EMAIL;
+import static DatabaseConstants.Utente.TIPO;
 import Model.ModelDB.Relazione;
 import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
@@ -197,8 +202,15 @@ public class UserRepository {
 
     public Utente getUtenteByEmail(String email) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM utente AS u WHERE email=? AND tipo!=0");
+            String query ="SELECT * "
+                    + "FROM "+UTENTE+" AS u "
+                    + "WHERE "+EMAIL+"=? "
+                    + "AND "+TIPO+"!=? "
+                    + "AND "+TIPO+"!=?";
+            PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, email);
+            ps.setInt(1, OSPITE);
+            ps.setInt(2, NON_CONFERMATO);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return new Utente(rs);
