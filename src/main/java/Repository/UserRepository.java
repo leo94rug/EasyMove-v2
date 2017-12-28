@@ -8,6 +8,7 @@ package Repository;
 import static DatabaseConstants.Table.UTENTE;
 import static DatabaseConstants.TableConstants.Utente_tipologia.NON_CONFERMATO;
 import static DatabaseConstants.TableConstants.Utente_tipologia.OSPITE;
+import static DatabaseConstants.TableConstants.Utente_tipologia.REGISTRATO;
 import static DatabaseConstants.Utente.EMAIL;
 import static DatabaseConstants.Utente.TIPO;
 import Model.ModelDB.Relazione;
@@ -217,9 +218,10 @@ public class UserRepository {
     public boolean userConfirm(String email) throws SQLException {
         try (Connection connection = ds.getConnection()) {
 
-            String query = "UPDATE utente SET tipo = 1 WHERE email=?";
+            String query = "UPDATE "+UTENTE+" SET "+TIPO+" = ? WHERE "+EMAIL+"=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, email);
+            ps.setInt(2, REGISTRATO);
             return ps.executeUpdate() != 0;
         }
     }

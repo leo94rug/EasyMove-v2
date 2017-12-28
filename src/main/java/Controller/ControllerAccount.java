@@ -152,18 +152,17 @@ public class ControllerAccount {
             String email = obj.getString("email");
             String password = crypt.encrypt(obj.getString("password"));
             UtenteRes utenteRes = userRepository.getUtente(email);
-            if (utenteRes != null) {
-                if(utenteRes.getTipo() == OSPITE ) return Response.status(Response.Status.NOT_FOUND).build();
-                if(utenteRes.getTipo() == NON_CONFERMATO ) return Response.status(499).build();
-                    
-                
-                //String token = Utilita.MyToken.getToken(email);
-                utenteRes.calcolaEta();
-                //utenteRes.setToken(token);
-                return Response.ok(new Gson().toJson(utenteRes)).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
+            if (utenteRes == null) return Response.status(Response.Status.NOT_FOUND).build();
+            if(!utenteRes.getPassword().equals(password)) return Response.status(Response.Status.NOT_FOUND).build();
+            if(utenteRes.getTipo() == OSPITE ) return Response.status(Response.Status.NOT_FOUND).build();
+            if(utenteRes.getTipo() == NON_CONFERMATO ) return Response.status(499).build();
+
+
+            //String token = Utilita.MyToken.getToken(email);
+            utenteRes.calcolaEta();
+            //utenteRes.setToken(token);
+            return Response.ok(new Gson().toJson(utenteRes)).build();
+
 
         } catch (Exception ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
@@ -180,6 +179,10 @@ public class ControllerAccount {
             String hash = obj.getString("hash");
             String email = obj.getString("email");
             if (crypt.encrypt(email).equalsIgnoreCase(hash)) {
+                UtenteRes utenteRes = userRepository.getUtente(email);
+                if (utenteRes == null) return Response.status(Response.Status.NOT_FOUND).build();
+                if(utenteRes.getTipo() != NON_CONFERMATO ) return Response.status(498).build();            
+            
                 boolean result = userRepository.userConfirm(email);
                 if (result) {
                     return Response.noContent().build();

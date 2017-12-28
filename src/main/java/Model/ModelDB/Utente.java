@@ -25,6 +25,7 @@ public class Utente {
     String professione;
     String telefono1;
     String telefono2;
+    String password;
     String biografia;
     String foto_utente;
     String sesso;
@@ -49,11 +50,20 @@ public class Utente {
         this.biografia = rs.getString("u.biografia");
         this.foto_utente = rs.getString("u.foto_utente");
         this.professione = rs.getString("u.professione");
+        this.password = rs.getString("u.psw");
         this.sesso = rs.getString("u.sesso");
         this.animali = rs.getInt("u.animali");
         this.fumare = rs.getInt("u.fumare");
         this.tipo = rs.getInt("u.tipo");
         this.id=rs.getInt("u.id");
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public int getId() {
