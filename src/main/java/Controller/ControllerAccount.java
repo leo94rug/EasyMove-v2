@@ -5,6 +5,8 @@
  */
 package Controller;
 
+import static DatabaseConstants.TableConstants.Utente_tipologia.NON_CONFERMATO;
+import static DatabaseConstants.TableConstants.Utente_tipologia.OSPITE;
 import Interfaces.ICrypt;
 import Model.ModelDB.Utente;
 import Model.Request.UtenteRqt;
@@ -149,8 +151,12 @@ public class ControllerAccount {
             JSONObject obj = new JSONObject(payload);
             String email = obj.getString("email");
             String password = crypt.encrypt(obj.getString("password"));
-            UtenteRes utenteRes = userRepository.getUtente(email, password);
+            UtenteRes utenteRes = userRepository.getUtente(email);
             if (utenteRes != null) {
+                if(utenteRes.getTipo() == OSPITE ) return Response.status(Response.Status.NOT_FOUND).build();
+                if(utenteRes.getTipo() == NON_CONFERMATO ) return Response.status(499).build();
+                    
+                
                 //String token = Utilita.MyToken.getToken(email);
                 utenteRes.calcolaEta();
                 //utenteRes.setToken(token);

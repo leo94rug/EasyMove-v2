@@ -185,28 +185,23 @@ public class UserRepository {
         }
     }
 
-    public UtenteRes getUtente(String email, String password) throws SQLException, ClassNotFoundException, NamingException {
+    public UtenteRes getUtente(String email) throws SQLException, ClassNotFoundException, NamingException {
         try (Connection connection = ds.getConnection()) {
-            String query = "SELECT * FROM utente AS u WHERE email=? AND psw=?";
+            String query = "SELECT * FROM " + UTENTE + " AS u WHERE " + EMAIL + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, email);
-            ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new UtenteRes(rs);
-            } else {
-                return null;
-            }
+            return rs.next() ? new UtenteRes(rs) : null;
         }
     }
 
     public Utente getUtenteByEmail(String email) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query ="SELECT * "
-                    + "FROM "+UTENTE+" AS u "
-                    + "WHERE "+EMAIL+"=? "
-                    + "AND "+TIPO+"!=? "
-                    + "AND "+TIPO+"!=?";
+            String query = "SELECT * "
+                    + "FROM " + UTENTE + " AS u "
+                    + "WHERE " + EMAIL + "=? "
+                    + "AND " + TIPO + "!=? "
+                    + "AND " + TIPO + "!=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, email);
             ps.setInt(1, OSPITE);
