@@ -279,7 +279,7 @@ public class ControllerAccount {
             if (utenteRes.getTipo() != NON_CONFERMATO) {
                 return Response.status(498).build();
             }
-            SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.CambiaPassword);
+            SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.ConfermaRegistrazione);
             ICrypt crypt = new Encryptor();
             msg.buildEmail(new String[]{email, crypt.encrypt(email)});
             msg.sendEmail(email);
