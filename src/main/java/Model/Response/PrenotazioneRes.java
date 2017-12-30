@@ -16,17 +16,17 @@ import java.sql.SQLException;
  * @author leo
  */
 public class PrenotazioneRes extends Prenotazione{
-    Tratta_auto tratta_auto;
+    Tratta_autoRes tratta_auto;
     Utente utente;
     public PrenotazioneRes(ResultSet rs) throws SQLException {
         super(rs);
     }
 
-    public Tratta_auto getTratte_auto() {
+    public Tratta_autoRes getTratte_auto() {
         return tratta_auto;
     }
 
-    public void setTratte_auto(Tratta_auto tratte_auto) {
+    public void setTratte_auto(Tratta_autoRes tratte_auto) {
         this.tratta_auto = tratte_auto;
     }
 

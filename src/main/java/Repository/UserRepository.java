@@ -9,20 +9,30 @@ import static DatabaseConstants.Table.UTENTE;
 import static DatabaseConstants.TableConstants.Utente_tipologia.NON_CONFERMATO;
 import static DatabaseConstants.TableConstants.Utente_tipologia.OSPITE;
 import static DatabaseConstants.TableConstants.Utente_tipologia.REGISTRATO;
+import static DatabaseConstants.Utente.ANNO_NASCITA;
+import static DatabaseConstants.Utente.COGNOME;
 import static DatabaseConstants.Utente.EMAIL;
+import static DatabaseConstants.Utente.ID;
+import static DatabaseConstants.Utente.NOME;
+import static DatabaseConstants.Utente.PASSWORD;
+import static DatabaseConstants.Utente.PROFESSIONE;
+import static DatabaseConstants.Utente.SESSO;
 import static DatabaseConstants.Utente.TIPO;
+import Interfaces.ICrypt;
 import Model.ModelDB.Relazione;
 import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
 import Model.Request.UtenteRqt;
 import Model.Response.UtenteRes;
 import Model.Response.Viaggio_autoRes;
+import Utilita.Crypt.Encryptor;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.naming.NamingException;
@@ -74,7 +84,7 @@ public class UserRepository {
 
     public int updateUser(Utente anagrafica, int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "UPDATE utente SET "
+            String query = "UPDATE " + UTENTE + " SET "
                     + "cognome = ?, "
                     + "anno_nascita = ?, "
                     + "biografia = ?, "
@@ -84,7 +94,7 @@ public class UserRepository {
                     + "WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, anagrafica.getCognome());
-            ps.setTimestamp(2, anagrafica.getAnno_nascita());
+            ps.setString(2, anagrafica.getAnno_nascita());
             ps.setString(3, anagrafica.getBiografia());
             ps.setString(4, anagrafica.getSesso());
             ps.setString(5, anagrafica.getTelefono1());
@@ -106,17 +116,19 @@ public class UserRepository {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes(rs);
-                Tratta_auto tratte_auto = routeRepository.getTravelDetailByEnum(viaggio_autoRes.getId());
-                viaggio_autoRes.setTratta_auto(tratte_auto);
+                Viaggio_autoRes tratte_auto = routeRepository.getTravelDetailByEnum(viaggio_autoRes.getId());
+                viaggio_autoRes.setTratta_auto(tratte_auto.getTratta_auto());
+                viaggio_autoRes.setId_partenza(tratte_auto.getId_partenza());
+                viaggio_autoRes.setId_arrivo(tratte_auto.getId_arrivo());
                 viaggiolist.add(viaggio_autoRes);
             }
         }
         return viaggiolist;
     }
 
-    public UtenteRes getUtente(int id) throws SQLException {
+    public UtenteRes getUtente(int id) throws SQLException, ParseException {
         UtenteRes utente = null;
-        String query = "SELECT * FROM utente AS u WHERE u.id=?";
+        String query = "SELECT * FROM " + UTENTE + " AS u WHERE u.id=?";
         try (Connection connection = ds.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id);
@@ -159,11 +171,11 @@ public class UserRepository {
         }
     }
 
-    public void updateUserEmailStatus(String user1) throws SQLException {
+    public void updateUserEmailStatus(String id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "UPDATE utente SET tipo=1 WHERE id=?";
+            String query = "UPDATE " + UTENTE + " SET " + TIPO + "=1 WHERE " + ID + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, user1);
+            ps.setString(1, id);
             ps.executeUpdate();
         }
     }
@@ -186,7 +198,7 @@ public class UserRepository {
         }
     }
 
-    public UtenteRes getUtente(String email) throws SQLException, ClassNotFoundException, NamingException {
+    public UtenteRes getUtente(String email) throws SQLException, ClassNotFoundException, NamingException, ParseException {
         try (Connection connection = ds.getConnection()) {
             String query = "SELECT * FROM " + UTENTE + " AS u WHERE " + EMAIL + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -205,8 +217,8 @@ public class UserRepository {
                     + "AND " + TIPO + "!=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, email);
-            ps.setInt(1, OSPITE);
-            ps.setInt(2, NON_CONFERMATO);
+            ps.setInt(2, OSPITE);
+            ps.setInt(3, NON_CONFERMATO);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return new Utente(rs);
@@ -218,32 +230,36 @@ public class UserRepository {
     public boolean userConfirm(String email) throws SQLException {
         try (Connection connection = ds.getConnection()) {
 
-            String query = "UPDATE "+UTENTE+" SET "+TIPO+" = ? WHERE "+EMAIL+"=?";
+            String query = "UPDATE " + UTENTE + " SET " + TIPO + " = ? WHERE " + EMAIL + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, email);
-            ps.setInt(2, REGISTRATO);
+            ps.setInt(1, REGISTRATO);
+            ps.setString(2, email);
             return ps.executeUpdate() != 0;
         }
     }
 
-    public int insertUser(UtenteRqt utenteRqt) throws SQLException {
+    public int insertUser(Utente utenteRqt) throws SQLException, Exception {
         try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO utente(email, nome, cognome, psw,professione, anno_nascita, sesso, tipo) VALUES (?,?,?,?,?,?,?,?)");
+            ICrypt crypt = new Encryptor();
+            utenteRqt.setPassword(crypt.encrypt(utenteRqt.getPassword()));
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO " + UTENTE + " (" + EMAIL + ", " + NOME + ", " + COGNOME + ", " + PASSWORD + "," + PROFESSIONE + ", " + ANNO_NASCITA + ", " + SESSO + ", " + TIPO + ") VALUES (?,?,?,?,?,?,?,?)");
             ps.setString(1, utenteRqt.getEmail());
             ps.setString(2, utenteRqt.getNome());
             ps.setString(3, utenteRqt.getCognome());
             ps.setString(4, utenteRqt.getPassword());
             ps.setString(5, utenteRqt.getProfessione());
-            ps.setTimestamp(6, utenteRqt.getAnno_nascita());
+            ps.setString(6, utenteRqt.getAnno_nascita());
             ps.setString(7, utenteRqt.getSesso());
-            ps.setInt(8, 3);
+            ps.setInt(8, NON_CONFERMATO);
             return ps.executeUpdate();
         }
     }
 
-    public int setPassword(int id, String new_psw_crypt) throws SQLException {
+    public int setPassword(int id, String psw) throws SQLException, Exception {
         try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("UPDATE utente SET psw=? WHERE id=?");
+            ICrypt crypt = new Encryptor();
+            String new_psw_crypt = crypt.encrypt(psw);
+            PreparedStatement ps = connection.prepareStatement("UPDATE " + UTENTE + " SET psw=? WHERE id=?");
             ps.setString(1, new_psw_crypt);
             ps.setInt(2, id);
             return ps.executeUpdate();
@@ -252,7 +268,7 @@ public class UserRepository {
 
     public int updateUtenteImage(int id, String immagine) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "UPDATE utente SET foto_utente = ? WHERE id=?";
+            String query = "UPDATE " + UTENTE + " SET foto_utente = ? WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, immagine);
             ps.setInt(2, id);

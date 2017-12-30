@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -141,6 +142,9 @@ public class ControllerPercorsi {
         } catch (SQLException ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
+        } catch (ParseException ex) {
+            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
+                        return Response.serverError().build();
         }
     }
 
@@ -187,7 +191,7 @@ public class ControllerPercorsi {
 
             Tratta_auto tratta_auto = routeRepository.getTravelDetail(tratta1, tratta2);
             return Response.ok(new Gson().toJson(tratta_auto)).build();
-        } catch (SQLException ex) {
+        } catch (SQLException | ParseException ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }

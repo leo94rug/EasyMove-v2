@@ -9,6 +9,7 @@ import Model.ModelDB.Utente;
 import Utilita.DatesConversion;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 
 /**
  *
@@ -17,13 +18,11 @@ import java.sql.SQLException;
 public class UtenteRes extends Utente{
     //public String token;
     public int eta;
-    public String anno_nascita_string;
     
-    public UtenteRes (ResultSet rs/*,String token*/) throws SQLException{
+    public UtenteRes (ResultSet rs/*,String token*/) throws SQLException, ParseException{
         super(rs);
         //this.token=token;
         this.eta=DatesConversion.calcoloEta(super.getAnno_nascita());
-        this.anno_nascita_string=super.getAnno_nascita().toString();
     }
 
 //    public String getToken() {
@@ -33,7 +32,7 @@ public class UtenteRes extends Utente{
 //    public void setToken(String token) {
 //        this.token = token;
 //    }
-    public void calcolaEta(){
+    public void calcolaEta() throws ParseException{
         this.eta=DatesConversion.calcoloEta(super.getAnno_nascita());
     }
     public int getEta() {

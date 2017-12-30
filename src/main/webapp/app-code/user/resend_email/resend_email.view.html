@@ -18,20 +18,6 @@
 	                    </md-input-container>
 	                </div>
 	                <div class="f-row">
-                        <md-input-container flex="50">
-                            <label>Password</label>
-                            <input required name="name" ng-model="vm.utente.password" type="password" minlength="6" maxlength="20">
-                            <div ng-messages="userForm.password.$error" role="alert">
-                                <div ng-message-exp="['required', 'minlength', 'maxlength']">
-                                    Your password must be between 6 and 20 characters long.
-                                </div>
-                            </div>
-                            <div ng-messages="userForm.password.$error">
-                                <div ng-message="required">This is required.</div>
-                            </div>
-                        </md-input-container>
-                    </div>
-	                <div class="f-row">
 	                    <div class="full-width">
 	                        <button type="submit" class="btn color medium full" />Conferma</button>
 	                    </div>

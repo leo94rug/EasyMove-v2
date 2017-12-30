@@ -12,14 +12,19 @@ import static DatabaseConstants.Prenotazione.PASSEGGERO;
 import static DatabaseConstants.Prenotazione.POSTI;
 import static DatabaseConstants.Prenotazione.PREZZO;
 import static DatabaseConstants.Table.PRENOTAZIONE;
+import static DatabaseConstants.Table.UTENTE;
+import static DatabaseConstants.Utente.ID;
 import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
 import Model.Request.PrenotazioneRqt;
 import Model.Response.PrenotazioneRes;
+import Model.Response.Tratta_autoRes;
+import Model.Response.UtenteRes;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -99,24 +104,41 @@ public class PrenotazioneRepository {
         }
     }
 
-    public List<PrenotazioneRes> getPrenotazione(int id) throws SQLException {
+    public List<PrenotazioneRes> getPrenotazione(int idUtente) throws SQLException, ParseException {
         List<PrenotazioneRes> prenotazioni = new ArrayList<>();
         UserRepository userRepository = new UserRepository(ds);
         RouteRepository routeRepository = new RouteRepository(ds);
         try (Connection connection = ds.getConnection()) {
             String query = "SELECT * FROM " + PRENOTAZIONE + "  WHERE " + PASSEGGERO + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, id);
+            ps.setInt(1, idUtente);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 PrenotazioneRes prenotazione = new PrenotazioneRes(rs);
-                Tratta_auto tratta_auto = routeRepository.getTravelDetail(prenotazione.getId_partenza(), prenotazione.getId_arrivo());
+                Tratta_autoRes tratta_auto = routeRepository.getTravelDetail(prenotazione.getId_partenza(), prenotazione.getId_arrivo());
                 prenotazione.setTratte_auto(tratta_auto);
                 Utente utente = userRepository.getUtente(prenotazione.getAutista());
                 prenotazione.setUtente(utente);
                 prenotazioni.add(prenotazione);
             }
             return prenotazioni;
+        }
+    }    
+    public List<Utente> getPrenotazioneByTratta_auto(int idTratta_auto) throws SQLException, ParseException {
+        List<Utente> utenti = new ArrayList<>();
+        try (Connection connection = ds.getConnection()) {
+            String query = "SELECT * FROM " + PRENOTAZIONE + " AS p "
+                    + " JOIN " + UTENTE + " AS u"
+                    + " ON p." + PASSEGGERO + "=u." + ID 
+                    + " WHERE " + ID_PARTENZA + "=?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, idTratta_auto);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Utente utente = new Utente(rs);
+                utenti.add(utente);
+            }
+            return utenti;
         }
     }
 }

@@ -6,7 +6,7 @@
             <div class="full-width">
                 <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
                     <md-card-title>
-                            <h2 style="padding: 0px;" class="fontPhone2">{{vm.stringaPercorso}}</h2>
+                        <h2 style="padding: 0px;" class="fontPhone2">{{vm.stringaPercorso}}</h2>
                     </md-card-title>
                 </md-card>
             </div>
@@ -15,33 +15,33 @@
                 <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
                     <md-card-title>
                         <md-card-title-text>
-                        <h2>Dettagli del viaggio</h2>
-                        <div class="full-width" style="padding-bottom: 10px;">
-                            <div ><b>Partenza:</b> {{vm.dettaglioPercorso.denominazione_partenza}}</div>
-                            <div ><b>Arrivo:</b> {{vm.dettaglioPercorso.denominazione_arrivo}}</div>
-                            <div >
-                                <img src="images/orologio.jpg" style="width: 20px;margin-right: 10px;">
-                                {{vm.dettaglioPercorso.orario_partenza | date : "H:mm - d/M/y"}}
+                            <h2>Dettagli del viaggio</h2>
+                            <div class="full-width" style="padding-bottom: 10px;">
+                                <div ><b>Partenza:</b> {{vm.dettaglioPercorso.denominazione_partenza}}</div>
+                                <div ><b>Arrivo:</b> {{vm.dettaglioPercorso.denominazione_arrivo}}</div>
+                                <div >
+                                    <img src="images/orologio.jpg" style="width: 20px;margin-right: 10px;">
+                                    {{vm.dettaglioPercorso.orario_partenza| date : "H:mm - d/M/y"}}
+                                </div>
                             </div>
-                        </div>
                             <md-divider></md-divider>
-                        <div style="padding-top: 10px;">
-                        <h3>Altre informazioni</h3>
-                            <div class="one-half">
-                                <div><b>Bagaglio:</b> {{vm.viaggio.bagaglio_max}}</div>
-                                <div><b>Puntualità:</b> {{vm.viaggio.ritardo_max}}</div>
-                                <div><b>Deviazioni:</b> {{vm.viaggio.disponibilita_deviazioni}}</div> 
+                            <div style="padding-top: 10px;">
+                                <h3>Altre informazioni</h3>
+                                <div class="one-half">
+                                    <div><b>Bagaglio:</b> {{vm.viaggio.bagaglio_max}}</div>
+                                    <div><b>Puntualità:</b> {{vm.viaggio.ritardo_max}}</div>
+                                    <div><b>Deviazioni:</b> {{vm.viaggio.disponibilita_deviazioni}}</div> 
+                                </div>
+                                <div class="one-half">
+                                    <div><b>Prezzo:</b> {{vm.dettaglioPercorso.prezzo}}</div>
+                                    <div><b>Auto:</b> {{vm.viaggio.auto}}</div>
+                                    <div><b>Posti:</b> {{vm.dettaglioPercorso.posti}}</div>
+                                </div>
                             </div>
-                            <div class="one-half">
-                                <div><b>Prezzo:</b> {{vm.dettaglioPercorso.prezzo}}</div>
-                                <div><b>Auto:</b> {{vm.viaggio.auto}}</div>
-                                <div><b>Posti:</b> {{vm.dettaglioPercorso.posti}}</div>
-                            </div>
-                        </div>
-                                                                <md-divider></md-divider>
+                            <md-divider></md-divider>
                             <div class="full-width" style="padding-top: 10px;">
                                 <div>
-                                <h3>Descrizione:</h3>
+                                    <h3>Descrizione:</h3>
                                     <div ng-if=!vm.viaggio.descrizione style="padding-left:3px;">
                                         L'utente non ha fornito una descrizione per il viaggio
                                     </div>
@@ -50,11 +50,11 @@
                                     </div>
                                 </div>
                             </div>
-                                            <div ng-if="vm.amicizia === 1">
+                            <div ng-if="vm.amicizia === 1">
 
-                            <md-button class="md-primary md-raised" style="width: 200px;height: 0px;" ng-click="vm.showAlert($event)">
-                                <p>Visualiazza numero</p>
-                            </md-button>
+                                <md-button class="md-primary md-raised" style="width: 200px;height: 0px;" ng-click="vm.showAlert($event)">
+                                    <p>Visualiazza numero</p>
+                                </md-button>
                             </div>
                         </md-card-title-text>
                 </md-card>
@@ -69,13 +69,13 @@
                             <div class="md-media-lg card-media aaa" >
                                 <p class="aaa"><b>Nome:</b> {{vm.utenteProfilo.nome}}</p>
                                 <div ng-if="vm.amicizia === 1 || vm.amicizia === 2">
-                                <p class="aaa"><b>Cognome:</b> {{vm.utenteProfilo.cognome}}</p>
+                                    <p class="aaa"><b>Cognome:</b> {{vm.utenteProfilo.cognome}}</p>
                                 </div>
                                 <p class="aaa"><b>Età:</b> {{vm.utenteProfilo.eta}}</p>
                                 <div ng-if="vm.feedback.media_valutazione != 0">             
-                                    <p class="aaa"><b>Valutato:</b> {{vm.feedback.media_valutazione | number:2}} / 5</p>
+                                    <p class="aaa"><b>Valutato:</b> {{vm.feedback.media_valutazione| number:2}} / 5</p>
                                 </div>
-                                <div ng-if="vm.feedback.media_valutazione===0">Non ha ancora feedback</div>
+                                <div ng-if="vm.feedback.media_valutazione === 0">Non ha ancora feedback</div>
                             </div>
                         </md-card-title-media>
                     </md-card-title>
@@ -99,16 +99,47 @@
                             <div class="errors" ng-messages="offer.sub.$error">
                                 <div ng-message="required">Indica i posti che vuoi prenotare</div>
                             </div>                        <h5>Seleziona il numero di posti che vuoi bloccare e clicca su prenota</h5>
-                        <md-button ng-disabled=vm.disabled class="md-primary md-raised" type="submit"  >
-                            PRENOTA
-                        </md-button>   
+                            <md-button ng-disabled=vm.disabled class="md-primary md-raised" type="submit"  >
+                                PRENOTA
+                            </md-button>   
                         </md-input-container>
- 
+
                     </form>
                 </div>
                 {{vm.messaggio}}
-            </div>                
+            </div>        
             <feed-back style="float: right !important;"></feed-back>
+            <div class="two-third left">
+                <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
+                    <md-card-title>
+                        <md-card-title-text>
+                            <h2>Passeggeri</h2>
+                            <div class="full-width" style="padding-bottom: 10px;">
+                                <div ng-if="vm.dettaglioPercorso.passeggeri.cont != 0">
+
+                                    <a ng-repeat="pass in vm.dettaglioPercorso.passeggeri" ng-href="profilo-utenti/{{pass.id}}" >
+                                        <md-list-item  class="md-3-line " style="min-height: 150px;" >
+                                            <div style="
+                                                 min-height: 150px;  
+                                                 width: 80px;  
+                                                 display: -webkit-flex;
+                                                 display: flex;">
+                                                <img data-ng-src="{{pass.foto_utente}}" class="md-avatar" style="
+                                                     width: 80px;
+                                                     height: 80px;
+                                                     margin: auto;">
+                                            </div>
+                                        </md-list-item>
+                                    </a>
+                                </div>
+                                <div ng-if="vm.dettaglioPercorso.passeggeri.cont === 0" class="f-row">
+                                    <h2>Non sono ancora presenti feedback</h2>
+                                </div>
+                            </div>
+                        </md-card-title-text>
+                </md-card>
+            </div>
+
 
             <div ng-if="vm.feedback.cont != 0">
                 <div class="two-third left" style="min-width: 270px;">
@@ -117,26 +148,26 @@
                         <a ng-repeat="feed in vm.feedback.listaFeedback" ng-href="profilo-utenti/{{feed.utente.id}}" >
                             <md-list-item  class="md-3-line " style="min-height: 150px;" >
                                 <div style="
-                                    min-height: 150px;  
-                                    width: 80px;  
-                                    display: -webkit-flex;
-                                    display: flex;">
+                                     min-height: 150px;  
+                                     width: 80px;  
+                                     display: -webkit-flex;
+                                     display: flex;">
                                     <img data-ng-src="{{feed.utente.foto_utente}}" class="md-avatar" style="
-                                        width: 80px;
-                                        height: 80px;
-                                        margin: auto;">
+                                         width: 80px;
+                                         height: 80px;
+                                         margin: auto;">
                                 </div>
                                 <div class="md-list-item-text" style="
-                                    min-height: 150px;
-                                    padding: 10px;
-                                    text-align: left;
-                                    display: -webkit-flex;
-                                    display: flex;
-                                    -webkit-flex-direction: column;
-                                    flex-direction: column;
-                                    ">
+                                     min-height: 150px;
+                                     padding: 10px;
+                                     text-align: left;
+                                     display: -webkit-flex;
+                                     display: flex;
+                                     -webkit-flex-direction: column;
+                                     flex-direction: column;
+                                     ">
                                     <div style="-webkit-flex: 1;flex: 1;">
-                                        <p style="padding: 0px !important; ">Feedback inserito da: {{feed.utente.nome}} il {{feed.dateString | date : "d.M.y"}}</p>
+                                        <p style="padding: 0px !important; ">Feedback inserito da: {{feed.utente.nome}} il {{feed.dateString| date : "d.M.y"}}</p>
                                     </div>
                                     <div style="-webkit-flex: 1;flex: 1;">
                                         <i>{{feed.testo}}</i>
@@ -164,7 +195,7 @@
                 <h2>Non sono ancora presenti feedback</h2>
             </div>
         </div>
-            <!--- //Content -->
+        <!--- //Content -->
     </div>
 </main>
 <foo-ter></foo-ter>

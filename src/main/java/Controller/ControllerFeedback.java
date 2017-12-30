@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -103,10 +104,10 @@ public class ControllerFeedback {
             FeedbackRepository feedbackRepository = new FeedbackRepository(ds);
             FeedbackRes feedbackRes = feedbackRepository.getFeedback(id);
             return Response.ok(new Gson().toJson(feedbackRes)).build();
-        } catch (SQLException ex) {
+        } catch (SQLException | ParseException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
-        }
+        } 
     }
 
     private Response doCheckispossibleinsertfeedback(@Context final UriInfo context, final String payload) {
@@ -210,7 +211,7 @@ public class ControllerFeedback {
         } catch (SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
-        } catch (JSONException ex) {
+        } catch (JSONException | ParseException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         } catch (ObjectNotFound ex) {

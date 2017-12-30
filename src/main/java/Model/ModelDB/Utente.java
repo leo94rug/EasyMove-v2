@@ -8,6 +8,7 @@ package Model.ModelDB;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -18,17 +19,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 public class Utente {
 
-    String email;
-    String nome;
-    String cognome;
-    Timestamp anno_nascita;
-    String professione;
-    String telefono1;
+    @XmlElement public String email;
+    @XmlElement public String nome;
+    @XmlElement public String cognome;
+    @XmlElement public String anno_nascita;
+    @XmlElement public String professione;
+    @XmlElement public String telefono1;
     String telefono2;
-    String password;
-    String biografia;
-    String foto_utente;
-    String sesso;
+    @XmlElement public String password;
+    @XmlElement public String biografia;
+    @XmlElement public String foto_utente;
+    @XmlElement public String sesso;
     int fumare;
     int animali;
     int tipo;
@@ -44,7 +45,7 @@ public class Utente {
         this.email = rs.getString("u.email");
         this.nome = rs.getString("u.nome");
         this.cognome = rs.getString("u.cognome");
-        this.anno_nascita = rs.getTimestamp("u.anno_nascita");
+        this.anno_nascita = rs.getString("u.anno_nascita");
         this.telefono1 = rs.getString("u.telefono1");
         this.telefono2 = rs.getString("u.telefono1");
         this.biografia = rs.getString("u.biografia");
@@ -98,11 +99,11 @@ public class Utente {
         this.cognome = cognome;
     }
 
-    public Timestamp getAnno_nascita() {
+    public String getAnno_nascita() {
         return anno_nascita;
     }
 
-    public void setAnno_nascita(Timestamp anno_nascita) {
+    public void setAnno_nascita(String anno_nascita) {
         this.anno_nascita = anno_nascita;
     }
 

@@ -33,6 +33,10 @@ public class Viaggio_autoRes extends Viaggio_auto{
         super(rs);
     }
 
+    public Viaggio_autoRes() {
+        super();
+    }
+
     
     public void setTratte_auto(List<Tratta_auto> tratte_auto) {
         this.tratte_auto = tratte_auto;

@@ -12,7 +12,8 @@ import Model.ModelDB.Utente;
 import Model.Request.UtenteRqt;
 import Model.Response.UtenteRes;
 import Repository.UserRepository;
-import Utilita.Encryptor;
+import Utilita.Crypt.Encryptor;
+import Utilita.Crypt.SimpleCrypt;
 import Utilita.email.MsgFactory;
 import Utilita.email.SendEmail;
 import com.google.gson.Gson;
@@ -96,7 +97,7 @@ public class ControllerAccount {
     @POST
     @Path(value = "register")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void register(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+    public void register(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Utente payload) {
         executorService.submit(() -> {
             asyncResponse.resume(doRegister(context, payload));
         });
@@ -132,7 +133,7 @@ public class ControllerAccount {
     private Response doUpdateEmailStatus(@PathParam("user1") String user1, @PathParam("user2") String user2) {
         try {
             UserRepository userRepository = new UserRepository(ds);
-            ICrypt crypt = new Encryptor();
+            ICrypt crypt = new SimpleCrypt();
             String encript = crypt.encrypt(user1);
             if (encript.equalsIgnoreCase(user2)) {
                 userRepository.updateUserEmailStatus(user1);
@@ -179,7 +180,7 @@ public class ControllerAccount {
     private Response doConfermaEmail(@Context UriInfo context, String payload) {
         try {
             UserRepository userRepository = new UserRepository(ds);
-            ICrypt crypt = new Encryptor();
+            ICrypt crypt = new SimpleCrypt();
 
             JSONObject obj = new JSONObject(payload);
             String hash = obj.getString("hash");
@@ -214,8 +215,8 @@ public class ControllerAccount {
             ICrypt crypt = new Encryptor();
             JSONObject obj = new JSONObject(payload);
             int id = Integer.parseInt(obj.getString("id"));
-            String new_psw_crypt = crypt.encrypt(obj.getString("password"));
-            int i = userRepository.setPassword(id, new_psw_crypt);
+            String psw = obj.getString("password");
+            int i = userRepository.setPassword(id, psw);
             if (i == 0) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else {
@@ -227,13 +228,10 @@ public class ControllerAccount {
         }
     }
 
-    private Response doRegister(@Context UriInfo context, String payload) {
-        UtenteRqt utenteRqt = null;
+    private Response doRegister(@Context UriInfo context, Utente utenteRqt) {
         UserRepository userRepository = new UserRepository(ds);
         try {
-            ICrypt crypt = new Encryptor();
-            JSONObject obj = new JSONObject(payload);
-            utenteRqt = new UtenteRqt(obj);
+            ICrypt crypt = new SimpleCrypt();
             if (userRepository.existingUser(utenteRqt.getEmail())) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -280,7 +278,7 @@ public class ControllerAccount {
                 return Response.status(498).build();
             }
             SendEmail msg = MsgFactory.getBuildedEmail(MsgFactory.type.ConfermaRegistrazione);
-            ICrypt crypt = new Encryptor();
+            ICrypt crypt = new SimpleCrypt();
             msg.buildEmail(new String[]{email, crypt.encrypt(email)});
             msg.sendEmail(email);
             return Response.ok().build();
@@ -298,11 +296,9 @@ public class ControllerAccount {
             UserRepository userRepository = new UserRepository(ds);
             String email = payload;
             String new_psw = RandomStringUtils.randomAlphabetic(6);
-            ICrypt crypt = new Encryptor();
-            String new_psw_crypt = crypt.encrypt(new_psw);
             Utente utente = userRepository.getUtenteByEmail(email);
             if (utente != null) {
-                int i = userRepository.setPassword(utente.getId(), new_psw_crypt);
+                int i = userRepository.setPassword(utente.getId(), new_psw);
                 if (i == 0) {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 } else {

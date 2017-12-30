@@ -27,7 +27,8 @@ public class Viaggio_auto {
     int utente_fk;
     String auto;
     int tipologia;
-
+    public Viaggio_auto(){}
+    
     public Viaggio_auto(JSONObject jsonObject) throws JSONException {
         if (jsonObject.has("descrizione")) {
             descrizione = jsonObject.getString("descrizione");

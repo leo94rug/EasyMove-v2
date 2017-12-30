@@ -16,6 +16,7 @@ import Repository.UserRepository;
 import com.google.gson.Gson;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -103,7 +104,7 @@ public class ControllerNotifiche {
             return Response.ok(new Gson().toJson(notificationNumber)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.ok(ex).build(); //500           
+            return Response.serverError().build(); //500           
         }
     }
 
@@ -186,7 +187,7 @@ public class ControllerNotifiche {
             //UserRepository.eliminaNotifica(notifica.getId(), ds);
             int id = notificationRepository.insertNotifica(notifica);
             return Response.ok(new Gson().toJson(id)).build();
-        } catch (JSONException | SQLException ex) {
+        } catch (JSONException | SQLException | ParseException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         } catch (ObjectNotFound ex) {

@@ -12,6 +12,7 @@ import static DatabaseConstants.NotificaTable.MITTENTE;
 import static DatabaseConstants.NotificaTable.TIPOLOGIA;
 import DatabaseConstants.Table;
 import static DatabaseConstants.Table.NOTIFICA;
+import static DatabaseConstants.Table.UTENTE;
 import DatabaseConstants.TableConstants.Notifica_stato;
 import Model.ModelDB.Notifica;
 import Model.Request.NotificaRqt;
@@ -71,12 +72,12 @@ public class NotificationRepository {
             java.util.Date utilDate = new java.util.Date();
             java.sql.Timestamp date = new java.sql.Timestamp(utilDate.getTime());
             PreparedStatement ps = connection.prepareStatement(""
-                    + "SELECT COUNT(id) AS numero "
-                    + "FROM " + NOTIFICA
-                    + " WHERE destinatario=? "
-                    + "AND (stato=0 OR stato=1) "
-                    + "AND inizio_validita<=? "
-                    + "AND fine_validita>=?");
+                    + "SELECT COUNT(n.id) AS numero "
+                    + "FROM "+UTENTE+" AS u JOIN "+NOTIFICA+" AS n ON u.id=n.mittente "
+                    + "WHERE n.destinatario=? "
+                    + "AND (n.stato=" + Notifica_stato.VISUALIZZATA + " OR n.stato=" + Notifica_stato.INSERITA + ") "
+                    + "AND n.inizio_validita<=? "
+                    + "AND n.fine_validita>=?");
             ps.setInt(1, idUtente);
             ps.setTimestamp(2, date);
             ps.setTimestamp(3, date);
@@ -88,11 +89,10 @@ public class NotificationRepository {
     public List<NotificaRes> getNotifiche(int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             List<NotificaRes> notifiche = new ArrayList();
-            GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-            java.sql.Timestamp oggi = new java.sql.Timestamp(gc.getTimeInMillis());
-
+            java.util.Date utilDate = new java.util.Date();
+            java.sql.Timestamp date = new java.sql.Timestamp(utilDate.getTime());
             String query = "SELECT * "
-                    + "FROM utente AS u JOIN notifica AS n ON u.id=n.mittente "
+                    + "FROM "+UTENTE+" AS u JOIN "+NOTIFICA+" AS n ON u.id=n.mittente "
                     + "JOIN notifica_tipologia AS nt ON n.tipologia=nt.id_tipologia "
                     + "WHERE n.fine_validita >= ? "
                     + "AND n.inizio_validita <= ? "
@@ -100,8 +100,8 @@ public class NotificationRepository {
                     + "AND (n.stato=" + Notifica_stato.VISUALIZZATA + " OR n.stato=" + Notifica_stato.INSERITA + ") "
                     + "ORDER BY n.data DESC";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setTimestamp(1, oggi);
-            ps.setTimestamp(2, oggi);
+            ps.setTimestamp(1, date);
+            ps.setTimestamp(2, date);
             ps.setInt(3, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

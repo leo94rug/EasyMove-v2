@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -29,7 +30,7 @@ public class FeedbackRepository {
         ds = dataSource;
     }
 
-    public FeedbackRes getFeedback(int id) throws SQLException {
+    public FeedbackRes getFeedback(int id) throws SQLException, ParseException {
         int cont = 0;
         UserRepository userRepository = new UserRepository(ds);
         List<FeedbackRes> feedbacklist = new ArrayList();

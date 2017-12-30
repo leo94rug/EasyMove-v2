@@ -47,6 +47,12 @@ angular
                             $('body,html').animate({scrollTop: 0}, 800);
                             FlashService.pop({title: "Attenzione!", body: "Email errata", type: "warning"});
                             break;
+                        }                        
+                        case 400:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.pop({title: "Attenzione!", body: "Url errata", type: "warning"});
+                            break;
                         }
                         default:
                         {

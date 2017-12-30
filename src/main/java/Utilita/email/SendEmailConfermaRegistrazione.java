@@ -13,8 +13,8 @@ public class SendEmailConfermaRegistrazione extends SendEmail {
     
     public SendEmailConfermaRegistrazione() {
         this.setSubject("Conferma registrazione");
-        //String content = "<a href='http://localhost:8085/EasyMove/checkemail/%s/%s'>Clicca qui per confermare l'indirizzo email</a>";
-        String content="<a href='http://easymove.me/checkemail/%s/%s'>Clicca qui per confermare l'indirizzo email</a>";
+        String content = "<a href='http://localhost:8085/EasyMove-maven/checkemail/%s/%s'>Clicca qui per confermare l'indirizzo email</a>";
+        //String content="<a href='http://easymove.me/checkemail/%s/%s'>Clicca qui per confermare l'indirizzo email</a>";
         this.setContent(content);
     }
     

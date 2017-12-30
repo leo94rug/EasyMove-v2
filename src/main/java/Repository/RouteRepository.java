@@ -14,10 +14,12 @@ import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
 import Model.Response.Viaggio_autoRes;
 import Model.Request.PrenotazioneRqt;
+import Model.Response.Tratta_autoRes;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -61,7 +63,7 @@ public class RouteRepository {
         return min_posti;
     }
 
-    public List<Viaggio_autoRes> cercaAuto(Ricerca r) throws SQLException {
+    public List<Viaggio_autoRes> cercaAuto(Ricerca r) throws SQLException, ParseException {
         Coordinate coordinate = new Coordinate(r.getLat_p(), r.getLng_p(), r.getLat_a(), r.getLng_a(), r.getDistanza_tra(), r.getDistanza());
         List<Tratta_auto> listaPartenze = new ArrayList();
         listaPartenze = listaPartenzeAuto(coordinate, r);
@@ -90,7 +92,7 @@ public class RouteRepository {
         return listaPartenze;
     }
 
-    private List<Viaggio_autoRes> controlloTappeAuto(Coordinate c, List<Tratta_auto> listaPartenze) throws SQLException {
+    private List<Viaggio_autoRes> controlloTappeAuto(Coordinate c, List<Tratta_auto> listaPartenze) throws SQLException, ParseException {
         List<Viaggio_autoRes> successi = new ArrayList();
         UserRepository userRepository = new UserRepository(ds);
         try (Connection connection = ds.getConnection()) {
@@ -179,8 +181,9 @@ public class RouteRepository {
         }
     }
 
-    public Tratta_auto getTravelDetailByEnum(int viaggio_fk) throws SQLException {
+    public Viaggio_autoRes getTravelDetailByEnum(int viaggio_fk) throws SQLException {
         try (Connection connection = ds.getConnection()) {
+            Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes();
             ResultSet rs;
             String query = "SELECT * FROM tratta_auto AS t WHERE enumerazione=? AND viaggio_fk=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -192,6 +195,7 @@ public class RouteRepository {
                 tratta_auto = new Tratta_auto(rs);
                 tratta_auto.setDistanza(0);
                 tratta_auto.setPrezzo(0);
+                viaggio_autoRes.setId_partenza(tratta_auto.getId());
             }
             rs.beforeFirst();
             while (rs.next()) {
@@ -200,13 +204,15 @@ public class RouteRepository {
                 tratta_auto.addPosti(tratta_auto_rs.getPosti());
                 tratta_auto.addPrezzo(tratta_auto_rs.getPrezzo());
                 tratta_auto.setDenominazione_arrivo(tratta_auto_rs.getDenominazione_arrivo());
+                viaggio_autoRes.setId_arrivo(tratta_auto.getId());
                 query = "SELECT * FROM tratta_auto AS t WHERE viaggio_fk=? AND enumerazione=?";
                 ps = connection.prepareStatement(query);
                 ps.setInt(1, tratta_auto_rs.getViaggio_fk());
                 ps.setInt(2, tratta_auto_rs.getEnumerazione() + 1);
                 rs = ps.executeQuery();
             }
-            return tratta_auto;
+            viaggio_autoRes.setTratta_auto(tratta_auto);
+            return viaggio_autoRes;
         }
     }
 
@@ -224,22 +230,28 @@ public class RouteRepository {
         }
     }
 
-    public Tratta_auto getTravelDetail(int tratta1, int tratta2) throws SQLException {
+    public Tratta_autoRes getTravelDetail(int tratta1, int tratta2) throws SQLException, ParseException {
         try (Connection connection = ds.getConnection()) {
+            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(ds);
+            ArrayList<Utente> utenti = new ArrayList<>();
             ResultSet rs;
             String query = "SELECT * FROM tratta_auto AS t WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, tratta1);
             rs = ps.executeQuery();
-            Tratta_auto tratta_auto = null;
+            Tratta_autoRes tratta_auto = null;
             if (rs.next()) {
-                tratta_auto = new Tratta_auto(rs);
+                tratta_auto = new Tratta_autoRes(rs);
             }
             tratta_auto.setDistanza(0);
             tratta_auto.setPrezzo(0);
             rs.beforeFirst();
             while (rs.next()) {
                 Tratta_auto tratta_auto_rs = new Tratta_auto(rs);
+                //id tratta_auto_rs per cercare in tabella prenotazioni
+                int idPartenza = tratta_auto_rs.getId();
+                utenti.addAll( prenotazioneRepository.getPrenotazioneByTratta_auto(idPartenza));
+                tratta_auto.setUtente(utenti);
                 tratta_auto.addDistanza(tratta_auto_rs.getDistanza());
                 tratta_auto.addPosti(tratta_auto_rs.getPosti());
                 tratta_auto.addPrezzo(tratta_auto_rs.getPrezzo());

@@ -83,7 +83,8 @@ public class MsgSender {
         msg.setSubject(subject);
 
         // add the text content
-        msg.setText(textBody);
+        //msg.setText(textBody);
+        msg.setContent(textBody, "text/html");
         msg.setSentDate(new Date());
         Transport transport = session.getTransport("smtp");
         transport.connect(HOST, USERNAME, PASSWORD);

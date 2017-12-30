@@ -5,8 +5,8 @@
         .module('app')
         .controller('ProfiloUtenteController', ProfiloUtenteController);
 
-    ProfiloUtenteController.$inject = ['$timeout','CarService','UserService', '$location', '$store', 'FlashService','AuthenticationService'];
-    function ProfiloUtenteController($timeout,CarService,UserService, $location, $store, FlashService,AuthenticationService) {
+    ProfiloUtenteController.$inject = ['DateService','$timeout','CarService','UserService', '$location', '$store', 'FlashService','AuthenticationService'];
+    function ProfiloUtenteController(DateService,$timeout,CarService,UserService, $location, $store, FlashService,AuthenticationService) {
         var vm = this;
         vm.initialize=initialize;
         vm.image_loading="";
@@ -47,7 +47,8 @@
                     $location.path('/error');
                 }
                 else{
-                    response.res.data.anno_nascita = Date.createFromMysql(response.res.data.anno_nascita_string);
+                    response.res.data.anno_nascita = DateService.dateFromString(response.res.data.anno_nascita);
+
                     vm.utente=response.res.data;
                     CarService.GetAuto(vm.utente.id).then(function (response) {
                         if(response.success===false){
@@ -66,14 +67,13 @@
         }
         function update(){ 
             var utente={
-                "eta":vm.utente.eta,
-                "professione":vm.utente.email,
+                "professione":vm.utente.professione,
                 "nome":vm.utente.nome,
                 "cognome":vm.utente.cognome,
                 "biografia":vm.utente.biografia,
                 "sesso":vm.utente.sesso,
                 "telefono1":vm.utente.telefono1,
-                "anno_nascita":vm.utente.anno_nascita.getTime()
+                "anno_nascita":DateService.stringFromDate(vm.utente.anno_nascita)
             }
             UserService.Update(utente,vm.utente.id).then(function (response) {
                 if(response.success===false){

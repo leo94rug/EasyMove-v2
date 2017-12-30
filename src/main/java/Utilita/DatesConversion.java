@@ -5,6 +5,8 @@
  */
 package Utilita;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -17,6 +19,21 @@ import java.util.TimeZone;
  * java.util.date to java.sql.date
  */
 public class DatesConversion {
+
+    static String pattern = "yyyy-mm-dd hh:mm:ss";
+
+    public static java.util.Date stringToDate(String dt) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        java.util.Date date = null;
+        date = simpleDateFormat.parse(dt);
+        return date;
+    }
+
+    public static String dateToString(java.util.Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat(pattern);
+        String format = formatter.format(date);
+        return format;
+    }
 
     public static java.sql.Date convertUtilToSql(java.util.Date uDate) {
         java.sql.Date sDate = new java.sql.Date(uDate.getTime());
@@ -39,12 +56,13 @@ public class DatesConversion {
     public static java.sql.Timestamp setDateTime(int minuto, int ora, int giorno, int mese, int anno) {
         GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         gc.clear();
-        gc.set(anno, mese, giorno, ora -2, minuto);
+        gc.set(anno, mese, giorno, ora - 2, minuto);
         java.sql.Timestamp date = new java.sql.Timestamp(gc.getTimeInMillis());
         return date;
     }
 
-    public static int calcoloEta(java.sql.Timestamp data) {
+    public static int calcoloEta(String dataString) throws ParseException {
+        java.util.Date data = stringToDate(dataString);
         Calendar c = Calendar.getInstance();
         int anno = c.get(Calendar.YEAR);
         /* Ottieni l'anno */
@@ -58,8 +76,8 @@ public class DatesConversion {
         gc.setTimeInMillis(data.getTime());
         gc.set(getYear(data), getMonth(data), getDay(data));
         today.set(anno, mese, giorno);
-        double giorniFra=giorniFraDueDate(gc,today);
-        return (int) (giorniFra/365);
+        double giorniFra = giorniFraDueDate(gc, today);
+        return (int) (giorniFra / 365);
     }
 
     public static double giorniFraDueDate(GregorianCalendar dallaDataGC, GregorianCalendar allaDataGC) {

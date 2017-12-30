@@ -23,7 +23,6 @@
         }
         function initialize(){
             $('body,html').animate({scrollTop:0},800);
-            debugger;
             vm.utente = $store.get('utente');
             UserService.GetViaggi(vm.utente.id).then(function (response) {
                 if(response.success===false){                    
@@ -32,10 +31,18 @@
                 else{
                     vm.travel=response.res.data;
                     vm.travel.forEach( function (arrayItem){
-                        arrayItem.orario_partenza = new Date(arrayItem.orario_partenza);
+                        arrayItem.tratta_auto.orario_partenza = Date.createFromMysql(arrayItem.tratta_auto.orario_partenza_string);
                     });
                 }
             });
+        }
+                Date.createFromMysql = function(mysql_string){ 
+          var t, result = null;
+          if( typeof mysql_string === 'string' )   {
+            t = mysql_string.split(/[- :]/);
+            result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);          
+          }
+          return result;   
         }
         function deleted(id){
             

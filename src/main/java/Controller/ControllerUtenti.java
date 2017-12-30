@@ -5,6 +5,7 @@
  */
 package Controller;
 
+import Interfaces.ICrypt;
 import Model.ModelDB.Utente;
 import Model.Request.AutoRqt;
 import Model.Request.PrenotazioneRqt;
@@ -16,13 +17,15 @@ import Repository.CarRepository;
 import Repository.PrenotazioneRepository;
 import Repository.RouteRepository;
 import Repository.UserRepository;
-import Utilita.Crypt;
+import Utilita.Crypt.Crypt;
+import Utilita.Crypt.Encryptor;
 import com.google.gson.Gson;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -95,8 +98,6 @@ public class ControllerUtenti {
         }
     }
 
-
-
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getviaggi/{id: [0-9]+}")
@@ -130,7 +131,7 @@ public class ControllerUtenti {
     private Response doGetpercorsi(@PathParam("id") int id) {
         try {
             UserRepository userRepository = new UserRepository(ds);
-            
+
             List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
             return Response.ok(new Gson().toJson(viaggio_auto)).build();
         } catch (SQLException ex) {
@@ -153,16 +154,12 @@ public class ControllerUtenti {
             UserRepository userRepository = new UserRepository(ds);
             UtenteRes utenteRes = userRepository.getUtente(id);
             return Response.ok(new Gson().toJson(utenteRes)).build();
-        } catch (SQLException ex) {
-            
+        } catch (SQLException | ParseException ex) {
+
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
-
-
-
-
 
     @GET
     @Path(value = "checkfriend/{user1: [0-9]+}/{user2: [0-9]+}")
@@ -176,7 +173,7 @@ public class ControllerUtenti {
     private Response doCheckfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
         try {
             UserRepository userRepository = new UserRepository(ds);
-            
+
             int friend = userRepository.checkFriend(user1, user2);
             return Response.ok(new Gson().toJson(friend)).build();
         } catch (SQLException ex) {
@@ -185,38 +182,25 @@ public class ControllerUtenti {
         }
     }
 
-
-
     @PUT
     @Path(value = "updateprofilo/{id: [0-9]+}")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void updateProfilo(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload, @PathParam(value = "id") final int id) {
+    public void updateProfilo(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Utente payload, @PathParam(value = "id") final int id) {
         executorService.submit(() -> {
             asyncResponse.resume(doUpdateProfilo(context, payload, id));
         });
     }
 
-    private Response doUpdateProfilo(@Context UriInfo context, String payload, @PathParam("id") int id) {
+    private Response doUpdateProfilo(@Context UriInfo context, Utente utenteRqt, @PathParam("id") int id) {
         try {
-            JSONObject obj = new JSONObject(payload);
-            UtenteRqt utente = new UtenteRqt(obj);
             UserRepository userRepository = new UserRepository(ds);
-            
-            int i = userRepository.updateUser(utente, id);
+            int i = userRepository.updateUser(utenteRqt, id);
             if (i == 0) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
-        } catch (SQLException |
-                BadPaddingException |
-                UnsupportedEncodingException |
-                NoSuchPaddingException |
-                NoSuchAlgorithmException |
-                IllegalBlockSizeException |
-                JSONException |
-                InvalidAlgorithmParameterException |
-                InvalidKeyException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
         } catch (Exception ex) {
@@ -224,10 +208,6 @@ public class ControllerUtenti {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
         }
     }
-
-
-
-
 
     @PUT
     @Path(value = "updateimage")
@@ -250,21 +230,26 @@ public class ControllerUtenti {
             }
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (SQLException | JSONException ex) {
-            
+
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
-
-
-
-
-
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("travelnumber/{id: [0-9]+}")
+    public void travelnumber(@Suspended
+    final AsyncResponse asyncResponse, @PathParam(value = "id")
+    final int id) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doTravelnumber(id));
+        });
+    }
     private Response doTravelnumber(@PathParam("id") int id) {
         try {
             java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
             UserRepository userRepository = new UserRepository(ds);
-            
+
             int k = userRepository.getTravelNumber(id, date);
             if (k == -1) {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -272,9 +257,12 @@ public class ControllerUtenti {
                 return Response.ok(new Gson().toJson(k)).build();
             }
         } catch (SQLException ex) {
-            
+
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
+
+
+
 }
