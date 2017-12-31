@@ -146,15 +146,23 @@
                 </div>
                 <div class="full-width">
                     <h2 class="full-width">Aggiungi auto</h2>
+                    <form name="vm.gestioneAutoForm" ng-submit="vm.addcar(vm.auto)" novalidate role="form">
+                    
                     <md-content layout-gt-sm="row" layout-padding >
                         <div>
                             <md-input-container >
                                 <label>Marca: </label>
-                                <input ng-model="vm.auto.marca">
+                                <input ng-required ="true" name="marca" ng-model="vm.auto.marca">
+                                <div ng-messages="vm.gestioneAutoForm.marca.$error">
+                                    <div ng-message="required">Campo obbligatorio.</div>
+                                </div>
                             </md-input-container>
                             <md-input-container>
                                 <label>Modello: </label>
-                                <input ng-model="vm.auto.modello">
+                                <input ng-required ="true" name="modello" ng-model="vm.auto.modello">
+                                <div ng-messages="vm.gestioneAutoForm.marca.$error">
+                                    <div ng-message="required">Campo obbligatorio.</div>
+                                </div>
                             </md-input-container>                            
                             <md-input-container>
                                 <label>Colore: </label>
@@ -162,7 +170,10 @@
                             </md-input-container>
                         </div>
                     </md-content>
-                <md-button ng-click="vm.addcar(vm.auto)" class="md-raised">Inserisci</md-button>
+                    <input type="submit"  value="Inserisci" class="btn color medium" />                    
+                    
+                    </form>
+                <!--<md-button ng-click="vm.addcar(vm.auto)" class="md-raised">Inserisci</md-button>-->
                 </div>
         </div>
     </div>

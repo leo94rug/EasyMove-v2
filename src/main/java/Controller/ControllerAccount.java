@@ -21,6 +21,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -65,6 +67,15 @@ public class ControllerAccount {
 
     public ControllerAccount() {
 
+    }
+
+    @POST
+    @Path(value = "deleteall")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void deleteall(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+        executorService.submit(() -> {
+            asyncResponse.resume(dodeleteall(context, payload));
+        });
     }
 
     @POST
@@ -147,6 +158,7 @@ public class ControllerAccount {
 
     private Response doLogin(@Context UriInfo context, String payload) {
         try {
+            Connection connection = ds.getConnection();
             UserRepository userRepository = new UserRepository(ds);
             ICrypt crypt = new Encryptor();
             JSONObject obj = new JSONObject(payload);
@@ -319,6 +331,40 @@ public class ControllerAccount {
         } catch (Exception ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Non è stato possibile criptare il valore").build(); //415
+        }
+    }
+
+    private Object dodeleteall(UriInfo context, String payload) {
+        try (Connection connection = ds.getConnection()) {
+            String query = "DELETE FROM utente WHERE 1";
+            PreparedStatement ps = connection.prepareStatement(query);
+            int rs = ps.executeUpdate();
+            query = "DELETE FROM auto WHERE 1";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeUpdate();
+            query = "DELETE FROM feedback WHERE 1";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeUpdate();
+            query = "DELETE FROM notifica WHERE 1";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeUpdate();
+            query = "DELETE FROM prenotazione WHERE 1";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeUpdate();
+            query = "DELETE FROM relazione WHERE 1";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeUpdate();
+            query = "DELETE FROM tratta_auto WHERE 1";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeUpdate();
+            query = "DELETE FROM viaggio_auto WHERE 1";
+            ps = connection.prepareStatement(query);
+            rs = ps.executeUpdate();
+            return Response.ok().build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+
         }
     }
 

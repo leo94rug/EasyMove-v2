@@ -5,25 +5,12 @@
  */
 package Controller;
 
-import Interfaces.ICrypt;
 import Model.ModelDB.Utente;
-import Model.Request.AutoRqt;
-import Model.Request.PrenotazioneRqt;
-import Model.Request.UtenteRqt;
-import Model.Response.PrenotazioneRes;
 import Model.Response.UtenteRes;
 import Model.Response.Viaggio_autoRes;
-import Repository.CarRepository;
-import Repository.PrenotazioneRepository;
-import Repository.RouteRepository;
+import Repository.RelazioneRepository;
 import Repository.UserRepository;
-import Utilita.Crypt.Crypt;
-import Utilita.Crypt.Encryptor;
 import com.google.gson.Gson;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -32,17 +19,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
@@ -172,9 +154,9 @@ public class ControllerUtenti {
 
     private Response doCheckfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
         try {
-            UserRepository userRepository = new UserRepository(ds);
+            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
 
-            int friend = userRepository.checkFriend(user1, user2);
+            int friend = relazioneRepository.getRelazioneApprovato(user1, user2);
             return Response.ok(new Gson().toJson(friend)).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);

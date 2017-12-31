@@ -5,13 +5,20 @@
  */
 package Repository;
 
+import static DatabaseConstants.Relazione.APPROVATO;
+import static DatabaseConstants.Relazione.UTENTE_1;
+import static DatabaseConstants.Relazione.UTENTE_2;
+import static DatabaseConstants.Table.RELAZIONE;
 import static DatabaseConstants.Table.UTENTE;
+import static DatabaseConstants.TableConstants.Relazione_approvato.NON_APPROVATO;
+import static DatabaseConstants.TableConstants.Relazione_approvato.STESSO_UTENTE;
 import static DatabaseConstants.TableConstants.Utente_tipologia.NON_CONFERMATO;
 import static DatabaseConstants.TableConstants.Utente_tipologia.OSPITE;
 import static DatabaseConstants.TableConstants.Utente_tipologia.REGISTRATO;
 import static DatabaseConstants.Utente.ANNO_NASCITA;
 import static DatabaseConstants.Utente.COGNOME;
 import static DatabaseConstants.Utente.EMAIL;
+import static DatabaseConstants.Utente.FOTO_UTENTE;
 import static DatabaseConstants.Utente.ID;
 import static DatabaseConstants.Utente.NOME;
 import static DatabaseConstants.Utente.PASSWORD;
@@ -140,21 +147,7 @@ public class UserRepository {
         return utente;
     }
 
-    public void setFriendship(int mittente, int destinatario) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String query = "INSERT INTO relazione(utente_1, utente_2, approvato) VALUES (?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, mittente);
-            ps.setInt(2, destinatario);
-            ps.setInt(3, 1);
-            ps.executeUpdate();
-            ps = connection.prepareStatement(query);
-            ps.setInt(1, destinatario);
-            ps.setInt(2, mittente);
-            ps.setInt(3, 1);
-            ps.executeUpdate();
-        }
-    }
+
 
     public int getFermataSuccessiva(int i, int viaggio_fk) throws SQLException {
         try (Connection connection = ds.getConnection()) {
@@ -177,24 +170,6 @@ public class UserRepository {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, id);
             ps.executeUpdate();
-        }
-    }
-
-    public int checkFriend(int user1, int user2) throws SQLException {
-        if (user1 == user2) {
-            return 2;
-        }
-        try (Connection connection = ds.getConnection()) {
-            String query = "SELECT * FROM relazione WHERE utente_1=? AND utente_2=? AND approvato=1";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, user1);
-            ps.setInt(2, user2);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return 1;
-            } else {
-                return 0;
-            }
         }
     }
 
@@ -259,7 +234,7 @@ public class UserRepository {
         try (Connection connection = ds.getConnection()) {
             ICrypt crypt = new Encryptor();
             String new_psw_crypt = crypt.encrypt(psw);
-            PreparedStatement ps = connection.prepareStatement("UPDATE " + UTENTE + " SET psw=? WHERE id=?");
+            PreparedStatement ps = connection.prepareStatement("UPDATE " + UTENTE + " SET "+PASSWORD+"=? WHERE "+ID+"=?");
             ps.setString(1, new_psw_crypt);
             ps.setInt(2, id);
             return ps.executeUpdate();
@@ -268,7 +243,7 @@ public class UserRepository {
 
     public int updateUtenteImage(int id, String immagine) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "UPDATE " + UTENTE + " SET foto_utente = ? WHERE id=?";
+            String query = "UPDATE " + UTENTE + " SET "+FOTO_UTENTE+" = ? WHERE "+ID+"=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, immagine);
             ps.setInt(2, id);
@@ -295,38 +270,5 @@ public class UserRepository {
         }
     }
 
-    public Relazione getRelazione(int mittente, int destinatario) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM relazione WHERE utente_1=? AND utente_2=?");
-            ps.setInt(1, mittente);
-            ps.setInt(2, destinatario);
-            ResultSet rs = ps.executeQuery();
-            Relazione relazione = null;
-            if (rs.next()) {
-                relazione = new Relazione(rs);
-            }
-            return relazione;
-        }
-    }
 
-    public int updateRelazioneDaValutare(int utente_1, int utente_2, int index, Timestamp orario_partenza) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=?,da_valutare_data=? WHERE utente_1=? AND utente_2=?");
-            ps.setInt(1, index);
-            ps.setTimestamp(2, orario_partenza);
-            ps.setInt(3, utente_1);
-            ps.setInt(4, utente_2);
-            return ps.executeUpdate();
-        }
-    }
-
-    public int updateRelazioneDaValutare(int utente_1, int utente_2, int index) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=? WHERE utente_1=? AND utente_2=?");
-            ps.setInt(1, index);
-            ps.setInt(2, utente_1);
-            ps.setInt(3, utente_2);
-            return ps.executeUpdate();
-        }
-    }
 }

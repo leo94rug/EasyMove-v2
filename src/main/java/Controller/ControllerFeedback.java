@@ -14,6 +14,7 @@ import Model.Request.FeedbackRqt;
 import Model.Response.FeedbackRes;
 import Repository.FeedbackRepository;
 import Repository.NotificationRepository;
+import Repository.RelazioneRepository;
 import Repository.RouteRepository;
 import Repository.UserRepository;
 import com.google.gson.Gson;
@@ -112,11 +113,11 @@ public class ControllerFeedback {
 
     private Response doCheckispossibleinsertfeedback(@Context final UriInfo context, final String payload) {
         try {
-            UserRepository userRepository = new UserRepository(ds);
+            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
             JSONObject obj = new JSONObject(payload);
             int mittente = obj.getInt("mittente");
             int destinatario = obj.getInt("destinatario");
-            Relazione relazione = userRepository.getRelazione(mittente, destinatario);
+            Relazione relazione = relazioneRepository.getRelazione(mittente, destinatario);
             if (relazione != null) {
                 switch (relazione.getDa_valutare()) {
                     case 0: {
@@ -153,7 +154,7 @@ public class ControllerFeedback {
 
     private Response doInsertfeedback(@Context UriInfo context, FeedbackRqt feedbackRqt) {
         try {
-            UserRepository userRepository = new UserRepository(ds);
+            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
             NotificationRepository notificationRepository = new NotificationRepository(ds);
             FeedbackRepository feedbackRepository = new FeedbackRepository(ds);
             if (feedbackRepository.existingFeedback(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito())) {
@@ -161,7 +162,7 @@ public class ControllerFeedback {
             }
             int i = feedbackRepository.addFeedback(feedbackRqt);
             if (i != 0) {
-                userRepository.updateRelazioneDaValutare(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Relazione_da_valutare.FEEDBACK_GIA_INSERITO, null);
+                relazioneRepository.updateRelazioneDaValutare(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Relazione_da_valutare.FEEDBACK_GIA_INSERITO, null);
                 notificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Notifica_tipologia.INSERISCI_FEEDBACK);
             }
             return Response.ok().build();
@@ -173,25 +174,25 @@ public class ControllerFeedback {
 
     private Response doPossibilitainserirefeedback(@Context UriInfo context, String payload) {
         try {
-            UserRepository userRepository = new UserRepository(ds);
+            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
             RouteRepository routeRepository = new RouteRepository(ds);
             JSONObject obj = new JSONObject(payload);
             int utente_1 = obj.getInt("passeggero");
             int utente_2 = obj.getInt("autista");
             int id_tappa = obj.getInt("id_tappa");
             Tratta_auto tratta_auto = routeRepository.getTravelDetail(id_tappa, id_tappa);
-            Relazione relazione = userRepository.getRelazione(utente_1, utente_2);
+            Relazione relazione = relazioneRepository.getRelazione(utente_1, utente_2);
 
             if (relazione != null) {
                 switch (relazione.getDa_valutare()) {
                     case 0: {
-                        int i = userRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
+                        int i = relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
                         return Response.ok(new Gson().toJson(0)).build();
                     }
                     case 1: {
                         Timestamp timestamp = relazione.getDa_valutare_data();
                         if (tratta_auto.getOrario_partenza().after(timestamp)) {
-                            int i = userRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
+                            int i = relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
                             return Response.ok(new Gson().toJson(0)).build();
                         }
                         return Response.ok(new Gson().toJson(1)).build();

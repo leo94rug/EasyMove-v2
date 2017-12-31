@@ -35,7 +35,7 @@
                         case 499:
                         {
                             $('body,html').animate({scrollTop: 0}, 800);
-                            vm.notconfirmed = true;
+                            //vm.notconfirmed = true;
                             FlashService.pop({title: "Attenzione!", body: "Email non confermata", type: "warning"});
                             break;
                         }

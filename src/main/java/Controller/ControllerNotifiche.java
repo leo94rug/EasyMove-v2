@@ -11,6 +11,7 @@ import Model.ModelDB.Tratta_auto;
 import Model.Request.NotificaRqt;
 import Model.Response.NotificaRes;
 import Repository.NotificationRepository;
+import Repository.RelazioneRepository;
 import Repository.RouteRepository;
 import Repository.UserRepository;
 import com.google.gson.Gson;
@@ -151,12 +152,12 @@ public class ControllerNotifiche {
     private Response doInvianotifica(@Context final UriInfo context, final String payload) {
         try {
             NotificationRepository notificationRepository = new NotificationRepository(ds);
-            UserRepository userRepository = new UserRepository(ds);
+            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
             RouteRepository routeRepository = new RouteRepository(ds);
             NotificaRqt notifica = new NotificaRqt(new JSONObject(payload), ds);
             switch (notifica.getTipologia()) {
                 case 2: {
-                    userRepository.setFriendship(notifica.getMittente(), notifica.getDestinatario());
+                    relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario());
                     break;
                 }
                 case 3: {
