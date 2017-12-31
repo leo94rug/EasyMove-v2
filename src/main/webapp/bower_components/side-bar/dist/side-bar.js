@@ -95,19 +95,19 @@
     '<section layout="row" flex class="superZ">'+
         '<md-sidenav class="md-sidenav-left scrollBloccato" md-component-id="left" md-whiteframe="4">'+
             '<md-content layout-padding style="margin-top: 80px;">'+
-            '<p ng-if="utente" class="active"><a href="home">Home</a></p>'+
-            '<p ng-if="utente"><a href="search"><b>Cerca</b></a></p>'+
-            '<p ng-if="utente"><a href="offer1"><b>Offri</b></a></p>'+
-            '<p ng-if="!utente" class="active"><a href="home">Home</a></p>'+
-            '<p ng-if="!utente"><a href="login" title="Destinations">Login</a></p>'+
-            '<p ng-if="utente"><a href="bacheca">Bacheca</a></p>'+            
-            '<p ng-if="utente"><a href="profilo">Profilo</a></p>'+
-            '<p ng-if="utente"><a href="feedback-ricevuti">Feedback ricevuti</a></p>'+
-            '<p ng-if="utente"><a href="passaggi">Passaggi offerti</a></p>'+
-            '<p ng-if="utente"><a href="prenotazioni">Prenotazioni</a></p>'+
+            '<a ng-if="utente" href="home" class="active"><p >Home</p></a>'+
+            '<a ng-if="utente" href="search"><p ><b>Cerca</b></p></a>'+
+            '<a ng-if="utente" href="offer1"><p ><b>Offri</b></p></a>'+
+            '<a ng-if="!utente" href="home" class="active"><p >Home</p></a>'+
+            '<a ng-if="!utente" href="login"><p  title="Destinations">Login</p></a>'+
+            '<a ng-if="utente" href="bacheca"><p >Bacheca</p></a>'+            
+            '<a ng-if="utente" href="profilo"><p >Profilo</p></a>'+
+            '<a ng-if="utente" href="feedback-ricevuti"><p >Feedback ricevuti</p></a>'+
+            '<a ng-if="utente" href="passaggi"><p >Passaggi offerti</p></a>'+
+            '<a ng-if="utente" href="prenotazioni"><p >Prenotazioni</p></a>'+
             
-            '<p ng-if="!utente"><a href="register">Registrazione</a></p>'+
-            '<p ng-if="utente"><a ng-click="logout()">Logout</a></p>'+
+            '<a ng-if="!utente" href="register"><p>Registrazione</p></a>'+
+            '<a ng-if="utente"><p ng-click="logout()">Logout</p></a>'+
             '</md-content>'+
         '</md-sidenav>'+
     '</section>'+

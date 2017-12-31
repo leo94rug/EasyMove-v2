@@ -111,6 +111,10 @@
                     FlashService.pop({title: "Hai rifiutato l'amicizia", body: "", type: "info"});
                     break;
                 }
+                case 2:{
+                    /*non ci sono opzioni per chi riceve la notifica dell'amicizia non accettata*/
+                    break;
+                }  
                 case 3:{
                     rifiutaPrenotazione(item);
                     FlashService.pop({title: "Hai rifiutato la prenotazione", body: "", type: "info"});
@@ -134,7 +138,6 @@
             }  
         }
         function prenota(item,ev) {
-            
             RouteService.GetDettaglioPercorso(item.id_partenza,item.id_arrivo).then(function(response){
                 if(response.success===false){
                     switch(response.res.status){
@@ -256,6 +259,7 @@
                     
                     getNotificationNumber(vm.utente.id);
                     NotificationsService.GetNotifiche(vm.utente.id).then(function (response) {
+                        debugger;
                         if(response.success===false){
                             $location.path('/error');
                         }
