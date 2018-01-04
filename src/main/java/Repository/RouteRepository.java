@@ -251,7 +251,7 @@ public class RouteRepository {
                 //id tratta_auto_rs per cercare in tabella prenotazioni
                 int idPartenza = tratta_auto_rs.getId();
                 utenti.addAll( prenotazioneRepository.getPrenotazioneByTratta_auto(idPartenza));
-                tratta_auto.setUtente(utenti);
+                tratta_auto.setPasseggeri(utenti);
                 tratta_auto.addDistanza(tratta_auto_rs.getDistanza());
                 tratta_auto.addPosti(tratta_auto_rs.getPosti());
                 tratta_auto.addPrezzo(tratta_auto_rs.getPrezzo());

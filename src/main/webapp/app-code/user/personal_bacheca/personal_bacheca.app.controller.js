@@ -5,8 +5,8 @@
         .module('app')
         .controller('BachecaController', BachecaController);
 
-    BachecaController.$inject = ['$timeout','FeedbackService','NotificationsService','RouteService','$scope','$mdDialog','$store','UserService', '$location', 'FlashService','AuthenticationService'];
-    function BachecaController($timeout,FeedbackService,NotificationsService,RouteService,$scope,$mdDialog,$store,UserService, $location, FlashService,AuthenticationService) {
+    BachecaController.$inject = ['PrenotationService','$timeout','FeedbackService','NotificationsService','RouteService','$scope','$mdDialog','$store','UserService', '$location', 'FlashService','AuthenticationService'];
+    function BachecaController(PrenotationService,$timeout,FeedbackService,NotificationsService,RouteService,$scope,$mdDialog,$store,UserService, $location, FlashService,AuthenticationService) {
         var vm = this;
         $('body,html').animate({scrollTop:0},800);
         vm.attenzione="";
@@ -69,6 +69,7 @@
             }
         }
         function bottone1(item,ev){
+            debugger;
             switch(item.tipologia){
                 case 1:{
                     accettaCondivisione(item);

@@ -108,12 +108,13 @@ public class ControllerFeedback {
         } catch (SQLException | ParseException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
-        } 
+        }
     }
 
     private Response doCheckispossibleinsertfeedback(@Context final UriInfo context, final String payload) {
         try {
             RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
+            NotificationRepository notificationRepository = new NotificationRepository(ds);
             JSONObject obj = new JSONObject(payload);
             int mittente = obj.getInt("mittente");
             int destinatario = obj.getInt("destinatario");
@@ -136,6 +137,7 @@ public class ControllerFeedback {
                         return Response.ok(new Gson().toJson(2)).build();
                     }
                     case 3: {
+                        notificationRepository.checkNotificationExistAndDelete(destinatario,mittente, Notifica_tipologia.INSERISCI_FEEDBACK);
                         return Response.ok(new Gson().toJson(3)).build();
                     }
                 }
@@ -163,7 +165,7 @@ public class ControllerFeedback {
             int i = feedbackRepository.addFeedback(feedbackRqt);
             if (i != 0) {
                 relazioneRepository.updateRelazioneDaValutare(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Relazione_da_valutare.FEEDBACK_GIA_INSERITO, null);
-                notificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Notifica_tipologia.INSERISCI_FEEDBACK);
+                notificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensito(),feedbackRqt.getUtente_recensore(), Notifica_tipologia.INSERISCI_FEEDBACK);
             }
             return Response.ok().build();
         } catch (SQLException ex) {

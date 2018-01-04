@@ -5,8 +5,11 @@
  */
 package Controller;
 
+import static DatabaseConstants.TableConstants.Notifica_tipologia.INSERISCI_FEEDBACK;
+import DatabaseConstants.TableConstants.Relazione_approvato;
 import Eccezioni.ObjectNotFound;
 import Model.ModelDB.Notifica;
+import Model.ModelDB.Relazione;
 import Model.ModelDB.Tratta_auto;
 import Model.Request.NotificaRqt;
 import Model.Response.NotificaRes;
@@ -49,6 +52,7 @@ import org.json.JSONObject;
  */
 @Path("notification")
 public class ControllerNotifiche {
+
     @Resource(name = "jdbc/webdb2")
     private DataSource ds;
     @Context
@@ -60,7 +64,6 @@ public class ControllerNotifiche {
      */
     public ControllerNotifiche() {
     }
-
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
@@ -156,31 +159,37 @@ public class ControllerNotifiche {
             RouteRepository routeRepository = new RouteRepository(ds);
             NotificaRqt notifica = new NotificaRqt(new JSONObject(payload), ds);
             switch (notifica.getTipologia()) {
+                // E' stata inviata una richiesta di amicizia
+                case 1: {
+                    relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.IN_ATTESA);
+                    break;
+                }
                 case 2: {
-                    relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario());
+                    relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.APPROVATO);
+                    relazioneRepository.setRelazioneApprovato(notifica.getDestinatario(), notifica.getMittente(), Relazione_approvato.APPROVATO);
                     break;
                 }
                 case 3: {
                     break;
                 }
+                // Prenotazione accettata
                 case 4: {
+                    // TODOnow
+
+                    int utente_1 = notifica.getMittente();
+                    int utente_2 = notifica.getDestinatario();
+                    int id_tappa = notifica.getId_partenza();
+                    notificationRepository.insertFeedbackNotification(utente_1, utente_2, id_tappa, notifica);
+                    notificationRepository.insertFeedbackNotification(utente_2, utente_1, id_tappa, notifica);
+                    break;
                     //PrenotazioneRepository.setPrenotation(notifica.getPosti_da_prenotare(), notifica.getId_partenza(), notifica.getId_arrivo(), ds);
                     //TODO creare tabella prenotazioni
+                }
+                case 6: { // Amicizia rifutata 
+                    relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.BLOCCATO);
                     break;
                 }
                 case 7: {
-                    notificationRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia());
-                    Tratta_auto tratta_auto = routeRepository.getTravelDetail(notifica.getId_partenza(), notifica.getId_arrivo());
-                    Calendar calendar = Calendar.getInstance();
-                    //notifica.setInizio_validita(tratta_auto.getOrario_partenza());
-                    java.util.Date now = calendar.getTime();
-
-                    notifica.setInizio_validita(new java.sql.Timestamp(now.getTime()));
-
-                    calendar.add(Calendar.YEAR, +1);
-                    java.util.Date future = calendar.getTime();
-                    java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(future.getTime());
-                    notifica.setFine_validita(currentTimestamp);
 
                     break;
                 }
@@ -194,6 +203,9 @@ public class ControllerNotifiche {
         } catch (ObjectNotFound ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (CloneNotSupportedException ex) {
+            Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
         }
     }
 }

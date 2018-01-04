@@ -92,6 +92,7 @@
             var obj = new Object();
             obj.immagine = dataUrl;
             obj.id = vm.utente.id;
+            debugger;
             var jsonString = JSON.stringify(obj);
             UserService.UpdateImage(jsonString).then(function (response) {
                 if (response.success === false) {

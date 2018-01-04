@@ -23,6 +23,7 @@ public class NotificaRes extends Notifica{
     private String titolo;
     private String email;
     private String foto_utente;
+    private int id_utente;
 
     public NotificaRes(ResultSet rs) throws SQLException {
         super(rs);
@@ -34,6 +35,15 @@ public class NotificaRes extends Notifica{
         this.titolo=rs.getString("nt.titolo");
         this.email=rs.getString("u.email");
         this.foto_utente=rs.getString("u.foto_utente");
+        this.id_utente=rs.getInt("u.id");
+    }
+
+    public int getIdUtente() {
+        return id_utente;
+    }
+
+    public void setIdUtente(int idUtente) {
+        this.id_utente = idUtente;
     }
 
     public void setId_tipologia(int id_tipologia) {

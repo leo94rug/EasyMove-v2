@@ -78,10 +78,7 @@ public class FeedbackRepository {
 
     public boolean existingFeedback(int mittente, int destinatario) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "SELECT " + Feedback.ID
-                    + "FROM " + Table.FEEDBACK
-                    + "WHERE " + Feedback.UTENTE_RECENSORE + "=? "
-                    + "AND " + Feedback.UTENTE_RECENSITO + "=?";
+            String query = "SELECT * FROM " + Table.FEEDBACK + " WHERE " + Feedback.UTENTE_RECENSORE + "=? AND " + Feedback.UTENTE_RECENSITO + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, mittente);
             ps.setInt(2, destinatario);

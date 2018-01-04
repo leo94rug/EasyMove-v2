@@ -14,7 +14,7 @@ import java.util.Calendar;
  *
  * @author leo
  */
-public class Notifica {
+public class Notifica  {
 
     private int id;
     private int mittente;

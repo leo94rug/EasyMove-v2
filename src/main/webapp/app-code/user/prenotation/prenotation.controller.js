@@ -33,7 +33,8 @@
             vm.utente = $store.get('utente');
             $('body,html').animate({scrollTop: 0}, 800);
             vm.disabled_amicizia = true;
-            vm.disabled_prenotazione = true;
+            vm.disabled_prenotazione = false;                        
+            
             vm.messaggio = "";
             if (vm.utente) {
                 RouteService.GetDettaglioPercorso(vm.tratta1, vm.tratta2).then(function (response) {
@@ -41,7 +42,12 @@
                         $location.path('/error');
                     } else {
                         vm.dettaglioPercorso = response.res.data;
-                        debugger;//TODO:controllare il disable delle prenotazioni
+                        vm.dettaglioPercorso.passeggeri.forEach(function (arrayItem) {
+                            if(arrayItem.id===vm.utente.id){
+                                vm.disabled_prenotazione = true;
+                            }
+                        });
+                        debugger;
                         vm.dettaglioPercorso.orario_partenza = Date.createFromMysql(vm.dettaglioPercorso.orario_partenza_string);
                         RouteService.GetPercorso(vm.dettaglioPercorso.viaggio_fk).then(function (response) {
                             if (response.success === false) {
@@ -86,34 +92,41 @@
                                                 debugger;
                                             }
                                         });
-                                        UserService.CheckFriend(vm.utenteProfilo.id, vm.utente.id).then(function (response) {
+                                        UserService.CheckFriend(vm.utente.id, vm.utenteProfilo.id).then(function (response) {
                                             if (response.success === false) {
                                                 $location.path('/error');
                                             } else {
+                                                debugger;
                                                 vm.amicizia = response.res.data;
                                                 switch (vm.amicizia) {
                                                     case 0 :
                                                     {
                                                         vm.disabled_amicizia = false;
                                                         vm.disabled_prenotazione = true;
-                                                    }                                                    
+                                                        break;
+                                                    }
                                                     case 1 :
                                                     {
                                                         vm.disabled_amicizia = true;
                                                         vm.disabled_prenotazione = true;
-                                                    }                                                    
+                                                        break;
+                                                    }
                                                     case 2 :
                                                     {
                                                         vm.disabled_amicizia = true;
-                                                    }                                                    
+                                                        break;
+                                                    }
                                                     case 3 :
                                                     {
                                                         vm.disabled_amicizia = true;
                                                         vm.disabled_prenotazione = true;
+                                                        break;
                                                     }
-                                                    default:{
+                                                    default:
+                                                    {
                                                         vm.disabled_amicizia = true;
-                                                        vm.disabled_prenotazione = true;       
+                                                        vm.disabled_prenotazione = true;
+                                                        break;
                                                     }
                                                 }
                                             }
@@ -172,12 +185,20 @@
             $location.path('/');
         }
         function showAlert(ev) {
+            debugger;
+            var content="";
+            if(vm.utenteProfilo.telefono1!="" && vm.utenteProfilo.telefono1!=undefined){
+                content=vm.utenteProfilo.telefono1;
+            }
+            else{
+                content="L'utente non ha ancora fornito un numero di telefono";
+            }
             $mdDialog.show(
                     $mdDialog.alert()
                     .parent(angular.element(document.querySelector('#popupContainer')))
                     .clickOutsideToClose(true)
                     .title('Numero di telefono')
-                    .textContent(vm.travel.utente.telefono1)
+                    .textContent(content)
                     .ariaLabel('Alert Dialog Demo')
                     .ok('Close')
                     .targetEvent(ev)

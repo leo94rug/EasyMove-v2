@@ -16,7 +16,7 @@ import org.json.JSONObject;
  *
  * @author leo
  */
-public class NotificaRqt extends Notifica {
+public class NotificaRqt extends Notifica implements Cloneable {
 
     public NotificaRqt(JSONObject obj, DataSource ds) throws JSONException, SQLException {
         super();
@@ -60,4 +60,10 @@ public class NotificaRqt extends Notifica {
         super.setStato(0);
 
     }
+
+    @Override
+    public NotificaRqt clone() throws CloneNotSupportedException {
+        return  (NotificaRqt) super.clone(); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

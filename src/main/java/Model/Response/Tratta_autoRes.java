@@ -17,18 +17,18 @@ import java.util.List;
  * @author leo
  */
 public class Tratta_autoRes extends Tratta_auto{
-    List<Utente> utente;
+    List<Utente> passeggeri;
 
     public Tratta_autoRes(ResultSet rs) throws SQLException {
         super(rs);
     }
 
-    public List<Utente> getUtente() {
-        return utente;
+    public List<Utente> getPasseggeri() {
+        return passeggeri;
     }
 
-    public void setUtente(List<Utente> utente) {
-        this.utente = utente;
+    public void setPasseggeri(List<Utente> passeggeri) {
+        this.passeggeri = passeggeri;
     }
 
 }

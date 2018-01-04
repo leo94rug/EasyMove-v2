@@ -83,7 +83,7 @@
                         <md-button ng-click="vm.visualizzautente(vm.utenteProfilo.id)">Visualizza profilo</md-button>
                     </md-card-actions>
                 </md-card>
-                <div ng-if="vm.amicizia === 0">
+                <div ng-if="vm.amicizia === 0 || vm.amicizia === 1">
                     <md-button ng-disabled=vm.disabled_amicizia class="md-primary md-raised" ng-click="vm.richiestaAmicizia($event)"  >
                         PRENOTA
                     </md-button>
@@ -115,25 +115,23 @@
                         <md-card-title-text>
                             <h2>Passeggeri</h2>
                             <div class="full-width" style="padding-bottom: 10px;">
-                                <div ng-if="vm.dettaglioPercorso.passeggeri.cont != 0">
+                                <div ng-if="vm.dettaglioPercorso.passeggeri.cont != 0" style="display: inline-flex;">
 
                                     <a ng-repeat="pass in vm.dettaglioPercorso.passeggeri" ng-href="profilo-utenti/{{pass.id}}" >
-                                        <md-list-item  class="md-3-line " style="min-height: 150px;" >
+                                        <md-list-item  class="md-1-line " style="min-height: 80px;" >
                                             <div style="
-                                                 min-height: 150px;  
-                                                 width: 80px;  
-                                                 display: -webkit-flex;
-                                                 display: flex;">
+                                                 min-height: 50px;  
+                                                 width: 50px;">
                                                 <img data-ng-src="{{pass.foto_utente}}" class="md-avatar" style="
-                                                     width: 80px;
-                                                     height: 80px;
-                                                     margin: auto;">
+                                                     width: 50px;
+                                                     height: 50px;">
+                                                     <div>{{pass.nome}}</div>                                                                                                 
                                             </div>
                                         </md-list-item>
                                     </a>
                                 </div>
                                 <div ng-if="vm.dettaglioPercorso.passeggeri.cont === 0" class="f-row">
-                                    <h2>Non sono ancora presenti feedback</h2>
+                                    <h2>Non sono ancora presenti passeggeri</h2>
                                 </div>
                             </div>
                         </md-card-title-text>

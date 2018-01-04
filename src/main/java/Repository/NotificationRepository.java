@@ -14,7 +14,10 @@ import DatabaseConstants.Table;
 import static DatabaseConstants.Table.NOTIFICA;
 import static DatabaseConstants.Table.UTENTE;
 import DatabaseConstants.TableConstants.Notifica_stato;
+import static DatabaseConstants.TableConstants.Notifica_tipologia.INSERISCI_FEEDBACK;
 import Model.ModelDB.Notifica;
+import Model.ModelDB.Relazione;
+import Model.ModelDB.Tratta_auto;
 import Model.Request.NotificaRqt;
 import Model.Response.NotificaRes;
 import static Utilita.DatabaseUtils.ottieniIdValido;
@@ -22,7 +25,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -33,12 +39,14 @@ import javax.sql.DataSource;
  * @author leo
  */
 public class NotificationRepository {
+
     DataSource ds;
 
     public NotificationRepository(DataSource dataSource) {
         ds = dataSource;
 
     }
+
     public void checkNotificationExistAndDelete(int mittente, int destinatario, int tipologia) throws SQLException {
         try (Connection connection = ds.getConnection()) {
             String query = "SELECT " + ID + " FROM " + NOTIFICA + " AS n WHERE " + MITTENTE + "=? AND " + DESTINATARIO + "=? AND " + TIPOLOGIA + "=?";
@@ -57,9 +65,9 @@ public class NotificationRepository {
         }
     }
 
-    public  Notifica getNotifica(int id) throws SQLException {
+    public Notifica getNotifica(int id) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "SELECT * FROM " + NOTIFICA + " AS n WHERE "+ID+"=?";
+            String query = "SELECT * FROM " + NOTIFICA + " AS n WHERE " + ID + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -73,7 +81,7 @@ public class NotificationRepository {
             java.sql.Timestamp date = new java.sql.Timestamp(utilDate.getTime());
             PreparedStatement ps = connection.prepareStatement(""
                     + "SELECT COUNT(n.id) AS numero "
-                    + "FROM "+UTENTE+" AS u JOIN "+NOTIFICA+" AS n ON u.id=n.mittente "
+                    + "FROM " + UTENTE + " AS u JOIN " + NOTIFICA + " AS n ON u.id=n.mittente "
                     + "WHERE n.destinatario=? "
                     + "AND (n.stato=" + Notifica_stato.VISUALIZZATA + " OR n.stato=" + Notifica_stato.INSERITA + ") "
                     + "AND n.inizio_validita<=? "
@@ -92,7 +100,7 @@ public class NotificationRepository {
             java.util.Date utilDate = new java.util.Date();
             java.sql.Timestamp date = new java.sql.Timestamp(utilDate.getTime());
             String query = "SELECT * "
-                    + "FROM "+UTENTE+" AS u JOIN "+NOTIFICA+" AS n ON u.id=n.mittente "
+                    + "FROM " + UTENTE + " AS u JOIN " + NOTIFICA + " AS n ON u.id=n.mittente "
                     + "JOIN notifica_tipologia AS nt ON n.tipologia=nt.id_tipologia "
                     + "WHERE n.fine_validita >= ? "
                     + "AND n.inizio_validita <= ? "
@@ -161,6 +169,49 @@ public class NotificationRepository {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id);
             return ps.executeUpdate();
+        }
+    }
+
+    public void insertFeedbackNotification(int utente_1, int utente_2, int id_tappa, NotificaRqt notifica) throws SQLException, ParseException, CloneNotSupportedException {
+        RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
+        RouteRepository routeRepository = new RouteRepository(ds);
+        Timestamp orarioPartenza = routeRepository.getTravelDetail(id_tappa, id_tappa).getOrario_partenza();
+        Relazione relazione = relazioneRepository.getRelazione(utente_1, utente_2);
+
+        if (relazione != null) {
+            switch (relazione.getDa_valutare()) {
+                case 0: {
+                    relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
+                }
+                case 1: {
+                    Timestamp timestamp = relazione.getDa_valutare_data();
+                    if (orarioPartenza.after(timestamp)) {
+                        relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
+                        break;
+                    }
+                    NotificaRqt insertFeedbackNotification = notifica.clone();
+                    insertFeedbackNotification.setTipologia(INSERISCI_FEEDBACK);
+                    insertFeedbackNotification.setMessaggio("Inserisci un feedback");
+                    insertFeedbackNotification.setMittente(utente_1);
+                    insertFeedbackNotification.setDestinatario(utente_2);
+                    
+                    
+                    checkNotificationExistAndDelete(utente_1,utente_2, INSERISCI_FEEDBACK);
+                    insertFeedbackNotification.setInizio_validita(orarioPartenza);
+                    //java.util.Date now = calendar.getTime();
+                    //notifica.setInizio_validita(new java.sql.Timestamp(now.getTime()));
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.YEAR, +1);
+                    java.util.Date future = calendar.getTime();
+                    java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(future.getTime());
+                    insertFeedbackNotification.setFine_validita(currentTimestamp);
+                    
+                    
+                    insertNotifica(insertFeedbackNotification);
+                    // TODOnow: invia notifica insert feedback
+
+                }
+            }
         }
     }
 

@@ -217,7 +217,16 @@ public class UserRepository {
         try (Connection connection = ds.getConnection()) {
             ICrypt crypt = new Encryptor();
             utenteRqt.setPassword(crypt.encrypt(utenteRqt.getPassword()));
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO " + UTENTE + " (" + EMAIL + ", " + NOME + ", " + COGNOME + ", " + PASSWORD + "," + PROFESSIONE + ", " + ANNO_NASCITA + ", " + SESSO + ", " + TIPO + ") VALUES (?,?,?,?,?,?,?,?)");
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO " + UTENTE + " (" 
+                    + EMAIL + ", " 
+                    + NOME + ", " 
+                    + COGNOME + ", " 
+                    + PASSWORD + "," 
+                    + PROFESSIONE + ", " 
+                    + ANNO_NASCITA + ", " 
+                    + SESSO + ", " 
+                    + FOTO_UTENTE + ", " 
+                    + TIPO + ") VALUES (?,?,?,?,?,?,?,?,?)");
             ps.setString(1, utenteRqt.getEmail());
             ps.setString(2, utenteRqt.getNome());
             ps.setString(3, utenteRqt.getCognome());
@@ -225,7 +234,8 @@ public class UserRepository {
             ps.setString(5, utenteRqt.getProfessione());
             ps.setString(6, utenteRqt.getAnno_nascita());
             ps.setString(7, utenteRqt.getSesso());
-            ps.setInt(8, NON_CONFERMATO);
+            ps.setString(8, utenteRqt.getFoto_utente());
+            ps.setInt(9, NON_CONFERMATO);
             return ps.executeUpdate();
         }
     }

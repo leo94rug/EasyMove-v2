@@ -67,19 +67,30 @@ public class RelazioneRepository {
         }
     }
 
-    public void setRelazioneApprovato(int mittente, int destinatario) throws SQLException {
+    public void setRelazioneApprovato(int mittente, int destinatario, int relazione) throws SQLException {
         try (Connection connection = ds.getConnection()) {
-            String query = "INSERT INTO "+RELAZIONE+"(" + UTENTE_1 + ", " + UTENTE_2 + ", "+APPROVATO+") VALUES (?,?,?)";
+            String query = "SELECT * FROM " + RELAZIONE
+                    + " WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, mittente);
             ps.setInt(2, destinatario);
-            ps.setInt(3, Relazione_approvato.APPROVATO);
-            ps.executeUpdate();
-            ps = connection.prepareStatement(query);
-            ps.setInt(1, destinatario);
-            ps.setInt(2, mittente);
-            ps.setInt(3, Relazione_approvato.APPROVATO);
-            ps.executeUpdate();
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                query = "UPDATE " + RELAZIONE + " SET " + APPROVATO + "=? WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
+                ps = connection.prepareStatement(query);
+                ps.setInt(1, relazione);
+                ps.setInt(2, mittente);
+                ps.setInt(3, destinatario);
+                ps.executeUpdate();
+            } else {
+                query = "INSERT INTO " + RELAZIONE + "(" + UTENTE_1 + ", " + UTENTE_2 + ", " + APPROVATO + ") VALUES (?,?,?)";
+                ps = connection.prepareStatement(query);
+                ps.setInt(1, mittente);
+                ps.setInt(2, destinatario);
+                ps.setInt(3, relazione);
+                ps.executeUpdate();
+            }
+
         }
     }
 
