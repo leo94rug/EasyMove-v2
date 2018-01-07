@@ -10,6 +10,7 @@ import Model.Response.PrenotazioneRes;
 import Repository.PrenotazioneRepository;
 import Repository.RouteRepository;
 import com.google.gson.Gson;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
@@ -68,8 +69,8 @@ public class ControllerPrenotazioni {
     }
 
     private Response doGetPrenotazioni(@PathParam("id") int id) {
-        try {
-            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
             List<PrenotazioneRes> prenotazione = prenotazioneRepository.getPrenotazione(id);
             return Response.ok(new Gson().toJson(prenotazione)).build();
         } catch (SQLException | ParseException ex) {
@@ -78,9 +79,9 @@ public class ControllerPrenotazioni {
         }
     }
     private Response doPrenotazione(@Context final UriInfo context, final String payload) {
-        try {
-            RouteRepository routeRepository = new RouteRepository(ds);
-            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RouteRepository routeRepository = new RouteRepository(connection);
+            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
             PrenotazioneRqt prenotazione = new PrenotazioneRqt(new JSONObject(payload));
             //errori
             //il viaggio non esiste

@@ -18,6 +18,7 @@ import Repository.RelazioneRepository;
 import Repository.RouteRepository;
 import Repository.UserRepository;
 import com.google.gson.Gson;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -102,8 +103,8 @@ public class ControllerNotifiche {
     }
 
     private Response doNotificationnumber(@PathParam("id") int id) {
-        try {
-            NotificationRepository notificationRepository = new NotificationRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            NotificationRepository notificationRepository = new NotificationRepository(connection);
             int notificationNumber = notificationRepository.getNoticationNumber(id);
             return Response.ok(new Gson().toJson(notificationNumber)).build();
         } catch (SQLException ex) {
@@ -113,8 +114,8 @@ public class ControllerNotifiche {
     }
 
     private Response doGetnotifiche(@PathParam("id") int id) {
-        try {
-            NotificationRepository notificationRepository = new NotificationRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            NotificationRepository notificationRepository = new NotificationRepository(connection);
             List<NotificaRes> notificaRes = notificationRepository.getNotifiche(id);
             return Response.ok(new Gson().toJson(notificaRes)).build();
         } catch (SQLException ex) {
@@ -125,8 +126,8 @@ public class ControllerNotifiche {
     }
 
     private Response doDelete(@PathParam("id") int id) {
-        try {
-            NotificationRepository notificationRepository = new NotificationRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            NotificationRepository notificationRepository = new NotificationRepository(connection);
             Notifica notifica = notificationRepository.getNotifica(id);
             if (notifica == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -153,11 +154,11 @@ public class ControllerNotifiche {
     }
 
     private Response doInvianotifica(@Context final UriInfo context, final String payload) {
-        try {
-            NotificationRepository notificationRepository = new NotificationRepository(ds);
-            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
-            RouteRepository routeRepository = new RouteRepository(ds);
-            NotificaRqt notifica = new NotificaRqt(new JSONObject(payload), ds);
+        try (Connection connection = ds.getConnection()) {
+            NotificationRepository notificationRepository = new NotificationRepository(connection);
+            RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
+            RouteRepository routeRepository = new RouteRepository(connection);
+            NotificaRqt notifica = new NotificaRqt(new JSONObject(payload), connection);
             switch (notifica.getTipologia()) {
                 // E' stata inviata una richiesta di amicizia
                 case 1: {

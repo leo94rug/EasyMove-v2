@@ -26,85 +26,83 @@ import javax.sql.DataSource;
  */
 public class RelazioneRepository {
 
-    DataSource ds;
+    Connection connection;
 
-    public RelazioneRepository(DataSource dataSource) {
-        ds = dataSource;
+    public RelazioneRepository(Connection dataSource) {
+        connection = dataSource;
     }
 
     public Relazione getRelazione(int mittente, int destinatario) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM relazione WHERE utente_1=? AND utente_2=?");
-            ps.setInt(1, mittente);
-            ps.setInt(2, destinatario);
-            ResultSet rs = ps.executeQuery();
-            Relazione relazione = null;
-            if (rs.next()) {
-                relazione = new Relazione(rs);
-            }
-            return relazione;
+
+        PreparedStatement ps = connection.prepareStatement("SELECT * FROM relazione WHERE utente_1=? AND utente_2=?");
+        ps.setInt(1, mittente);
+        ps.setInt(2, destinatario);
+        ResultSet rs = ps.executeQuery();
+        Relazione relazione = null;
+        if (rs.next()) {
+            relazione = new Relazione(rs);
         }
+        return relazione;
+
     }
 
     public int updateRelazioneDaValutare(int utente_1, int utente_2, int index, Timestamp orario_partenza) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=?,da_valutare_data=? WHERE utente_1=? AND utente_2=?");
-            ps.setInt(1, index);
-            ps.setTimestamp(2, orario_partenza);
-            ps.setInt(3, utente_1);
-            ps.setInt(4, utente_2);
-            return ps.executeUpdate();
-        }
+
+        PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=?,da_valutare_data=? WHERE utente_1=? AND utente_2=?");
+        ps.setInt(1, index);
+        ps.setTimestamp(2, orario_partenza);
+        ps.setInt(3, utente_1);
+        ps.setInt(4, utente_2);
+        return ps.executeUpdate();
+
     }
 
     public int updateRelazioneDaValutare(int utente_1, int utente_2, int index) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=? WHERE utente_1=? AND utente_2=?");
-            ps.setInt(1, index);
-            ps.setInt(2, utente_1);
-            ps.setInt(3, utente_2);
-            return ps.executeUpdate();
-        }
+
+        PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=? WHERE utente_1=? AND utente_2=?");
+        ps.setInt(1, index);
+        ps.setInt(2, utente_1);
+        ps.setInt(3, utente_2);
+        return ps.executeUpdate();
+
     }
 
     public void setRelazioneApprovato(int mittente, int destinatario, int relazione) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String query = "SELECT * FROM " + RELAZIONE
-                    + " WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
-            PreparedStatement ps = connection.prepareStatement(query);
+
+        String query = "SELECT * FROM " + RELAZIONE
+                + " WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setInt(1, mittente);
+        ps.setInt(2, destinatario);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            query = "UPDATE " + RELAZIONE + " SET " + APPROVATO + "=? WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
+            ps = connection.prepareStatement(query);
+            ps.setInt(1, relazione);
+            ps.setInt(2, mittente);
+            ps.setInt(3, destinatario);
+            ps.executeUpdate();
+        } else {
+            query = "INSERT INTO " + RELAZIONE + "(" + UTENTE_1 + ", " + UTENTE_2 + ", " + APPROVATO + ") VALUES (?,?,?)";
+            ps = connection.prepareStatement(query);
             ps.setInt(1, mittente);
             ps.setInt(2, destinatario);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                query = "UPDATE " + RELAZIONE + " SET " + APPROVATO + "=? WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
-                ps = connection.prepareStatement(query);
-                ps.setInt(1, relazione);
-                ps.setInt(2, mittente);
-                ps.setInt(3, destinatario);
-                ps.executeUpdate();
-            } else {
-                query = "INSERT INTO " + RELAZIONE + "(" + UTENTE_1 + ", " + UTENTE_2 + ", " + APPROVATO + ") VALUES (?,?,?)";
-                ps = connection.prepareStatement(query);
-                ps.setInt(1, mittente);
-                ps.setInt(2, destinatario);
-                ps.setInt(3, relazione);
-                ps.executeUpdate();
-            }
-
+            ps.setInt(3, relazione);
+            ps.executeUpdate();
         }
+
     }
 
     public int getRelazioneApprovato(int user1, int user2) throws SQLException {
         if (user1 == user2) {
             return STESSO_UTENTE;
         }
-        try (Connection connection = ds.getConnection()) {
-            String query = "SELECT * FROM " + RELAZIONE + " WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=?";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, user1);
-            ps.setInt(2, user2);
-            ResultSet rs = ps.executeQuery();
-            return rs.next() ? rs.getInt((APPROVATO)) : NON_APPROVATO;
-        }
+
+        String query = "SELECT * FROM " + RELAZIONE + " WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=?";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setInt(1, user1);
+        ps.setInt(2, user2);
+        ResultSet rs = ps.executeQuery();
+        return rs.next() ? rs.getInt((APPROVATO)) : NON_APPROVATO;
     }
 }

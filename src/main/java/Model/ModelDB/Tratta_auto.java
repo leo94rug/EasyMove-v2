@@ -70,37 +70,7 @@ public class Tratta_auto {
         denominazione_arrivo = jsonObject.getString("denominazione_arrivo");
     }
 
-    public void insert(DataSource ds) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String query = "INSERT INTO tratta_auto("
-                    + "orario_partenza, "
-                    + "enumerazione, "
-                    + "viaggio_fk, "
-                    + "prezzo, "
-                    + "distanza, "
-                    + "posti,"
-                    + "lat_partenza,"
-                    + "lng_partenza,"
-                    + "lat_arrivo,"
-                    + "lng_arrivo,"
-                    + "denominazione_partenza,"
-                    + "denominazione_arrivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setTimestamp(1, orario_partenza);
-            ps.setInt(2, enumerazione);
-            ps.setInt(3, viaggio_fk);
-            ps.setInt(4, prezzo);
-            ps.setInt(5, distanza);
-            ps.setInt(6, posti);
-            ps.setDouble(7, lat_partenza);
-            ps.setDouble(8, lng_partenza);
-            ps.setDouble(9, lat_arrivo);
-            ps.setDouble(10, lng_arrivo);
-            ps.setString(11, denominazione_partenza);
-            ps.setString(12, denominazione_arrivo);
-            int i = ps.executeUpdate();
-        }
-    }
+
     public void addPrezzo(int add){
         this.prezzo=this.prezzo+add;
     }        

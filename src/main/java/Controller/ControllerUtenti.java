@@ -11,6 +11,7 @@ import Model.Response.Viaggio_autoRes;
 import Repository.RelazioneRepository;
 import Repository.UserRepository;
 import com.google.gson.Gson;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -121,8 +122,8 @@ public class ControllerUtenti {
     }
 
     private Response doUpdateImage(@Context UriInfo context, String payload) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            UserRepository userRepository = new UserRepository(connection);
             JSONObject obj = new JSONObject(payload);
             String immagine = obj.getString("immagine");
             int id = obj.getInt("id");
@@ -150,8 +151,8 @@ public class ControllerUtenti {
     }
 
     private Response doGetviaggi(@PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            UserRepository userRepository = new UserRepository(connection);
             List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
             return Response.ok(new Gson().toJson(viaggio_auto)).build();
         } catch (SQLException ex) {
@@ -162,8 +163,8 @@ public class ControllerUtenti {
     }
 
     private Response doGetByEmail(@PathParam("email") String email) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            UserRepository userRepository = new UserRepository(connection);
             Utente utente = userRepository.getUtenteByEmail(email);
             if (utente == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -176,8 +177,8 @@ public class ControllerUtenti {
     }
 
     private Response doGetpercorsi(@PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            UserRepository userRepository = new UserRepository(connection);
 
             List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
             return Response.ok(new Gson().toJson(viaggio_auto)).build();
@@ -188,8 +189,8 @@ public class ControllerUtenti {
     }
 
     private Response doGetProfilo(@PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            UserRepository userRepository = new UserRepository(connection);
             UtenteRes utenteRes = userRepository.getUtente(id);
             if(utenteRes==null) return Response.status(Response.Status.NOT_FOUND).build();
             return Response.ok(new Gson().toJson(utenteRes)).build();
@@ -201,8 +202,8 @@ public class ControllerUtenti {
     }
 
     private Response doCheckfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
-        try {
-            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
 
             int friend = relazioneRepository.getRelazioneApprovato(user1, user2);
             return Response.ok(new Gson().toJson(friend)).build();
@@ -213,8 +214,8 @@ public class ControllerUtenti {
     }
 
     private Response doUpdateProfilo(@Context UriInfo context, Utente utenteRqt, @PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            UserRepository userRepository = new UserRepository(connection);
             int i = userRepository.updateUser(utenteRqt, id);
             if (i == 0) {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -231,9 +232,9 @@ public class ControllerUtenti {
     }
 
     private Response doTravelnumber(@PathParam("id") int id) {
-        try {
+        try (Connection connection = ds.getConnection()) {
             java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
-            UserRepository userRepository = new UserRepository(ds);
+            UserRepository userRepository = new UserRepository(connection);
 
             int k = userRepository.getTravelNumber(id, date);
             if (k == -1) {

@@ -10,10 +10,8 @@ import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Viaggio_auto;
 import Model.Response.Viaggio_autoRes;
 import Repository.RouteRepository;
-import static Utilita.DatabaseUtils.ottieniIdValido;
 import com.google.gson.Gson;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
@@ -30,7 +28,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
@@ -59,7 +56,7 @@ public class ControllerPercorsi {
 
     @Resource(name = "jdbc/webdb2")
     private DataSource ds;
-    private ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
+    private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
@@ -118,8 +115,8 @@ public class ControllerPercorsi {
     }
 
     private Response doDelete(@PathParam("id") int id) {
-        try {
-            RouteRepository routeRepository = new RouteRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RouteRepository routeRepository = new RouteRepository(connection);
             routeRepository.deleteTravel(id);
             return Response.noContent().build();
         } catch (SQLException ex) {
@@ -129,10 +126,10 @@ public class ControllerPercorsi {
     }
 
     private Response doCercaAuto(@Context UriInfo context, String payload) {
-        try {
+        try (Connection connection = ds.getConnection()) {
             JSONObject obj = new JSONObject(payload);
             Ricerca ricerca = new Ricerca(obj);
-            RouteRepository routeRepository = new RouteRepository(ds);
+            RouteRepository routeRepository = new RouteRepository(connection);
 
             List<Viaggio_autoRes> cercaAuto = routeRepository.cercaAuto(ricerca);
             return Response.ok(new Gson().toJson(cercaAuto)).build();
@@ -144,35 +141,36 @@ public class ControllerPercorsi {
             return Response.serverError().build();
         } catch (ParseException ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
-                        return Response.serverError().build();
+            return Response.serverError().build();
         }
     }
 
     private Response doPost2(@Context UriInfo context, String payload) {
-        try {
+        try (Connection connection = ds.getConnection()) {
+            RouteRepository routeRepository = new RouteRepository(connection);
             JSONObject obj = new JSONObject(payload);
             JSONArray andata = obj.getJSONArray("andata");
             JSONArray ritorno = obj.getJSONArray("ritorno");
             JSONObject viaggio = obj.getJSONObject("viaggio");
             Viaggio_auto viaggio_auto = new Viaggio_auto(viaggio);
-            int idviaggio = ottieniIdValido("viaggio_auto", ds);
+            int idviaggio = routeRepository.ottieniIdValido();
             viaggio_auto.setId(idviaggio);
-            viaggio_auto.insert(ds);
+            routeRepository.insertViaggio_auto(viaggio_auto);
             for (int i = 0; i < andata.length(); ++i) {
                 JSONObject tratta = andata.getJSONObject(i);
                 Tratta_auto tratta_auto = new Tratta_auto(tratta);
                 tratta_auto.setViaggio_fk(idviaggio);
-                tratta_auto.insert(ds);
+                routeRepository.insertTratta_auto(tratta_auto);
             }
             if (ritorno.length() > 0) {
-                idviaggio = ottieniIdValido("viaggio_auto", ds);
+                idviaggio = routeRepository.ottieniIdValido();
                 viaggio_auto.setId(idviaggio);
-                viaggio_auto.insert(ds);
+                routeRepository.insertViaggio_auto(viaggio_auto);
                 for (int i = 0; i < ritorno.length(); ++i) {
                     JSONObject tratta = ritorno.getJSONObject(i);
                     Tratta_auto tratta_auto = new Tratta_auto(tratta);
                     tratta_auto.setViaggio_fk(idviaggio);
-                    tratta_auto.insert(ds);
+                    routeRepository.insertTratta_auto(tratta_auto);
                 }
             }
             return Response.ok().build();
@@ -186,8 +184,8 @@ public class ControllerPercorsi {
     }
 
     private Response doGettraveldetail(@PathParam("tratta1") int tratta1, @PathParam("tratta2") int tratta2) {
-        try {
-            RouteRepository routeRepository = new RouteRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RouteRepository routeRepository = new RouteRepository(connection);
 
             Tratta_auto tratta_auto = routeRepository.getTravelDetail(tratta1, tratta2);
             return Response.ok(new Gson().toJson(tratta_auto)).build();
@@ -198,8 +196,8 @@ public class ControllerPercorsi {
     }
 
     private Response doGettravel(@PathParam("viaggio_fk") int viaggio_fk) {
-        try {
-            RouteRepository routeRepository = new RouteRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RouteRepository routeRepository = new RouteRepository(connection);
             List<Tratta_auto> tratteList = routeRepository.getListTratteAuto(viaggio_fk);
             return Response.ok(new Gson().toJson(tratteList)).build();
         } catch (SQLException ex) {
@@ -209,8 +207,8 @@ public class ControllerPercorsi {
     }
 
     private Response doGetviaggio(@PathParam("id") int id) {
-        try {
-            RouteRepository routeRepository = new RouteRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RouteRepository routeRepository = new RouteRepository(connection);
             return Response.ok(new Gson().toJson(routeRepository.getViaggioAuto(id))).build();
         } catch (SQLException ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);

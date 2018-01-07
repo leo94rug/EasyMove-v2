@@ -101,8 +101,8 @@ public class ControllerFeedback {
     }
 
     private Response doGetfeedback(@PathParam("id") int id) {
-        try {
-            FeedbackRepository feedbackRepository = new FeedbackRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            FeedbackRepository feedbackRepository = new FeedbackRepository(connection);
             FeedbackRes feedbackRes = feedbackRepository.getFeedback(id);
             return Response.ok(new Gson().toJson(feedbackRes)).build();
         } catch (SQLException | ParseException ex) {
@@ -112,9 +112,9 @@ public class ControllerFeedback {
     }
 
     private Response doCheckispossibleinsertfeedback(@Context final UriInfo context, final String payload) {
-        try {
-            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
-            NotificationRepository notificationRepository = new NotificationRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
+            NotificationRepository notificationRepository = new NotificationRepository(connection);
             JSONObject obj = new JSONObject(payload);
             int mittente = obj.getInt("mittente");
             int destinatario = obj.getInt("destinatario");
@@ -155,10 +155,10 @@ public class ControllerFeedback {
     }
 
     private Response doInsertfeedback(@Context UriInfo context, FeedbackRqt feedbackRqt) {
-        try {
-            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
-            NotificationRepository notificationRepository = new NotificationRepository(ds);
-            FeedbackRepository feedbackRepository = new FeedbackRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
+            NotificationRepository notificationRepository = new NotificationRepository(connection);
+            FeedbackRepository feedbackRepository = new FeedbackRepository(connection);
             if (feedbackRepository.existingFeedback(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito())) {
                 return Response.status(Response.Status.CONFLICT).build();
             }
@@ -175,9 +175,9 @@ public class ControllerFeedback {
     }
 
     private Response doPossibilitainserirefeedback(@Context UriInfo context, String payload) {
-        try {
-            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
-            RouteRepository routeRepository = new RouteRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
+            RouteRepository routeRepository = new RouteRepository(connection);
             JSONObject obj = new JSONObject(payload);
             int utente_1 = obj.getInt("passeggero");
             int utente_2 = obj.getInt("autista");

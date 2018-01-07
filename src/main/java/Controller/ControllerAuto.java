@@ -8,6 +8,7 @@ package Controller;
 import Model.Request.AutoRqt;
 import Repository.CarRepository;
 import com.google.gson.Gson;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -77,8 +78,8 @@ public class ControllerAuto {
     }
 
     private Response doGetauto(@PathParam("id") int id) {
-        try {
-            CarRepository carRepository = new CarRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            CarRepository carRepository = new CarRepository(connection);
             List<Model.ModelDB.Auto> auto = carRepository.getAuto(id);
             return Response.ok(new Gson().toJson(auto)).build();
         } catch (SQLException ex) {
@@ -89,8 +90,8 @@ public class ControllerAuto {
     }
 
     private Response doAddcar(@Context UriInfo context, AutoRqt autoRqt) {
-        try {
-            CarRepository carRepository = new CarRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            CarRepository carRepository = new CarRepository(connection);
             carRepository.addCar(autoRqt);
             return Response.ok().build();
         } catch (SQLException ex) {
@@ -101,8 +102,8 @@ public class ControllerAuto {
     }
 
     private Response doDelete(@PathParam("id") int id) {
-        try {
-            CarRepository carRepository = new CarRepository(ds);
+        try (Connection connection = ds.getConnection()) {
+            CarRepository carRepository = new CarRepository(connection);
             int j = carRepository.deleteCar(id);
             return Response.noContent().build();
         } catch (SQLException ex) {

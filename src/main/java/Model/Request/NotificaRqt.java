@@ -7,6 +7,7 @@ package Model.Request;
 
 import Model.ModelDB.Notifica;
 import Repository.UserRepository;
+import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import org.json.JSONException;
@@ -18,7 +19,7 @@ import org.json.JSONObject;
  */
 public class NotificaRqt extends Notifica implements Cloneable {
 
-    public NotificaRqt(JSONObject obj, DataSource ds) throws JSONException, SQLException {
+    public NotificaRqt(JSONObject obj, Connection ds) throws JSONException, SQLException {
         super();
         UserRepository userRepository = new UserRepository(ds);
         if (obj.has("id")) {

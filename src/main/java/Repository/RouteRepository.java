@@ -6,12 +6,14 @@
 package Repository;
 
 import static DatabaseConstants.Table.TRATTA_AUTO;
+import static DatabaseConstants.Table.VIAGGIO_AUTO;
 import static DatabaseConstants.Tratta_auto.ID;
 import static DatabaseConstants.Tratta_auto.POSTI;
 import Model.Coordinate;
 import Model.ModelDB.Ricerca;
 import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
+import Model.ModelDB.Viaggio_auto;
 import Model.Response.Viaggio_autoRes;
 import Model.Request.PrenotazioneRqt;
 import Model.Response.Tratta_autoRes;
@@ -30,11 +32,13 @@ import javax.sql.DataSource;
  */
 public class RouteRepository {
 
-    DataSource ds;
-
+    Connection connection;
+    public RouteRepository(Connection dataSource) {
+        connection = dataSource;
+    }
     public int calcoloPosti(int tratta1, int tratta2) throws SQLException {
         int min_posti;
-        try (Connection connection = ds.getConnection()) {
+
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tratta_auto WHERE id=?");
             ps.setInt(1, tratta1);
             ResultSet rs = ps.executeQuery();
@@ -59,24 +63,80 @@ public class RouteRepository {
             if (cont == 0) {
                 min_posti = -1;
             }
-        }
+        
         return min_posti;
     }
-
+        public void insertTratta_auto(Tratta_auto tratta_auto) throws SQLException {
+            String query = "INSERT INTO tratta_auto("
+                    + "orario_partenza, "
+                    + "enumerazione, "
+                    + "viaggio_fk, "
+                    + "prezzo, "
+                    + "distanza, "
+                    + "posti,"
+                    + "lat_partenza,"
+                    + "lng_partenza,"
+                    + "lat_arrivo,"
+                    + "lng_arrivo,"
+                    + "denominazione_partenza,"
+                    + "denominazione_arrivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setTimestamp(1, tratta_auto.getOrario_partenza());
+            ps.setInt(2, tratta_auto.getEnumerazione());
+            ps.setInt(3, tratta_auto.getViaggio_fk());
+            ps.setInt(4, tratta_auto.getPrezzo());
+            ps.setInt(5, tratta_auto.getDistanza());
+            ps.setInt(6, tratta_auto.getPosti());
+            ps.setDouble(7, tratta_auto.getLat_partenza());
+            ps.setDouble(8, tratta_auto.getLng_partenza());
+            ps.setDouble(9, tratta_auto.getLat_arrivo());
+            ps.setDouble(10, tratta_auto.getLng_arrivo());
+            ps.setString(11, tratta_auto.getDenominazione_partenza());
+            ps.setString(12, tratta_auto.getDenominazione_arrivo());
+            int i = ps.executeUpdate();
+    }
+    public void insertViaggio_auto(Viaggio_auto viaggio_auto) throws SQLException{
+            String query = "INSERT INTO viaggio_auto("
+                    + "id, "
+                    + "auto, "
+                    + "ritardo_max, "
+                    + "bagaglio_max, "
+                    + "disponibilita_deviazioni, "
+                    + "utente_fk,"
+                    + "tipologia) VALUES (?,?,?,?,?,?,?)";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, viaggio_auto.getId());
+            ps.setString(2, viaggio_auto.getAuto());
+            ps.setString(3, viaggio_auto.getRitardo_max());
+            ps.setString(4, viaggio_auto.getBagaglio_max());
+            ps.setString(5, viaggio_auto.getDisponibilita_deviazioni());
+            ps.setInt(6, viaggio_auto.getUtente_fk());
+            ps.setInt(7, viaggio_auto.getTipologia());
+            int i = ps.executeUpdate();
+    }
     public List<Viaggio_autoRes> cercaAuto(Ricerca r) throws SQLException, ParseException {
         Coordinate coordinate = new Coordinate(r.getLat_p(), r.getLng_p(), r.getLat_a(), r.getLng_a(), r.getDistanza_tra(), r.getDistanza());
         List<Tratta_auto> listaPartenze = new ArrayList();
         listaPartenze = listaPartenzeAuto(coordinate, r);
         return controlloTappeAuto(coordinate, listaPartenze);
     }
-
+    public int ottieniIdValido() throws SQLException {
+        int id = (int) (Math.random() * 999999);
+        PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + VIAGGIO_AUTO + " WHERE id=?");
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            id = ottieniIdValido();
+        }
+        return id;
+    }
     private List<Tratta_auto> listaPartenzeAuto(Coordinate c, Ricerca r) throws SQLException {
         ResultSet rs;
         List<Tratta_auto> listaPartenze = new ArrayList();
         String query = ("SELECT * FROM tratta_auto AS t "
                 + "JOIN viaggio_auto as v ON t.viaggio_fk=v.id "
                 + "WHERE t.lat_partenza < ? AND t.lat_partenza > ? AND t.lng_partenza < ? AND t.lng_partenza > ? AND t.orario_partenza >= ? AND v.visibile=1");
-        try (Connection connection = ds.getConnection()) {
+
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setDouble(1, c.getMaxLatP());
             ps.setDouble(2, c.getMinLatP());
@@ -88,14 +148,14 @@ public class RouteRepository {
                 Tratta_auto tratta = new Tratta_auto(rs);
                 listaPartenze.add(tratta);
             }
-        }
+        
         return listaPartenze;
     }
 
     private List<Viaggio_autoRes> controlloTappeAuto(Coordinate c, List<Tratta_auto> listaPartenze) throws SQLException, ParseException {
         List<Viaggio_autoRes> successi = new ArrayList();
-        UserRepository userRepository = new UserRepository(ds);
-        try (Connection connection = ds.getConnection()) {
+        UserRepository userRepository = new UserRepository(connection);
+
             for (Tratta_auto tratta_auto : listaPartenze) {
                 ResultSet rs;
                 String query = "SELECT * FROM tratta_auto AS t WHERE id=?";
@@ -128,23 +188,23 @@ public class RouteRepository {
                     }
                 }
             }
-        }
+        
         return successi;
     }
 
     public int updatePosti(int id_tratta, int new_posti) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             PreparedStatement ps = connection.prepareStatement("UPDATE " + TRATTA_AUTO
                     + " SET " + POSTI + "=? "
                     + "WHERE " + ID + "=?");
             ps.setInt(1, new_posti);
             ps.setInt(2, id_tratta);
             return ps.executeUpdate();
-        }
+        
     }
 
     public boolean decreasePosti(PrenotazioneRqt prenotazione) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM tratta_auto WHERE id=?");
             ps.setInt(1, prenotazione.getId_partenza());
             ResultSet rs = ps.executeQuery();
@@ -161,12 +221,12 @@ public class RouteRepository {
                     rs = ps.executeQuery();
                 }
             }
-        }
+        
         return true;
     }
 
     public List<Tratta_auto> getListTratteAuto(int viaggio_fk) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             List<Tratta_auto> tratteList = new ArrayList();
             ResultSet rs;
             String query = "SELECT * FROM tratta_auto AS t WHERE viaggio_fk=? ORDER BY enumerazione";
@@ -178,11 +238,11 @@ public class RouteRepository {
                 tratteList.add(tratta_auto);
             }
             return tratteList;
-        }
+        
     }
 
     public Viaggio_autoRes getTravelDetailByEnum(int viaggio_fk) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes();
             ResultSet rs;
             String query = "SELECT * FROM tratta_auto AS t WHERE enumerazione=? AND viaggio_fk=?";
@@ -214,10 +274,10 @@ public class RouteRepository {
             viaggio_autoRes.setTratta_auto(tratta_auto);
             return viaggio_autoRes;
         }
-    }
+    
 
     public Viaggio_autoRes getViaggioAuto(int id) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             Viaggio_autoRes viaggio_auto = null;
             String query = "SELECT * FROM viaggio_auto AS vi WHERE vi.id=?";
             PreparedStatement ps = connection.prepareStatement(query);
@@ -227,12 +287,12 @@ public class RouteRepository {
                 viaggio_auto = new Viaggio_autoRes(rs);
             }
             return viaggio_auto;
-        }
+        
     }
 
     public Tratta_autoRes getTravelDetail(int tratta1, int tratta2) throws SQLException, ParseException {
-        try (Connection connection = ds.getConnection()) {
-            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(ds);
+
+            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
             ArrayList<Utente> utenti = new ArrayList<>();
             ResultSet rs;
             String query = "SELECT * FROM tratta_auto AS t WHERE id=?";
@@ -267,19 +327,17 @@ public class RouteRepository {
                 }
             }
             return tratta_auto;
-        }
+        
     }
 
     public int deleteTravel(int id) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             String query = "UPDATE viaggio_auto SET visibile=0 WHERE id=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id);
             return ps.executeUpdate();
-        }
+        
     }
 
-    public RouteRepository(DataSource dataSource) {
-        ds = dataSource;
-    }
+
 }

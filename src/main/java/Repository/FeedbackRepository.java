@@ -24,17 +24,17 @@ import javax.sql.DataSource;
  */
 public class FeedbackRepository {
 
-    DataSource ds = null;
+    Connection connection = null;
 
-    public FeedbackRepository(DataSource dataSource) {
-        ds = dataSource;
+    public FeedbackRepository(Connection dataSource) {
+        connection = dataSource;
     }
 
     public FeedbackRes getFeedback(int id) throws SQLException, ParseException {
         int cont = 0;
-        UserRepository userRepository = new UserRepository(ds);
+        UserRepository userRepository = new UserRepository(connection);
         List<FeedbackRes> feedbacklist = new ArrayList();
-        try (Connection connection = ds.getConnection()) {
+
             String query = "SELECT * " 
                     + "FROM " + Table.FEEDBACK + " "
                     + " AS f WHERE f." + Feedback.UTENTE_RECENSITO + "=?";
@@ -47,7 +47,7 @@ public class FeedbackRepository {
                 feedbacklist.add(feedBackRes);
                 cont++;
             }
-        }
+        
         FeedbackRes feedBackResList = new FeedbackRes();
         feedBackResList.setListaFeedback(feedbacklist);
         feedBackResList.calcoloMedie();
@@ -56,7 +56,7 @@ public class FeedbackRepository {
     }
 
     public int addFeedback(FeedbackRqt feedbackRqt) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             String query = "INSERT INTO " + Table.FEEDBACK + "("
                     + Feedback.VALUTAZIONE_DISPONIBILITA + ","
                     + Feedback.VALUTAZIONE_GUIDA + ","
@@ -73,11 +73,11 @@ public class FeedbackRepository {
             ps.setInt(6, feedbackRqt.getUtente_recensore());
 
             return ps.executeUpdate();
-        }
+        
     }
 
     public boolean existingFeedback(int mittente, int destinatario) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
+
             String query = "SELECT * FROM " + Table.FEEDBACK + " WHERE " + Feedback.UTENTE_RECENSORE + "=? AND " + Feedback.UTENTE_RECENSITO + "=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, mittente);
@@ -85,5 +85,5 @@ public class FeedbackRepository {
             ResultSet rs = ps.executeQuery();
             return rs.next();
         }
-    }
+    
 }

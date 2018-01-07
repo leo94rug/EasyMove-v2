@@ -49,27 +49,7 @@ public class Viaggio_auto {
         this.utente_fk = rs.getInt("vi.utente_fk");
         this.auto = rs.getString("vi.auto");
     }
-    public void insert(DataSource ds) throws SQLException{
-        try (Connection connection = ds.getConnection()) {
-            String query = "INSERT INTO viaggio_auto("
-                    + "id, "
-                    + "auto, "
-                    + "ritardo_max, "
-                    + "bagaglio_max, "
-                    + "disponibilita_deviazioni, "
-                    + "utente_fk,"
-                    + "tipologia) VALUES (?,?,?,?,?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, id);
-            ps.setString(2, auto);
-            ps.setString(3, ritardo_max);
-            ps.setString(4, bagaglio_max);
-            ps.setString(5, disponibilita_deviazioni);
-            ps.setInt(6, utente_fk);
-            ps.setInt(7, tipologia);
-            int i = ps.executeUpdate();
-        }
-    }
+
     public void setId(int id) {
         this.id = id;
     }
