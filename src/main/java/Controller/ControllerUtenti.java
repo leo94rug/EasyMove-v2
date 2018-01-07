@@ -66,20 +66,6 @@ public class ControllerUtenti {
         });
     }
 
-    private Response doGetByEmail(@PathParam("email") String email) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
-            Utente utente = userRepository.getUtenteByEmail(email);
-            if (utente == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            return Response.ok(new Gson().toJson(utente)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
-
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getviaggi/{id: [0-9]+}")
@@ -87,18 +73,6 @@ public class ControllerUtenti {
         executorService.submit(() -> {
             asyncResponse.resume(doGetviaggi(id));
         });
-    }
-
-    private Response doGetviaggi(@PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
-            List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
-            return Response.ok(new Gson().toJson(viaggio_auto)).build();
-        } catch (SQLException ex) {
-            //
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
     }
 
     @GET
@@ -110,18 +84,6 @@ public class ControllerUtenti {
         });
     }
 
-    private Response doGetpercorsi(@PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
-
-            List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
-            return Response.ok(new Gson().toJson(viaggio_auto)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
-
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getprofilo/{id: [0-9]+}")
@@ -129,18 +91,6 @@ public class ControllerUtenti {
         executorService.submit(() -> {
             asyncResponse.resume(doGetProfilo(id));
         });
-    }
-
-    private Response doGetProfilo(@PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
-            UtenteRes utenteRes = userRepository.getUtente(id);
-            return Response.ok(new Gson().toJson(utenteRes)).build();
-        } catch (SQLException | ParseException ex) {
-
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
     }
 
     @GET
@@ -152,18 +102,6 @@ public class ControllerUtenti {
         });
     }
 
-    private Response doCheckfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
-        try {
-            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
-
-            int friend = relazioneRepository.getRelazioneApprovato(user1, user2);
-            return Response.ok(new Gson().toJson(friend)).build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
-
     @PUT
     @Path(value = "updateprofilo/{id: [0-9]+}")
     @Consumes(value = MediaType.APPLICATION_JSON)
@@ -171,24 +109,6 @@ public class ControllerUtenti {
         executorService.submit(() -> {
             asyncResponse.resume(doUpdateProfilo(context, payload, id));
         });
-    }
-
-    private Response doUpdateProfilo(@Context UriInfo context, Utente utenteRqt, @PathParam("id") int id) {
-        try {
-            UserRepository userRepository = new UserRepository(ds);
-            int i = userRepository.updateUser(utenteRqt, id);
-            if (i == 0) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            } else {
-                return Response.status(Response.Status.NO_CONTENT).build();
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
-        } catch (Exception ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
-        }
     }
 
     @PUT
@@ -217,16 +137,99 @@ public class ControllerUtenti {
             return Response.serverError().build();
         }
     }
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("travelnumber/{id: [0-9]+}")
     public void travelnumber(@Suspended
-    final AsyncResponse asyncResponse, @PathParam(value = "id")
-    final int id) {
+            final AsyncResponse asyncResponse, @PathParam(value = "id")
+            final int id) {
         executorService.submit(() -> {
             asyncResponse.resume(doTravelnumber(id));
         });
     }
+
+    private Response doGetviaggi(@PathParam("id") int id) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
+            List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
+            return Response.ok(new Gson().toJson(viaggio_auto)).build();
+        } catch (SQLException ex) {
+            //
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    private Response doGetByEmail(@PathParam("email") String email) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
+            Utente utente = userRepository.getUtenteByEmail(email);
+            if (utente == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            return Response.ok(new Gson().toJson(utente)).build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    private Response doGetpercorsi(@PathParam("id") int id) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
+
+            List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
+            return Response.ok(new Gson().toJson(viaggio_auto)).build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    private Response doGetProfilo(@PathParam("id") int id) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
+            UtenteRes utenteRes = userRepository.getUtente(id);
+            if(utenteRes==null) return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.ok(new Gson().toJson(utenteRes)).build();
+        } catch (SQLException | ParseException ex) {
+
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    private Response doCheckfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
+        try {
+            RelazioneRepository relazioneRepository = new RelazioneRepository(ds);
+
+            int friend = relazioneRepository.getRelazioneApprovato(user1, user2);
+            return Response.ok(new Gson().toJson(friend)).build();
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+    }
+
+    private Response doUpdateProfilo(@Context UriInfo context, Utente utenteRqt, @PathParam("id") int id) {
+        try {
+            UserRepository userRepository = new UserRepository(ds);
+            int i = userRepository.updateUser(utenteRqt, id);
+            if (i == 0) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            } else {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
+        } catch (Exception ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
+        }
+    }
+
     private Response doTravelnumber(@PathParam("id") int id) {
         try {
             java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
@@ -244,7 +247,4 @@ public class ControllerUtenti {
             return Response.serverError().build();
         }
     }
-
-
-
 }

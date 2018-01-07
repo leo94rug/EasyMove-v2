@@ -32,7 +32,6 @@
             $location.path('/');
         }
         function removeNotification(id){
-
             NotificationsService.eliminaNotifica(id).then(function (response) {
                 if(response.success===false){
                     switch(response.res.status){
@@ -257,7 +256,6 @@
                 }
                 else{
                     vm.user=response.res.data;
-                    
                     getNotificationNumber(vm.utente.id);
                     NotificationsService.GetNotifiche(vm.utente.id).then(function (response) {
                         debugger;
@@ -331,49 +329,7 @@
                 }
             });
         }
-        function sendFeedbackToMe(item){
-            var send=new Object();
-            send.messaggio="Inserisci un feedback";
-            send.mittente=item.mittente;
-            send.destinatario=item.destinatario;
-            send.tipologia=7;
-            send.id_viaggio=item.id_viaggio;
-            send.fine_validita=item.fine_validita.getTime();
-            //send.inizio_validita= set server-side
-            send.nome_viaggio=item.nome_viaggio;
-            send.id_partenza=item.id_partenza;
-            send.id_arrivo=item.id_arrivo;
-            NotificationsService.inviaNotifica(send).then(function(response) {
-                debugger;
-                if(response.success===false){
-                    $location.path('/error');
-                }
-                else{
 
-                }
-            });
-        }
-        function sendFeedbackToYou(item){
-            var send=new Object();
-            send.messaggio="Inserisci un feedback";
-            send.mittente=item.destinatario;
-            send.destinatario=item.mittente;
-            send.tipologia=7;
-            send.id_viaggio=item.id_viaggio;
-            send.fine_validita=item.fine_validita.getTime();
-            //send.inizio_validita= set server-side
-            send.nome_viaggio=item.nome_viaggio;
-            send.id_partenza=item.id_partenza;
-            send.id_arrivo=item.id_arrivo;
-            NotificationsService.inviaNotifica(send).then(function(response) {
-                if(response.success===false){
-                    $location.path('/error');
-                }
-                else{
-debugger;
-                }
-            });
-        }
         function rifiutaAmicizia(item){
             var send=new Object();
             send.messaggio="E' stata rifiutata la tua richiesta di condividere i dati personali";
@@ -455,66 +411,6 @@ debugger;
         function addFeedback(id){
             $location.path('/feedback/' +id);
         }  
-        function possibilitaInserireFeedback(item){
-            var send1={
-                'passeggero':item.mittente,
-                'autista':item.destinatario,
-                'id_tappa':item.id_partenza
-            };
-            var send2={
-                'passeggero':item.destinatario,
-                'autista':item.mittente,
-                'id_tappa':item.id_partenza
-            };
-            debugger;
-            FeedbackService.possibilitaInserireFeedback(send1).then(function(response) {
-                if(response.success===false){
-                    $location.path('/error');
-                }
-                else{
-                                   debugger;             //invia notifica conferma viaggio
-                    switch(response.res.data){
-                        case 0:{
-                            break;
-                        }                        
-                        case 1:{
-                            sendFeedbackToMe(item);
-                            break;
-                        }                        
-                        case 2:{
-                            break;
-                        }                        
-                        case 3:{
-                            //gia inserito
-                            break;
-                        }
-                    }
-                }
-            });            
-            FeedbackService.possibilitaInserireFeedback(send2).then(function(response) {
-                if(response.success===false){
-                    $location.path('/error');
-                }
-                else{
-                    switch(response.res.data){
-                        case 0:{
-                            break;
-                        }                        
-                        case 1:{
-                            sendFeedbackToYou(item);
-                            break;
-                        }                        
-                        case 2:{
-                            break;
-                        }                        
-                        case 3:{
-                            //gia inserito
-                            break;
-                        }
-                    }
-                }
-            });
-        }
     }
 
 })();
