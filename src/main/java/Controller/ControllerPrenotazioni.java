@@ -48,8 +48,10 @@ public class ControllerPrenotazioni {
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
     @Resource(name = "jdbc/webdb2")
     private DataSource ds;
+
     public ControllerPrenotazioni() {
     }
+
     @POST
     @Path(value = "prenotazione")
     @Consumes(value = MediaType.APPLICATION_JSON)
@@ -58,7 +60,8 @@ public class ControllerPrenotazioni {
         executorService.submit(() -> {
             asyncResponse.resume(doPrenotazione(context, payload));
         });
-    }    
+    }
+
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getprenotazioni/{id: [0-9]+}")
@@ -78,6 +81,7 @@ public class ControllerPrenotazioni {
             return Response.serverError().build();
         }
     }
+
     private Response doPrenotazione(@Context final UriInfo context, final String payload) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
@@ -87,29 +91,19 @@ public class ControllerPrenotazioni {
             //il viaggio non esiste
             //i posti non sono disponibili
             //prezzo incongruente ?
-            
+
             //cercare per ogni tappa la disponibilita
             //diminuire disponibilita
-            int checkPosti = prenotazioneRepository.getDisponibilitaPrenotazione(prenotazione);
-            switch (checkPosti) {
-                case -1: {
-                    //IL VIAGGIO NON E' STATO TROVATO
-                    return Response.status(Response.Status.NOT_FOUND).build();
-                }
-                case 0: {
-                    //I POSTI NON SONO PIU DISPONIBILI
-                    return Response.status(Response.Status.GONE).build();
-                }
-                case 1: {
-                    //PRENOTARE
-                    boolean result = routeRepository.decreasePosti(prenotazione);
-                    prenotazioneRepository.setPrenotation(prenotazione);
-                    return Response.status(Response.Status.OK).build();
-                }
-                default: {
-                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-                }
+            if (prenotazioneRepository.getDisponibilitaPosti(prenotazione)) {
+                //PRENOTARE
+                routeRepository.decreasePosti(prenotazione);
+                prenotazioneRepository.setPrenotation(prenotazione);
+                return Response.status(Response.Status.OK).build();
+            } else {
+                //I POSTI NON SONO PIU DISPONIBILI
+                return Response.status(Response.Status.GONE).build();
             }
+
         } catch (JSONException | SQLException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

@@ -21,7 +21,7 @@ import org.json.JSONObject;
  *
  * @author leo
  */
-public class Prenotazione {
+public class Prenotazione extends Notifica{
 
     private int id;
     private int passeggero;

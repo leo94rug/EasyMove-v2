@@ -9,7 +9,6 @@ import static DatabaseConstants.TableConstants.Utente_tipologia.NON_CONFERMATO;
 import static DatabaseConstants.TableConstants.Utente_tipologia.OSPITE;
 import Interfaces.ICrypt;
 import Model.ModelDB.Utente;
-import Model.Request.UtenteRqt;
 import Model.Response.UtenteRes;
 import Repository.UserRepository;
 import Utilita.Crypt.Encryptor;
@@ -117,9 +116,9 @@ public class ControllerAccount {
     @POST
     @Path(value = "resendemail")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void resendEmail(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String email) {
+    public void resendEmail(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
         executorService.submit(() -> {
-            asyncResponse.resume(doResendEmail(context, email));
+            asyncResponse.resume(doResendEmail(context, payload));
         });
     }
 
@@ -152,7 +151,7 @@ public class ControllerAccount {
             return Response.ok().build();
         } catch (Exception ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); //415
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 

@@ -10,24 +10,24 @@ import static DatabaseConstants.Prenotazione.AUTISTA;
 import static DatabaseConstants.Prenotazione.ID_ARRIVO;
 import static DatabaseConstants.Prenotazione.PASSEGGERO;
 import static DatabaseConstants.Prenotazione.POSTI;
-import static DatabaseConstants.Prenotazione.PREZZO;
 import static DatabaseConstants.Table.PRENOTAZIONE;
 import static DatabaseConstants.Table.UTENTE;
 import static DatabaseConstants.Utente.ID;
-import Model.ModelDB.Tratta_auto;
+import Model.ModelDB.Notifica;
 import Model.ModelDB.Utente;
-import Model.Request.PrenotazioneRqt;
+import Model.Request.NotificaRqt;
 import Model.Response.PrenotazioneRes;
 import Model.Response.Tratta_autoRes;
-import Model.Response.UtenteRes;
+import Model.Response.Viaggio_autoRes;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import javax.sql.DataSource;
 
 /**
  *
@@ -41,7 +41,7 @@ public class PrenotazioneRepository {
         connection = dataSource;
     }
 
-    public void setPrenotation(PrenotazioneRqt prenotazione) throws SQLException {
+    public void setPrenotation(Notifica prenotazione) throws SQLException {
 
         String query = "INSERT INTO " + PRENOTAZIONE
                 + "(" + AUTISTA
@@ -49,15 +49,13 @@ public class PrenotazioneRepository {
                 + ", " + ID_PARTENZA
                 + ", " + ID_ARRIVO
                 + ", " + POSTI
-                + ", " + PREZZO
-                + ") VALUES (?,?,?,?,?,?)";
+                + ") VALUES (?,?,?,?,?)";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, prenotazione.getAutista());
-        ps.setInt(2, prenotazione.getPasseggero());
+        ps.setInt(1, prenotazione.getDestinatario());
+        ps.setInt(2, prenotazione.getMittente());
         ps.setInt(3, prenotazione.getId_partenza());
         ps.setInt(4, prenotazione.getId_arrivo());
         ps.setInt(5, prenotazione.getPosti());
-        ps.setInt(6, prenotazione.getPrezzo());
         ps.executeUpdate();
 
     }
@@ -91,16 +89,17 @@ public class PrenotazioneRepository {
         }
     }
 
-    public int getDisponibilitaPrenotazione(PrenotazioneRqt prenotazione) throws SQLException {
+    public Boolean getDisponibilitaPosti(Notifica prenotazione) throws SQLException {
         RouteRepository routeRepository = new RouteRepository(connection);
         int posti = routeRepository.calcoloPosti(prenotazione.getId_partenza(), prenotazione.getId_arrivo());
-        if (posti == -1) {
-            return -1;
-        } else if (posti < prenotazione.getPosti()) {
-            return 0;
-        } else {
-            return 1;
-        }
+        return posti >= prenotazione.getPosti();
+    }
+
+    public boolean getDisponibilitaViaggio(NotificaRqt notifica) throws SQLException {
+        Date date = new Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+        return notifica.getData().before(timestamp);
+
     }
 
     public List<PrenotazioneRes> getPrenotazione(int idUtente) throws SQLException, ParseException {

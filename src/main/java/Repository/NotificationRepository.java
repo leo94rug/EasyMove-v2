@@ -173,9 +173,10 @@ public class NotificationRepository {
 
     }
 
-    public void insertFeedbackNotification(int utente_1, int utente_2, int id_tappa, NotificaRqt notifica) throws SQLException, ParseException, CloneNotSupportedException {
+    public void insertFeedbackNotification(int utente_1, int utente_2,  NotificaRqt notifica) throws SQLException, ParseException, CloneNotSupportedException {
         RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
         RouteRepository routeRepository = new RouteRepository(connection);
+        int id_tappa= notifica.getId_partenza();
         Timestamp orarioPartenza = routeRepository.getTravelDetail(id_tappa, id_tappa).getOrario_partenza();
         Relazione relazione = relazioneRepository.getRelazione(utente_1, utente_2);
 

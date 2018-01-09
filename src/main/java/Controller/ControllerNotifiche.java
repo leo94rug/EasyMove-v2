@@ -14,6 +14,7 @@ import Model.ModelDB.Tratta_auto;
 import Model.Request.NotificaRqt;
 import Model.Response.NotificaRes;
 import Repository.NotificationRepository;
+import Repository.PrenotazioneRepository;
 import Repository.RelazioneRepository;
 import Repository.RouteRepository;
 import Repository.UserRepository;
@@ -158,6 +159,7 @@ public class ControllerNotifiche {
             NotificationRepository notificationRepository = new NotificationRepository(connection);
             RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
             RouteRepository routeRepository = new RouteRepository(connection);
+            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
             NotificaRqt notifica = new NotificaRqt(new JSONObject(payload), connection);
             switch (notifica.getTipologia()) {
                 // E' stata inviata una richiesta di amicizia
@@ -175,16 +177,18 @@ public class ControllerNotifiche {
                 }
                 // Prenotazione accettata
                 case 4: {
-                    // TODOnow
-
-                    int utente_1 = notifica.getMittente();
-                    int utente_2 = notifica.getDestinatario();
-                    int id_tappa = notifica.getId_partenza();
-                    notificationRepository.insertFeedbackNotification(utente_1, utente_2, id_tappa, notifica);
-                    notificationRepository.insertFeedbackNotification(utente_2, utente_1, id_tappa, notifica);
+                    if (!prenotazioneRepository.getDisponibilitaViaggio(notifica)) {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+                    if (!prenotazioneRepository.getDisponibilitaPosti(notifica)) {
+                        return Response.status(Response.Status.GONE).build();
+                    }
+                    //PRENOTARE
+                    routeRepository.decreasePosti(notifica);
+                    prenotazioneRepository.setPrenotation(notifica);
+                    notificationRepository.insertFeedbackNotification(notifica.getMittente(), notifica.getDestinatario(), notifica);
+                    notificationRepository.insertFeedbackNotification(notifica.getDestinatario(), notifica.getMittente(), notifica);
                     break;
-                    //PrenotazioneRepository.setPrenotation(notifica.getPosti_da_prenotare(), notifica.getId_partenza(), notifica.getId_arrivo(), ds);
-                    //TODO creare tabella prenotazioni
                 }
                 case 6: { // Amicizia rifutata 
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.BLOCCATO);
