@@ -32,6 +32,9 @@ public class NotificaRqt extends Notifica implements Cloneable {
         if (obj.has("inizio_validita")) {
             super.setInizio_validitaFromLong(obj.getLong("inizio_validita"));
         }
+        if (obj.has("data")) {
+            super.setDataFromLong(obj.getLong("data"));
+        }
         if (obj.has("fine_validita")) {
             super.setFine_validitaFromLong(obj.getLong("fine_validita"));
         }
@@ -64,7 +67,7 @@ public class NotificaRqt extends Notifica implements Cloneable {
 
     @Override
     public NotificaRqt clone() throws CloneNotSupportedException {
-        return  (NotificaRqt) super.clone(); //To change body of generated methods, choose Tools | Templates.
+        return (NotificaRqt) super.clone(); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

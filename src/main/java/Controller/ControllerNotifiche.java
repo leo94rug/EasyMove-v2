@@ -208,7 +208,7 @@ public class ControllerNotifiche {
         } catch (ObjectNotFound ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (CloneNotSupportedException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }

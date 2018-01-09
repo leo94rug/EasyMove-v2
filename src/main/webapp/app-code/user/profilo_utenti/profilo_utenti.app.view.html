@@ -13,12 +13,12 @@
                 <md-card-title-media style="width: 400px;">
                     <div class="md-media-lg card-media" style="width: 400px;text-align: left;" >
                         <p><b>Nome:</b> {{vm.user.nome}}</p>
-                        <div ng-if="vm.amicizia ==1 || vm.amicizia ===2">
+                        <div ng-if="vm.amicizia === 2 || vm.amicizia === 3">
                             <p><b>Cognome:</b> {{vm.user.cognome}}</p>
                         </div>
                         <p><b>Età:</b> {{vm.user.eta}}</p>
                         <p><b>Biografia:</b> {{vm.user.biografia}}</p>
-                        <div ng-if="vm.amicizia ==1 || vm.amicizia ===2">
+                        <div ng-if="vm.amicizia === 2 || vm.amicizia === 3">
                             <p><b>Telefono:</b> {{vm.user.telefono1}}</p>
                         </div>
                         <div ng-if="vm.feedback.media_valutazione != 0">
@@ -33,7 +33,7 @@
                         <div ng-if="vm.feedback.media_valutazione === 0">
                             <p>L'utente non ha ancora feedback</p>
                         </div>
-                        <div ng-if="vm.amicizia == 0">
+                        <div ng-if="vm.amicizia == 0 || vm.amicizia == 1">
                         <p><i>Quando {{vm.user.nome}} avrà accettato di condividere i suoi dati potrai visualizzare l'intero profilo</i></p>
                         </div>
                     </div>

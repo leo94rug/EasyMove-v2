@@ -52,15 +52,15 @@ public class ControllerPrenotazioni {
     public ControllerPrenotazioni() {
     }
 
-    @POST
-    @Path(value = "prenotazione")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    @Produces(value = MediaType.APPLICATION_JSON)
-    public void prenotazione(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
-        executorService.submit(() -> {
-            asyncResponse.resume(doPrenotazione(context, payload));
-        });
-    }
+//    @POST
+//    @Path(value = "prenotazione")
+//    @Consumes(value = MediaType.APPLICATION_JSON)
+//    @Produces(value = MediaType.APPLICATION_JSON)
+//    public void prenotazione(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+//        executorService.submit(() -> {
+//            asyncResponse.resume(doPrenotazione(context, payload));
+//        });
+//    }
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
@@ -82,31 +82,31 @@ public class ControllerPrenotazioni {
         }
     }
 
-    private Response doPrenotazione(@Context final UriInfo context, final String payload) {
-        try (Connection connection = ds.getConnection()) {
-            RouteRepository routeRepository = new RouteRepository(connection);
-            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
-            PrenotazioneRqt prenotazione = new PrenotazioneRqt(new JSONObject(payload));
-            //errori
-            //il viaggio non esiste
-            //i posti non sono disponibili
-            //prezzo incongruente ?
-
-            //cercare per ogni tappa la disponibilita
-            //diminuire disponibilita
-            if (prenotazioneRepository.getDisponibilitaPosti(prenotazione)) {
-                //PRENOTARE
-                routeRepository.decreasePosti(prenotazione);
-                prenotazioneRepository.setPrenotation(prenotazione);
-                return Response.status(Response.Status.OK).build();
-            } else {
-                //I POSTI NON SONO PIU DISPONIBILI
-                return Response.status(Response.Status.GONE).build();
-            }
-
-        } catch (JSONException | SQLException ex) {
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+//    private Response doPrenotazione(@Context final UriInfo context, final String payload) {
+//        try (Connection connection = ds.getConnection()) {
+//            RouteRepository routeRepository = new RouteRepository(connection);
+//            PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
+//            PrenotazioneRqt prenotazione = new PrenotazioneRqt(new JSONObject(payload));
+//            //errori
+//            //il viaggio non esiste
+//            //i posti non sono disponibili
+//            //prezzo incongruente ?
+//
+//            //cercare per ogni tappa la disponibilita
+//            //diminuire disponibilita
+//            if (prenotazioneRepository.getDisponibilitaPosti(prenotazione)) {
+//                //PRENOTARE
+//                routeRepository.decreasePosti(prenotazione);
+//                prenotazioneRepository.setPrenotation(prenotazione);
+//                return Response.status(Response.Status.OK).build();
+//            } else {
+//                //I POSTI NON SONO PIU DISPONIBILI
+//                return Response.status(Response.Status.GONE).build();
+//            }
+//
+//        } catch (JSONException | SQLException ex) {
+//            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
 }

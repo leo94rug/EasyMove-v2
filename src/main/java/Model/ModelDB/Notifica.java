@@ -14,7 +14,7 @@ import java.util.Calendar;
  *
  * @author leo
  */
-public class Notifica  {
+public class Notifica {
 
     private int id;
     private int mittente;
@@ -34,7 +34,10 @@ public class Notifica  {
     private int id_arrivo;
     private String nome_destinatario;
 
-    public Notifica(){};
+    public Notifica() {
+    }
+
+    ;
 
     public Notifica(ResultSet rs) throws SQLException {
         this.id = rs.getInt("n.id");
@@ -53,7 +56,7 @@ public class Notifica  {
         this.posti = rs.getInt("n.posti_da_prenotare");
         this.id_partenza = rs.getInt("n.id_partenza");
         this.id_arrivo = rs.getInt("n.id_arrivo");
-        this.nome_destinatario=rs.getString("n.nome_destinatario");
+        this.nome_destinatario = rs.getString("n.nome_destinatario");
 
     }
 
@@ -128,7 +131,7 @@ public class Notifica  {
     public String getNome_destinatario() {
         return nome_destinatario;
     }
-    
+
     public int getPosti_da_prenotare() {
         return posti_da_prenotare;
     }
@@ -193,17 +196,25 @@ public class Notifica  {
         return id_arrivo;
     }
 
-    
+    public void setDataFromLong(long aInt) {
+        int i = 0;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(aInt);
+        Timestamp inizio_validita_1 = new Timestamp(calendar.getTimeInMillis());
+        this.setData(inizio_validita_1);
+    }
+
     public void setInizio_validitaFromLong(long aInt) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(aInt);
-        Timestamp inizio_validita_1= new Timestamp(calendar.getTimeInMillis());
+        Timestamp inizio_validita_1 = new Timestamp(calendar.getTimeInMillis());
         this.setInizio_validita(inizio_validita_1);
     }
 
     public void setFine_validitaFromLong(long aInt) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(aInt);
-        Timestamp fine_validita_1= new Timestamp(calendar.getTimeInMillis());
-        this.setFine_validita(fine_validita_1);    }
+        Timestamp fine_validita_1 = new Timestamp(calendar.getTimeInMillis());
+        this.setFine_validita(fine_validita_1);
+    }
 }

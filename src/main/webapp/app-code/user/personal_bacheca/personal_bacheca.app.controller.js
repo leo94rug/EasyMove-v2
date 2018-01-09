@@ -250,6 +250,7 @@
             });
         }
         function initialize() {
+            debugger;
             UserService.GetProfilo(vm.utente.id).then(function (response) {
                 if (response.success === false) {
                     $location.path('/error');
@@ -360,7 +361,7 @@
             send.id_viaggio = item.id_viaggio;
             send.fine_validita = item.fine_validita.getTime();
             send.inizio_validita = item.inizio_validita.getTime();
-            send.date = new Date().getTime();
+            send.data = new Date().getTime();
             send.posti = item.posti;
             send.nome_viaggio = item.nome_viaggio;
             send.id_partenza = item.id_partenza;

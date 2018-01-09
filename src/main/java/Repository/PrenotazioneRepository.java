@@ -51,8 +51,8 @@ public class PrenotazioneRepository {
                 + ", " + POSTI
                 + ") VALUES (?,?,?,?,?)";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, prenotazione.getDestinatario());
-        ps.setInt(2, prenotazione.getMittente());
+        ps.setInt(1, prenotazione.getMittente());
+        ps.setInt(2, prenotazione.getDestinatario());
         ps.setInt(3, prenotazione.getId_partenza());
         ps.setInt(4, prenotazione.getId_arrivo());
         ps.setInt(5, prenotazione.getPosti());
