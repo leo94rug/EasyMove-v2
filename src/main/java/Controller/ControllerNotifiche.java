@@ -5,27 +5,22 @@
  */
 package Controller;
 
-import static DatabaseConstants.TableConstants.Notifica_tipologia.INSERISCI_FEEDBACK;
 import DatabaseConstants.TableConstants.Relazione_approvato;
 import Eccezioni.ObjectNotFound;
 import Model.ModelDB.Notifica;
-import Model.ModelDB.Relazione;
-import Model.ModelDB.Tratta_auto;
 import Model.Request.NotificaRqt;
 import Model.Response.NotificaRes;
 import Repository.NotificationRepository;
 import Repository.PrenotazioneRepository;
 import Repository.RelazioneRepository;
 import Repository.RouteRepository;
-import Repository.UserRepository;
+import Utilita.DatesConversion;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,9 +64,9 @@ public class ControllerNotifiche {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    @Path("notificationnumber/{id: [0-9]+}")
+    @Path("notificationnumber/{id}")
     public void notificationnumber(@Suspended
-            final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+            final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doNotificationnumber(id));
         });
@@ -88,22 +83,22 @@ public class ControllerNotifiche {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
-    @Path(value = "getnotifiche/{id: [0-9]+}")
-    public void getnotifiche(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "getnotifiche/{id}")
+    public void getnotifiche(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetnotifiche(id));
         });
     }
 
     @DELETE
-    @Path(value = "deletenotification/{id: [0-9]+}")
-    public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "deletenotification/{id}")
+    public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doDelete(id));
         });
     }
 
-    private Response doNotificationnumber(@PathParam("id") int id) {
+    private Response doNotificationnumber(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             NotificationRepository notificationRepository = new NotificationRepository(connection);
             int notificationNumber = notificationRepository.getNoticationNumber(id);
@@ -114,7 +109,7 @@ public class ControllerNotifiche {
         }
     }
 
-    private Response doGetnotifiche(@PathParam("id") int id) {
+    private Response doGetnotifiche(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             NotificationRepository notificationRepository = new NotificationRepository(connection);
             List<NotificaRes> notificaRes = notificationRepository.getNotifiche(id);
@@ -126,7 +121,7 @@ public class ControllerNotifiche {
         }
     }
 
-    private Response doDelete(@PathParam("id") int id) {
+    private Response doDelete(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             NotificationRepository notificationRepository = new NotificationRepository(connection);
             Notifica notifica = notificationRepository.getNotifica(id);
@@ -134,21 +129,17 @@ public class ControllerNotifiche {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else if (notifica.getStato() == 2 || notifica.getStato() == 3) {
                 return Response.status(Response.Status.GONE).build();
+            } else if (DatesConversion.before(notifica.getFine_validita(), DatesConversion.now())) {
+                return Response.status(Response.Status.GONE).build();
             } else {
-                Date date = new Date();
-                Timestamp timestamp = new Timestamp(date.getTime());
-                if (notifica.getFine_validita().before(timestamp)) {
-                    return Response.status(Response.Status.GONE).build();
+                int i = notificationRepository.eliminaNotifica(id);
+                if (i == 0) {
+                    return Response.status(Response.Status.NOT_FOUND).build();
                 } else {
-                    int i = notificationRepository.eliminaNotifica(id);
-                    if (i == 0) {
-                        return Response.status(Response.Status.NOT_FOUND).build();
-                    } else {
-                        return Response.noContent().build();
-                    }
+                    return Response.noContent().build();
                 }
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
@@ -164,6 +155,8 @@ public class ControllerNotifiche {
             switch (notifica.getTipologia()) {
                 // E' stata inviata una richiesta di amicizia
                 case 1: {
+                    notifica.setInizio_validita(DatesConversion.now());
+                    notifica.setFine_validita(DatesConversion.addYears());
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.IN_ATTESA);
                     break;
                 }
@@ -186,8 +179,13 @@ public class ControllerNotifiche {
                     //PRENOTARE
                     routeRepository.decreasePosti(notifica);
                     prenotazioneRepository.setPrenotation(notifica);
-                    notificationRepository.insertFeedbackNotification(notifica.getMittente(), notifica.getDestinatario(), notifica);
-                    notificationRepository.insertFeedbackNotification(notifica.getDestinatario(), notifica.getMittente(), notifica);
+                    try {
+                        notificationRepository.insertFeedbackNotification(notifica.getMittente(), notifica.getDestinatario(), notifica);
+                        notificationRepository.insertFeedbackNotification(notifica.getDestinatario(), notifica.getMittente(), notifica);
+                    } catch (SQLException | ParseException ex) {
+                        Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
+
+                    }
                     break;
                 }
                 case 6: { // Amicizia rifutata 
@@ -200,9 +198,11 @@ public class ControllerNotifiche {
                 }
             }
             //UserRepository.eliminaNotifica(notifica.getId(), ds);
-            int id = notificationRepository.insertNotifica(notifica);
+            String id = UUID.randomUUID().toString();
+            notifica.setId(id);
+            notificationRepository.insertNotifica(notifica);
             return Response.ok(new Gson().toJson(id)).build();
-        } catch (JSONException | SQLException | ParseException ex) {
+        } catch (JSONException | SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         } catch (ObjectNotFound ex) {

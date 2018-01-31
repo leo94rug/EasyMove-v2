@@ -11,8 +11,8 @@
                 $mdThemingProvider.theme('dark-blue').backgroundPalette('blue').dark();
             });
 
-    PrenotationController.$inject = ['$timeout', 'FeedbackService', 'NotificationsService', '$scope', '$store', 'RouteService', '$location', 'UserService', '$rootScope', 'FlashService', '$routeParams', '$mdDialog', 'AuthenticationService'];
-    function PrenotationController($timeout, FeedbackService, NotificationsService, $scope, $store, RouteService, $location, UserService, $rootScope, FlashService, $routeParams, $mdDialog, AuthenticationService) {
+    PrenotationController.$inject = ['DateService', '$timeout', 'FeedbackService', 'NotificationsService', '$scope', '$store', 'RouteService', '$location', 'UserService', '$rootScope', 'FlashService', '$routeParams', '$mdDialog', 'AuthenticationService'];
+    function PrenotationController(DateService, $timeout, FeedbackService, NotificationsService, $scope, $store, RouteService, $location, UserService, $rootScope, FlashService, $routeParams, $mdDialog, AuthenticationService) {
         var vm = this;
         vm.tratta1 = $routeParams.tratta1;
         vm.tratta2 = $routeParams.tratta2;
@@ -22,19 +22,23 @@
         vm.showAlert = showAlert;
         vm.prenota = prenota;
         vm.logout = logout;
-        vm.options = [
-            {category: 'posti', name: '1', value: 1},
-            {category: 'posti', name: '2', value: 2},
-            {category: 'posti', name: '3', value: 3},
-            {category: 'posti', name: '4', value: 4},
-        ];
+
         initialize();
         function initialize() {
             vm.utente = $store.get('utente');
+            $timeout(function () {
+                var myEl = angular.element(document.querySelector('#headerSearch'));
+                myEl.addClass('active');
+            });
             $('body,html').animate({scrollTop: 0}, 800);
             vm.disabled_amicizia = true;
-            vm.disabled_prenotazione = false;                        
-            
+            vm.disabled_prenotazione = false;
+            vm.options = [
+                {category: 'posti', name: '1', value: 1},
+                {category: 'posti', name: '2', value: 2},
+                {category: 'posti', name: '3', value: 3},
+                {category: 'posti', name: '4', value: 4}
+            ];
             vm.messaggio = "";
             if (vm.utente) {
                 RouteService.GetDettaglioPercorso(vm.tratta1, vm.tratta2).then(function (response) {
@@ -43,12 +47,11 @@
                     } else {
                         vm.dettaglioPercorso = response.res.data;
                         vm.dettaglioPercorso.passeggeri.forEach(function (arrayItem) {
-                            if(arrayItem.id===vm.utente.id){
+                            if (arrayItem.id === vm.utente.id) {
                                 vm.disabled_prenotazione = true;
                             }
                         });
-                        debugger;
-                        vm.dettaglioPercorso.orario_partenza = Date.createFromMysql(vm.dettaglioPercorso.orario_partenza_string);
+                        vm.dettaglioPercorso.orario_partenza = DateService.dateFromString(vm.dettaglioPercorso.orario_partenza);
                         RouteService.GetPercorso(vm.dettaglioPercorso.viaggio_fk).then(function (response) {
                             if (response.success === false) {
                                 $location.path('/error');
@@ -87,16 +90,15 @@
                                             } else {
                                                 vm.feedback = response.res.data;
                                                 vm.feedback.listaFeedback.forEach(function (arrayItem) {
-                                                    arrayItem.dateString = Date.createFromMysql(arrayItem.dateString);
+                                                    arrayItem.date = DateService.dateFromString(arrayItem.date);
                                                 });
-                                                debugger;
                                             }
                                         });
                                         UserService.CheckFriend(vm.utente.id, vm.utenteProfilo.id).then(function (response) {
                                             if (response.success === false) {
                                                 $location.path('/error');
                                             } else {
-                                                debugger;
+
                                                 vm.amicizia = response.res.data;
                                                 switch (vm.amicizia) {
                                                     case 0 :
@@ -141,16 +143,13 @@
                 $location.path('/');
             }
         }
-        $timeout(function () {
-            var myEl = angular.element(document.querySelector('#headerSearch'));
-            myEl.addClass('active');
-        });
+
 
         function prenota() {
             //if ($scope.offer.$valid) {
             var stringPosti = " posti";
-            if (vm.posti == 1) {
-                stringPosti = " posto"
+            if (vm.posti === 1) {
+                stringPosti = " posto";
             }
             if (vm.posti <= vm.dettaglioPercorso.posti) {
                 var send = new Object();
@@ -185,13 +184,11 @@
             $location.path('/');
         }
         function showAlert(ev) {
-            debugger;
-            var content="";
-            if(vm.utenteProfilo.telefono1!="" && vm.utenteProfilo.telefono1!=undefined){
-                content=vm.utenteProfilo.telefono1;
-            }
-            else{
-                content="L'utente non ha ancora fornito un numero di telefono";
+            var content = "";
+            if (vm.utenteProfilo.telefono1 !== "" && vm.utenteProfilo.telefono1 !== undefined) {
+                content = vm.utenteProfilo.telefono1;
+            } else {
+                content = "L'utente non ha ancora fornito un numero di telefono";
             }
             $mdDialog.show(
                     $mdDialog.alert()
@@ -245,14 +242,6 @@
         }
         function visualizzautente(email) {
             $location.path('/profilo-utenti/' + email);
-        }
-        Date.createFromMysql = function (mysql_string) {
-            var t, result = null;
-            if (typeof mysql_string === 'string') {
-                t = mysql_string.split(/[- :]/);
-                result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);
-            }
-            return result;
         }
     }
 })();

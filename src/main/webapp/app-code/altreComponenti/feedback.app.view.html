@@ -1,25 +1,24 @@
-    <div class="one-third" >
-        <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch style="margin-top: 0px;">
-            <md-card-title>
-                <md-card-title-text>
-                    <div style="padding: 10px;">
-                        <h1>Riassunto: </h1>
+<div class="one-third">
+    <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch style="margin-top: 0px;">
+        <md-card-title>
+            <md-card-title-text>
+                <div style="padding: 10px;">
+                    <h1>Riassunto: </h1>
+                </div>
+                <div style="">
+                    <div class="feedback-margin">
+                        <h5 class="feedback-label">Valutazione guida:</h5>
+                        <jk-rating-stars read-only="true" rating="vm.feedback.media_valutazione_1"></jk-rating-stars>
                     </div>
-                    <div style="">
-                        <div class="feedback-margin">
-                            <h5 class="feedback-label">Valutazione guida:</h5>
-                            <jk-rating-stars read-only="true" rating="vm.feedback.media_valutazione_1"></jk-rating-stars>
-                        </div>
-                        <div class="feedback-label">
-                            <h5 class="feedback-margin">Valutazione puntualità:</h5>
-                            <jk-rating-stars read-only="true" rating="vm.feedback.media_valutazione_2"></jk-rating-stars>
-                        </div>
-                        <div class="feedback-label">
-                            <h5 style="feedback-margin">Valutazione viaggio:</h5>
-                            <jk-rating-stars read-only="true" rating=vm.feedback.media_valutazione_3></jk-rating-stars>
-                        </div>
+                    <div class="feedback-label">
+                        <h5 class="feedback-margin">Valutazione puntualità:</h5>
+                        <jk-rating-stars read-only="true" rating="vm.feedback.media_valutazione_2"></jk-rating-stars>
                     </div>
-                </md-card-title-text>
-        </md-card> 
-    </div>
-
+                    <div class="feedback-label">
+                        <h5 style="feedback-margin">Valutazione viaggio:</h5>
+                        <jk-rating-stars read-only="true" rating=vm.feedback.media_valutazione_3></jk-rating-stars>
+                    </div>
+                </div>
+            </md-card-title-text>
+    </md-card>
+</div>

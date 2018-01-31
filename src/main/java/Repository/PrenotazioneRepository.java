@@ -18,16 +18,15 @@ import Model.ModelDB.Utente;
 import Model.Request.NotificaRqt;
 import Model.Response.PrenotazioneRes;
 import Model.Response.Tratta_autoRes;
-import Model.Response.Viaggio_autoRes;
+import Utilita.DatesConversion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import javax.naming.NamingException;
 
 /**
  *
@@ -42,7 +41,6 @@ public class PrenotazioneRepository {
     }
 
     public void setPrenotation(Notifica prenotazione) throws SQLException {
-
         String query = "INSERT INTO " + PRENOTAZIONE
                 + "(" + AUTISTA
                 + ", " + PASSEGGERO
@@ -51,10 +49,10 @@ public class PrenotazioneRepository {
                 + ", " + POSTI
                 + ") VALUES (?,?,?,?,?)";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, prenotazione.getMittente());
-        ps.setInt(2, prenotazione.getDestinatario());
-        ps.setInt(3, prenotazione.getId_partenza());
-        ps.setInt(4, prenotazione.getId_arrivo());
+        ps.setString(1, prenotazione.getMittente());
+        ps.setString(2, prenotazione.getDestinatario());
+        ps.setString(3, prenotazione.getId_partenza());
+        ps.setString(4, prenotazione.getId_arrivo());
         ps.setInt(5, prenotazione.getPosti());
         ps.executeUpdate();
 
@@ -69,8 +67,8 @@ public class PrenotazioneRepository {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             int enumerazione = rs.getInt("enumerazione");
-            int viaggio_fk = rs.getInt("viaggio_fk");
-            int id_tratta_successiva = userRepository.getFermataSuccessiva(enumerazione + 1, viaggio_fk);
+            String viaggio_fk = rs.getString("viaggio_fk");
+            String id_tratta_successiva = userRepository.getFermataSuccessiva(enumerazione + 1, viaggio_fk);
             int posti = rs.getInt("posti");
             int posti_aggiornato = posti - messaggio;
             if (posti_aggiornato < 0) {
@@ -81,9 +79,9 @@ public class PrenotazioneRepository {
             ps.setInt(1, posti_aggiornato);
             ps.setInt(2, id_partenza);
             int i = ps.executeUpdate();
-            if (id_tratta_successiva != id_arrivo) {
+            if (!id_tratta_successiva.equals(id_arrivo)) {
                 ps = connection.prepareStatement("SELECT * FROM tratta_auto WHERE id=?");
-                ps.setInt(1, id_tratta_successiva);
+                ps.setString(1, id_tratta_successiva);
                 rs = ps.executeQuery();
             }
         }
@@ -95,21 +93,18 @@ public class PrenotazioneRepository {
         return posti >= prenotazione.getPosti();
     }
 
-    public boolean getDisponibilitaViaggio(NotificaRqt notifica) throws SQLException {
-        Date date = new Date();
-        Timestamp timestamp = new Timestamp(date.getTime());
-        return notifica.getData().before(timestamp);
-
+    public boolean getDisponibilitaViaggio(NotificaRqt notifica) throws SQLException, ParseException {
+        return DatesConversion.before(notifica.getData(),DatesConversion.now());
     }
 
-    public List<PrenotazioneRes> getPrenotazione(int idUtente) throws SQLException, ParseException {
+    public List<PrenotazioneRes> getPrenotazione(String idUtente) throws SQLException, ParseException, ClassNotFoundException, NamingException {
         List<PrenotazioneRes> prenotazioni = new ArrayList<>();
         UserRepository userRepository = new UserRepository(connection);
         RouteRepository routeRepository = new RouteRepository(connection);
 
         String query = "SELECT * FROM " + PRENOTAZIONE + "  WHERE " + PASSEGGERO + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, idUtente);
+        ps.setString(1, idUtente);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             PrenotazioneRes prenotazione = new PrenotazioneRes(rs);
@@ -123,7 +118,7 @@ public class PrenotazioneRepository {
 
     }
 
-    public List<Utente> getPrenotazioneByTratta_auto(int idTratta_auto) throws SQLException, ParseException {
+    public List<Utente> getPrenotazioneByTratta_auto(String idTratta_auto) throws SQLException, ParseException {
         List<Utente> utenti = new ArrayList<>();
 
         String query = "SELECT * FROM " + PRENOTAZIONE + " AS p "
@@ -131,7 +126,7 @@ public class PrenotazioneRepository {
                 + " ON p." + PASSEGGERO + "=u." + ID
                 + " WHERE " + ID_PARTENZA + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, idTratta_auto);
+        ps.setString(1, idTratta_auto);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             Utente utente = new Utente(rs);

@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,8 +53,8 @@ public class ControllerAuto {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
-    @Path(value = "{id: [0-9]+}")
-    public void getauto(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "{id}")
+    public void getauto(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetauto(id));
         });
@@ -69,14 +70,14 @@ public class ControllerAuto {
     }
 
     @DELETE
-    @Path(value = "delete/{id: [0-9]+}")
-    public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "delete/{id}")
+    public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doDelete(id));
         });
     }
 
-    private Response doGetauto(@PathParam("id") int id) {
+    private Response doGetauto(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             CarRepository carRepository = new CarRepository(connection);
             List<Model.ModelDB.Auto> auto = carRepository.getAuto(id);
@@ -91,6 +92,8 @@ public class ControllerAuto {
     private Response doAddcar(@Context UriInfo context, AutoRqt autoRqt) {
         try (Connection connection = ds.getConnection()) {
             CarRepository carRepository = new CarRepository(connection);
+            String uuid = UUID.randomUUID().toString();
+            autoRqt.setId(uuid);
             carRepository.addCar(autoRqt);
             return Response.ok().build();
         } catch (SQLException ex) {
@@ -100,7 +103,7 @@ public class ControllerAuto {
         }
     }
 
-    private Response doDelete(@PathParam("id") int id) {
+    private Response doDelete(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             CarRepository carRepository = new CarRepository(connection);
             int j = carRepository.deleteCar(id);

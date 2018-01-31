@@ -160,7 +160,6 @@
                         if (response.success === false) {
                             $location.path('/error');
                         } else {
-                            
                             vm.auto = response.res.data;
                             if (vm.auto === undefined) {} else {
                                 for (var i = 0; i < vm.auto.length; i++) {

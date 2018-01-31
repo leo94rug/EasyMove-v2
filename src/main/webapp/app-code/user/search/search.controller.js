@@ -5,9 +5,9 @@
         .module('app')
         .controller('SearchController', SearchController);
 
-    SearchController.$inject = ['$timeout','$store','RouteService', '$location', '$rootScope', 'FlashService','AuthenticationService'];
+    SearchController.$inject = ['DateService','$timeout','$store','RouteService', '$location', '$rootScope', 'FlashService','AuthenticationService'];
 
-    function SearchController($timeout,$store,RouteService, $location, $rootScope, FlashService,AuthenticationService) {
+    function SearchController(DateService,$timeout,$store,RouteService, $location, $rootScope, FlashService,AuthenticationService) {
         var vm = this;
 
         vm.pagina=1;
@@ -36,13 +36,7 @@
         };
         vm.cambioData = [{label: '0',value: 0},{label: '1(non supportato)',value: 1}];
         vm.distanzaData = [{label: 'Piccola',value: 0},{label: 'Media',value: 1},{label: 'Grande',value: 2}];
-        vm.initialize();
-        $timeout(function(){
-            var myEl = angular.element( document.querySelector( '#headerSearch' ) );
-            myEl.addClass('active');           
-        });            
-         
-
+        vm.initialize();      
         function screenType(){
             var screen=window.screen.width;
             if (screen<=980) {
@@ -78,7 +72,10 @@
         function initialize(){
             $('body,html').animate({scrollTop:0},800);
             vm.utente = $store.get('utente');
-            debugger;
+            $timeout(function(){
+                var myEl = angular.element( document.querySelector( '#headerSearch' ) );
+                myEl.addClass('active');           
+            });  
             if ($rootScope.search!=undefined) {
                 vm.search={
                     cambio: $rootScope.search.cambio,
@@ -125,7 +122,7 @@
                             lngp:$rootScope.search.partenza.geometry.location.lng(),
                             lnga:$rootScope.search.arrivo.geometry.location.lng(),
                             tipo:tipo,
-                            date:$rootScope.search.date.getTime(),
+                            date:DateService.stringFromDate($rootScope.search.date),
                             cambio:$rootScope.search.cambio,
                             distanza:$rootScope.search.distanza,
                             utente_fk:null,
@@ -136,10 +133,9 @@
                                 $location.path('/error');
                             }
                             else{
-                                debugger;
                                 vm.routeAuto=response.res.data;
                                 vm.routeAuto.forEach( function (arrayItem){
-                                    arrayItem.tratta_auto.orario_partenza = Date.createFromMysql(arrayItem.tratta_auto.orario_partenza_string);
+                                    arrayItem.tratta_auto.orario_partenza = DateService.dateFromString(arrayItem.tratta_auto.orario_partenza);
                                 });
                             }
                         });
@@ -178,14 +174,6 @@
             }
         }
 
-        Date.createFromMysql = function(mysql_string){ 
-          var t, result = null;
-          if( typeof mysql_string === 'string' )   {
-            t = mysql_string.split(/[- :]/);
-            result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);          
-          }
-          return result;   
-        }
         //navigator.geolocation.getCurrentPosition(success, error, options);
         function success(pos) {
 

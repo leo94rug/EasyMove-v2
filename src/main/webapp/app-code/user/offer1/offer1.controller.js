@@ -4,8 +4,8 @@
     angular
         .module('app')
         .controller('Offer1Controller', Offer1Controller);
-    Offer1Controller.$inject = ['$timeout', '$q', 'UserService', '$location', '$rootScope', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService', '$store', 'FlashService'];
-    function Offer1Controller($timeout, $q, UserService, $location, $rootScope, $mdpDatePicker, $mdpTimePicker, AuthenticationService, $store, FlashService) {
+    Offer1Controller.$inject = ['DateService','$timeout', '$q', 'UserService', '$location', '$rootScope', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService', '$store', 'FlashService'];
+    function Offer1Controller(DateService,$timeout, $q, UserService, $location, $rootScope, $mdpDatePicker, $mdpTimePicker, AuthenticationService, $store, FlashService) {
         var vm = this;
         vm.geolocate = geolocate;
         vm.addTappa = addTappa;
@@ -71,9 +71,7 @@
             $location.path('/');
         }
         function submit() {
-            debugger;
             if (vm.data.group2 === 2) {
-
                 if (vm.andataTime > vm.ritornoTime) {
                     vm.offer.$valid = false;
                     vm.dataprecerror=true;
@@ -95,12 +93,12 @@
                     ar: vm.data.group2
                 }
                 for (var i = 0; i < enumeratore.length - 1; i++) {
-                    promises.push(creaTratta(enumeratore[i], enumeratore[i + 1], i, vm.andataTime.getTime(), 0));
+                    promises.push(creaTratta(enumeratore[i], enumeratore[i + 1], i, vm.andataTime, 0));
                 }
                 if (vm.data.group2 === 2) {
                     var j = 1;
                     for (var i = enumeratore.length - 1; i > 0; i--) {
-                        promises.push(creaTratta(enumeratore[i], enumeratore[i - 1], j, vm.ritornoTime.getTime(), 1));
+                        promises.push(creaTratta(enumeratore[i], enumeratore[i - 1], j, vm.ritornoTime, 1));
                         j++;
                     }
                 }
@@ -129,7 +127,6 @@
         }
         function creaTratta(obj1, obj2, i, date, a) {
             var deferred = $q.defer();
-
             var componentForm = {
                 route: 'long_name',
                 locality: 'long_name',
@@ -215,8 +212,9 @@
                             distance = response.rows[0].elements[0].distance.value;
                             duration = response.rows[0].elements[0].duration.value * 60000;
                             prezzo = Math.pow(2, (Math.log(distance / 1000, 2)) - 4.2) - (distance / 1000000);
+                            
                             tratta = {
-                                orario_partenza: date,
+                                orario_partenza: DateService.stringFromDate(date),
                                 enumerazione: i + 1,
                                 prezzo: prezzo,
                                 distanza: distance,
@@ -230,11 +228,11 @@
                                 durata: duration,
                             };
                             if (a === 0) {
-                                vm.dateA = date + duration;
+                                vm.dateA = date.getTime() + duration;
                                 vm.andataTratta.push(tratta);
                             }
                             else {
-                                vm.dateR = date + duration;
+                                vm.dateR = date.getTime() + duration;
                                 vm.ritornoTratta.push(tratta);
                             }
                             deferred.resolve("ok");

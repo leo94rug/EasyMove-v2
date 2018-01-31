@@ -9,7 +9,6 @@ import Model.ModelDB.Notifica;
 import Repository.UserRepository;
 import java.sql.Connection;
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,20 +22,20 @@ public class NotificaRqt extends Notifica implements Cloneable {
         super();
         UserRepository userRepository = new UserRepository(ds);
         if (obj.has("id")) {
-            super.setId(obj.getInt("id"));
+            super.setId(obj.getString("id"));
         }
         super.setMessaggio(obj.getString("messaggio"));
-        super.setMittente(obj.getInt("mittente"));
-        super.setDestinatario(obj.getInt("destinatario"));
+        super.setMittente(obj.getString("mittente"));
+        super.setDestinatario(obj.getString("destinatario"));
         super.setTipologia(obj.getInt("tipologia"));
         if (obj.has("inizio_validita")) {
-            super.setInizio_validitaFromLong(obj.getLong("inizio_validita"));
+            super.setInizio_validita(obj.getString("inizio_validita"));
         }
         if (obj.has("data")) {
-            super.setDataFromLong(obj.getLong("data"));
+            super.setData(obj.getString("data"));
         }
         if (obj.has("fine_validita")) {
-            super.setFine_validitaFromLong(obj.getLong("fine_validita"));
+            super.setFine_validita(obj.getString("fine_validita"));
         }
         super.setNome_viaggio(obj.getString("nome_viaggio"));
         if (obj.has("nome_mittente")) {
@@ -52,9 +51,9 @@ public class NotificaRqt extends Notifica implements Cloneable {
                 super.setNome_destinatario(nomeCognome);
             }
         }
-        super.setId_viaggio(obj.getInt("id_viaggio"));
-        super.setId_partenza(obj.getInt("id_partenza"));
-        super.setId_arrivo(obj.getInt("id_arrivo"));
+        super.setId_viaggio(obj.getString("id_viaggio"));
+        super.setId_partenza(obj.getString("id_partenza"));
+        super.setId_arrivo(obj.getString("id_arrivo"));
         if (obj.has("posti")) {
             super.setPosti(obj.getInt("posti"));
         }

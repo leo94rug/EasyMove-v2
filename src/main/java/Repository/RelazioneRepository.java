@@ -32,11 +32,11 @@ public class RelazioneRepository {
         connection = dataSource;
     }
 
-    public Relazione getRelazione(int mittente, int destinatario) throws SQLException {
+    public Relazione getRelazione(String mittente, String destinatario) throws SQLException {
 
         PreparedStatement ps = connection.prepareStatement("SELECT * FROM relazione WHERE utente_1=? AND utente_2=?");
-        ps.setInt(1, mittente);
-        ps.setInt(2, destinatario);
+        ps.setString(1, mittente);
+        ps.setString(2, destinatario);
         ResultSet rs = ps.executeQuery();
         Relazione relazione = null;
         if (rs.next()) {
@@ -46,62 +46,60 @@ public class RelazioneRepository {
 
     }
 
-    public int updateRelazioneDaValutare(int utente_1, int utente_2, int index, Timestamp orario_partenza) throws SQLException {
-
+    public int updateRelazioneDaValutare(String utente_1, String utente_2, int index, String orario_partenza) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=?,da_valutare_data=? WHERE utente_1=? AND utente_2=?");
         ps.setInt(1, index);
-        ps.setTimestamp(2, orario_partenza);
-        ps.setInt(3, utente_1);
-        ps.setInt(4, utente_2);
+        ps.setString(2, orario_partenza);
+        ps.setString(3, utente_1);
+        ps.setString(4, utente_2);
         return ps.executeUpdate();
 
     }
 
-    public int updateRelazioneDaValutare(int utente_1, int utente_2, int index) throws SQLException {
+    public int updateRelazioneDaValutare(String utente_1, String utente_2, int index) throws SQLException {
 
         PreparedStatement ps = connection.prepareStatement("UPDATE relazione SET da_valutare=? WHERE utente_1=? AND utente_2=?");
         ps.setInt(1, index);
-        ps.setInt(2, utente_1);
-        ps.setInt(3, utente_2);
+        ps.setString(2, utente_1);
+        ps.setString(3, utente_2);
         return ps.executeUpdate();
 
     }
 
-    public void setRelazioneApprovato(int mittente, int destinatario, int relazione) throws SQLException {
+    public void setRelazioneApprovato(String mittente, String destinatario, int relazione) throws SQLException {
 
         String query = "SELECT * FROM " + RELAZIONE
                 + " WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, mittente);
-        ps.setInt(2, destinatario);
+        ps.setString(1, mittente);
+        ps.setString(2, destinatario);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             query = "UPDATE " + RELAZIONE + " SET " + APPROVATO + "=? WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=? ";
             ps = connection.prepareStatement(query);
             ps.setInt(1, relazione);
-            ps.setInt(2, mittente);
-            ps.setInt(3, destinatario);
+            ps.setString(2, mittente);
+            ps.setString(3, destinatario);
             ps.executeUpdate();
         } else {
             query = "INSERT INTO " + RELAZIONE + "(" + UTENTE_1 + ", " + UTENTE_2 + ", " + APPROVATO + ") VALUES (?,?,?)";
             ps = connection.prepareStatement(query);
-            ps.setInt(1, mittente);
-            ps.setInt(2, destinatario);
+            ps.setString(1, mittente);
+            ps.setString(2, destinatario);
             ps.setInt(3, relazione);
             ps.executeUpdate();
         }
 
     }
 
-    public int getRelazioneApprovato(int user1, int user2) throws SQLException {
-        if (user1 == user2) {
+    public int getRelazioneApprovato(String user1, String user2) throws SQLException {
+        if (user1.equals(user2)) {
             return STESSO_UTENTE;
         }
-
         String query = "SELECT * FROM " + RELAZIONE + " WHERE " + UTENTE_1 + "=? AND " + UTENTE_2 + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, user1);
-        ps.setInt(2, user2);
+        ps.setString(1, user1);
+        ps.setString(2, user2);
         ResultSet rs = ps.executeQuery();
         return rs.next() ? rs.getInt((APPROVATO)) : NON_APPROVATO;
     }

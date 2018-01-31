@@ -138,8 +138,10 @@
                 <div class="one-half">
                     <div ng-repeat="car in vm.autolist" >
                         <div style="display: inline-flex;" >
-                            <h4 style="margin-top: auto;width: 275px;"><b>Auto:</b> {{car.marca}} {{car.modello}} {{car.colore}}</h4>       
-                            <md-button ng-click="vm.deletecar(car.id)" class="md-raised" style="margin-left: 30px;">Elimina</md-button>
+                            <h4 style="margin-top: auto;"><b>Auto:</b> {{car.marca}} {{car.modello}} {{car.colore}}</h4>       
+                            <md-button ng-click="vm.deletecar(car.id)" class="md-icon-button" style="margin-left: 30px;">
+                            <img style="width: 20px;height: 20px;" src="images/trash.png">
+                            </md-button>
                         </div>
                         <md-divider ng-if="!$last" style="width: 400px;"></md-divider>
                     </div>

@@ -5,10 +5,8 @@
  */
 package Controller;
 
-import Model.Request.PrenotazioneRqt;
 import Model.Response.PrenotazioneRes;
 import Repository.PrenotazioneRepository;
-import Repository.RouteRepository;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -21,19 +19,14 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * REST Web Service
@@ -64,19 +57,19 @@ public class ControllerPrenotazioni {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
-    @Path(value = "getprenotazioni/{id: [0-9]+}")
-    public void getPrenotazioni(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "getprenotazioni/{id}")
+    public void getPrenotazioni(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetPrenotazioni(id));
         });
     }
 
-    private Response doGetPrenotazioni(@PathParam("id") int id) {
+    private Response doGetPrenotazioni(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
             List<PrenotazioneRes> prenotazione = prenotazioneRepository.getPrenotazione(id);
             return Response.ok(new Gson().toJson(prenotazione)).build();
-        } catch (SQLException | ParseException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }

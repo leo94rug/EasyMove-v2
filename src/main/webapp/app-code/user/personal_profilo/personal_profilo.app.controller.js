@@ -20,18 +20,7 @@
         vm.minDate = new Date(1900, 0, 1);
         vm.maxDate = new Date(2006, 0, 1);
         initialize();
-        $timeout(function () {
-            var myEl = angular.element(document.querySelector('#headerBacheca'));
-            myEl.addClass('active');
-        });
-        Date.createFromMysql = function (mysql_string) {
-            var t, result = null;
-            if (typeof mysql_string === 'string') {
-                t = mysql_string.split(/[- :]/);
-                result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);
-            }
-            return result;
-        }
+
         function logout() {
             AuthenticationService.ClearCredentials();
             FlashService.set({ title: "Logout effettuato", body: "", type: "info" });
@@ -39,9 +28,11 @@
         }
         function initialize() {
             $('body,html').animate({ scrollTop: 0 }, 800);
-
+            $timeout(function () {
+                var myEl = angular.element(document.querySelector('#headerBacheca'));
+                myEl.addClass('active');
+            });
             var localUtente = $store.get('utente');
-
             UserService.GetProfilo(localUtente.id).then(function (response) {
                 if (response.success === false) {
                     $location.path('/error');
@@ -75,6 +66,7 @@
                 "telefono1": vm.utente.telefono1,
                 "anno_nascita": DateService.stringFromDate(vm.utente.anno_nascita)
             }
+            
             UserService.Update(utente, vm.utente.id).then(function (response) {
                 if (response.success === false) {
                     $location.path('/error');
@@ -87,14 +79,39 @@
                 }
             });
         }
+        function dataURItoBlob(dataURI) {
+            // convert base64 to raw binary data held in a string
+            // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+            var byteString = atob(dataURI.split(',')[1]);
+          
+            // separate out the mime component
+            var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+          
+            // write the bytes of the string to an ArrayBuffer
+            var ab = new ArrayBuffer(byteString.length);
+          
+            // create a view into the buffer
+            var ia = new Uint8Array(ab);
+          
+            // set the bytes of the buffer to the correct values
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+          
+            // write the ArrayBuffer to a blob, and you're done
+            var blob = new Blob([ab], {type: mimeString});
+            return blob;
+          
+          }
         function upload(dataUrl, name) {
             vm.image_loading = "Caricamento in corso ..";
             var obj = new Object();
             obj.immagine = dataUrl;
             obj.id = vm.utente.id;
-            debugger;
+            
+            const blob =dataURItoBlob(dataUrl);
             var jsonString = JSON.stringify(obj);
-            UserService.UpdateImage(jsonString).then(function (response) {
+            UserService.UpdateImage2(vm.utente.id,blob,name).then(function (response) {
                 if (response.success === false) {
                     $location.path('/error');
                 }
@@ -103,9 +120,18 @@
                     FlashService.pop({ title: "Immagine inserita", body: "", type: "info" });
                 }
             });
+            /*UserService.UpdateImage(jsonString).then(function (response) {
+                if (response.success === false) {
+                    $location.path('/error');
+                }
+                else {
+                    vm.image_loading = "";
+                    FlashService.pop({ title: "Immagine inserita", body: "", type: "info" });
+                }
+            });*/
         }
         function addcar(auto) {
-            debugger;
+            
             if (vm.gestioneAutoForm.$valid) {
                 vm.gestioneAutoForm.$submitted = false;
                 var autoToSend = {
@@ -113,7 +139,7 @@
                     "modello": auto.modello,
                     "colore": auto.colore,
                     "utente_fk": vm.utente.id
-                }
+                };
                 CarService.CreateCar(autoToSend).then(function (response) {
                     if (response.success === false) {
                         $location.path('/error');

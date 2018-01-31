@@ -15,4 +15,6 @@ public class Constants {
     public static int notfriends = 0;
     public static int friends = 1;
     public static int same = 2;
+    public static String defaultProfileImage = "https://www.dropbox.com/s/ht1ik2uygkjea3u/profile?raw=1";
+    public static String defaultImagePath ="/immagine-profilo/profile";
 }

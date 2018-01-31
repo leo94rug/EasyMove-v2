@@ -7,7 +7,6 @@ package Model.ModelDB;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 /**
  *
@@ -15,19 +14,19 @@ import java.sql.Timestamp;
  */
 public class Feedback {
 
-    private int id;
+    private String id;
     private int valutazione_guida;
     private int valutazione_puntualita;
     private int valutazione_disponibilita;
     private String testo;
-    private Timestamp date;
-    private int utente_recensore;
-    private int utente_recensito;
+    private String date;
+    private String utente_recensore;
+    private String utente_recensito;
 
     public Feedback() {
     }
 
-    public Feedback(String testo, int utente_recensito,  int utente_recensore,int valutazione_guida, int valutazione_puntualita, int valutazione_disponibilita) {
+    public Feedback(String testo, String utente_recensito, String utente_recensore, int valutazione_guida, int valutazione_puntualita, int valutazione_disponibilita) {
         this.valutazione_guida = valutazione_guida;
         this.valutazione_puntualita = valutazione_puntualita;
         this.valutazione_disponibilita = valutazione_disponibilita;
@@ -37,21 +36,21 @@ public class Feedback {
     }
 
     public Feedback(ResultSet rs) throws SQLException {
-        this.id = rs.getInt("f.id");
+        this.id = rs.getString("f.id");
         this.testo = rs.getString("f.testo");
         this.valutazione_guida = rs.getInt("f.valutazione_guida");
         this.valutazione_puntualita = rs.getInt("f.valutazione_puntualita");
         this.valutazione_disponibilita = rs.getInt("f.valutazione_disponibilita");
-        this.date = rs.getTimestamp("f.data");
-        this.utente_recensito = rs.getInt("f.utente_recensito");
-        this.utente_recensore = rs.getInt("utente_recensore");
+        this.date = rs.getString("f.data");
+        this.utente_recensito = rs.getString("f.utente_recensito");
+        this.utente_recensore = rs.getString("utente_recensore");
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -87,28 +86,28 @@ public class Feedback {
         this.testo = testo;
     }
 
-    public Timestamp getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Timestamp date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public int getUtente_recensore() {
+    public String getUtente_recensore() {
         return utente_recensore;
     }
 
-    public void setUtente_recensore(int utente_recensore) {
+    public void setUtente_recensore(String utente_recensore) {
         this.utente_recensore = utente_recensore;
     }
 
-    public int getUtente_recensito() {
+    public String getUtente_recensito() {
         return utente_recensito;
     }
 
-    public void setUtente_recensito(int utente_recensito) {
+    public void setUtente_recensito(String utente_recensito) {
         this.utente_recensito = utente_recensito;
     }
-    
+
 }

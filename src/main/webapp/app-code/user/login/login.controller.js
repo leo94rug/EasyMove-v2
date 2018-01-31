@@ -4,9 +4,9 @@
             .module('app')
             .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$timeout', 'AuthenticationService', 'AccountService', 'FlashService', '$location', '$store'];
+    LoginController.$inject = ['DateService','$timeout', 'AuthenticationService', 'AccountService', 'FlashService', '$location', '$store'];
 
-    function LoginController($timeout, AuthenticationService, AccountService, FlashService, $location, $store) {
+    function LoginController(DateService,$timeout, AuthenticationService, AccountService, FlashService, $location, $store) {
         var vm = this;
         $('body,html').animate({scrollTop: 0}, 800);
         vm.login = login;
@@ -53,7 +53,7 @@
                     }
                 } else {
                     if (response.res.data.anno_nascita != null && response.res.data.anno_nascita != '') {
-                        response.res.data.anno_nascita = Date.createFromMysql(response.res.data.anno_nascita_string);
+                        response.res.data.anno_nascita = DateService.dateFromString(response.res.data.anno_nascita);
                     }
                     AuthenticationService.SetCredentials(response.res.data, vm.coll);
                     $('body,html').animate({scrollTop: 0}, 800);
@@ -67,14 +67,6 @@
                     $location.path('/');
                 }
             });
-        }
-        Date.createFromMysql = function (mysql_string) {
-            var t, result = null;
-            if (typeof mysql_string === 'string') {
-                t = mysql_string.split(/[- :]/);
-                result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);
-            }
-            return result;
         }
         function resendEmail() {
             AccountService.ResendEmail(vm.email).then(function (response) {

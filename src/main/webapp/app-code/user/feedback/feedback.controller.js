@@ -31,7 +31,7 @@
                     $location.path('/error');
                 }
                 else {
-                    debugger;
+                    
                     switch (response.res.data) {
                         case 0: {
                             FlashService.set({ title: "Attenzione", body: "Non è possibile inserire un feedback", type: "error" });
@@ -57,7 +57,7 @@
             });
         }
         function inserisci() {
-            debugger;
+            
             if (vm.feedback.valutazione_guida != undefined && vm.feedback.valutazione_puntualita != undefined && vm.feedback.valutazione_disponibilita != undefined) {
                 vm.feedback.utente_recensito = parseInt(vm.destinatario);
                 vm.feedback.utente_recensore = vm.utente.id;

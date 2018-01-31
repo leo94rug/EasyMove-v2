@@ -17,13 +17,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 public class Auto {
 
-    int id;
+    String id;
     String modello;
     String marca;
     String colore;
-    int utente_fk;
-
-    public Auto(int id, String modello, String marca, String colore, int utente_fk) {
+    String utente_fk;
+    public Auto(String id, String modello, String marca, String colore, String utente_fk) {
         this.id = id;
         this.modello = modello;
         this.marca = marca;
@@ -31,18 +30,19 @@ public class Auto {
         this.utente_fk = utente_fk;
     }
 
+
     public Auto(ResultSet rs) throws SQLException {
-        this.id = rs.getInt("a.id");
+        this.id = rs.getString("a.id");
         this.modello = rs.getString("a.modello");
         this.marca = rs.getString("a.marca");
         this.colore = rs.getString("a.colore");
-        this.utente_fk = rs.getInt("a.utente_fk");  
+        this.utente_fk = rs.getString("a.utente_fk");  
     }
     public Auto(){
         
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -58,11 +58,11 @@ public class Auto {
         this.colore = colore;
     }
 
-    public void setUtente_fk(int utente_fk) {
+    public void setUtente_fk(String utente_fk) {
         this.utente_fk = utente_fk;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -78,7 +78,7 @@ public class Auto {
         return colore;
     }
 
-    public int getUtente_fk() {
+    public String getUtente_fk() {
         return utente_fk;
     }
 

@@ -20,27 +20,22 @@
                         <div class="f-row">
                             <md-input-container style="width: 325px;">
                                 <label for="partenza">Partenza</label>
-                                <input type="text" force-selection="true" name="partenza" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
+                                <input type="text" autocomplete="off" force-selection="true" name="partenza" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
                                     ng-click="vm.geolocate()" ng-model="vm.partenzaList[0]" class="inputoffer" />
                                 <div ng-messages="vm.offer.partenza.$error">
                                     <div ng-message="required">Campo obbligatorio.</div>
                                 </div>
                             </md-input-container>
-                            <!--<label style="width: 73px;" for="partenza">Partenza</label>
-                                <input type="text" force-selection="true" required g-places-autocomplete options="vm.autocompleteOptions" ng-click="vm.geolocate()" ng-model="vm.partenzaList[0]" class="inputoffer" />-->
                         </div>
                         <div class="f-row">
                             <md-input-container style="width: 325px;">
                                 <label for="arrivo">Arrivo</label>
-                                <input type="text" force-selection="true" name="arrivo" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
+                                <input type="text" autocomplete="off" force-selection="true" name="arrivo" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
                                     ng-click="vm.geolocate()" ng-model="vm.arrivoList[0]" class="inputoffer" />
                                 <div ng-messages="vm.offer.arrivo.$error">
                                     <div ng-message="required">Campo obbligatorio.</div>
                                 </div>
                             </md-input-container>
-                            <!--<label style="width: 73px;">Arrivo</label>
-                            <input type="text" force-selection="true" required g-places-autocomplete options="vm.autocompleteOptions" ng-click="vm.geolocate()"
-                                ng-model="vm.arrivoList[0]" class="inputoffer" />-->
                         </div>
                         <div style="display: inline-flex;">
                             <h3>Tappe intermedie</h3>
@@ -51,17 +46,13 @@
                         <div ng-repeat="t in vm.tappeList" class="f-row">
                             <md-input-container style="width: 325px;">
                                 <label for="arrivo">{{$index+1}}° Tappa intermedia</label>
-                                <input type="text" force-selection="true" name="tappa" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
+                                <input type="text" autocomplete="off" force-selection="true" name="tappa" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
                                     ng-click="vm.geolocate()" ng-model="vm.tappeList[$index]" class="inputoffer" />
                                 <div ng-messages="vm.offer.tappa.$error">
                                     <div ng-message="required">Campo obbligatorio.</div>
                                 </div>
                             </md-input-container>
                             <img src="images/close.png" ng-click="vm.removeTappa($index)" style="height: 12px;">
-
-                            <!--<input type="text" force-selection="true" placeholder="Tappa intermedia" g-places-autocomplete ng-required=true options="vm.autocompleteOptions"
-                                ng-click="vm.geolocate()" ng-model="vm.tappeList[$index]" class="inputoffer" />
-                            <img src="images/close.png" ng-click="vm.removeTappa($index)" style="height: 12px;">-->
                         </div>
                     </div>
                     <div class="tempo-block box">

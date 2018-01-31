@@ -5,8 +5,8 @@
         .module('app')
         .controller('PassaggiController', PassaggiController);
 
-    PassaggiController.$inject = ['$timeout','UserService','RouteService', '$location', '$store', 'FlashService','AuthenticationService'];
-    function PassaggiController($timeout,UserService,RouteService, $location, $store, FlashService,AuthenticationService) {
+    PassaggiController.$inject = ['DateService','$timeout','UserService','RouteService', '$location', '$store', 'FlashService','AuthenticationService'];
+    function PassaggiController(DateService,$timeout,UserService,RouteService, $location, $store, FlashService,AuthenticationService) {
         var vm = this;
         vm.initialize=initialize;
         vm.delete=deleted;
@@ -31,19 +31,12 @@
                 else{
                     vm.travel=response.res.data;
                     vm.travel.forEach( function (arrayItem){
-                        arrayItem.tratta_auto.orario_partenza = Date.createFromMysql(arrayItem.tratta_auto.orario_partenza_string);
+                        arrayItem.tratta_auto.orario_partenza = DateService.dateFromString(arrayItem.tratta_auto.orario_partenza);
                     });
                 }
             });
         }
-                Date.createFromMysql = function(mysql_string){ 
-          var t, result = null;
-          if( typeof mysql_string === 'string' )   {
-            t = mysql_string.split(/[- :]/);
-            result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);          
-          }
-          return result;   
-        }
+
         function deleted(id){
             
             RouteService.Delete(id).then(function (response) {

@@ -10,16 +10,26 @@ import Model.Response.UtenteRes;
 import Model.Response.Viaggio_autoRes;
 import Repository.RelazioneRepository;
 import Repository.UserRepository;
+import static Utilita.Constants.defaultImagePath;
+import Utilita.Image.ImageUtility;
+import Utilita.Storage.DropboxService;
+import com.dropbox.core.DbxException;
 import com.google.gson.Gson;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -33,8 +43,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * REST Web Service
@@ -69,8 +78,8 @@ public class ControllerUtenti {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
-    @Path(value = "getviaggi/{id: [0-9]+}")
-    public void getviaggi(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "getviaggi/{id}")
+    public void getviaggi(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetviaggi(id));
         });
@@ -78,8 +87,8 @@ public class ControllerUtenti {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
-    @Path(value = "getpercorsi/{id: [0-9]+}")
-    public void getpercorsi(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "getpercorsi/{id}")
+    public void getpercorsi(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetpercorsi(id));
         });
@@ -87,70 +96,56 @@ public class ControllerUtenti {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
-    @Path(value = "getprofilo/{id: [0-9]+}")
-    public void getProfilo(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "getprofilo/{id}")
+    public void getProfilo(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetProfilo(id));
         });
     }
 
     @GET
-    @Path(value = "checkfriend/{user1: [0-9]+}/{user2: [0-9]+}")
+    @Path(value = "checkfriend/{user1}/{user2}")
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public void checkfriend(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "user1") final int user1, @PathParam(value = "user2") final int user2) {
+    public void checkfriend(@Suspended final AsyncResponse asyncResponse,
+            @PathParam(value = "user1") final String user1,
+            @PathParam(value = "user2") final String user2) {
         executorService.submit(() -> {
             asyncResponse.resume(doCheckfriend(user1, user2));
         });
     }
 
     @PUT
-    @Path(value = "updateprofilo/{id: [0-9]+}")
+    @Path(value = "updateprofilo/{id}")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void updateProfilo(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Utente payload, @PathParam(value = "id") final int id) {
+    public void updateProfilo(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Utente payload, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doUpdateProfilo(context, payload, id));
         });
     }
 
-    @PUT
-    @Path(value = "updateimage")
-    @Consumes(value = MediaType.APPLICATION_JSON)
-    public void updateImage(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
-        executorService.submit(() -> {
-            asyncResponse.resume(doUpdateImage(context, payload));
-        });
-    }
-
-    private Response doUpdateImage(@Context UriInfo context, String payload) {
-        try (Connection connection = ds.getConnection()) {
-            UserRepository userRepository = new UserRepository(connection);
-            JSONObject obj = new JSONObject(payload);
-            String immagine = obj.getString("immagine");
-            int id = obj.getInt("id");
-            int n = userRepository.updateUtenteImage(id, immagine);
-            if (n == 0) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            return Response.status(Response.Status.NO_CONTENT).build();
-        } catch (SQLException | JSONException ex) {
-
-            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        }
-    }
-
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    @Path("travelnumber/{id: [0-9]+}")
+    @Path("travelnumber/{id}")
     public void travelnumber(@Suspended
             final AsyncResponse asyncResponse, @PathParam(value = "id")
-            final int id) {
+            final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doTravelnumber(id));
         });
     }
 
-    private Response doGetviaggi(@PathParam("id") int id) {
+    @PUT
+    @Path(value = "updateimage/{id}/{filename}")
+    @Consumes(value = MediaType.APPLICATION_OCTET_STREAM)
+    public void uploadFile(@Suspended final AsyncResponse asyncResponse, final InputStream payload,
+            @PathParam(value = "id") final String id,
+            @PathParam(value = "filename") final String filename) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doUploadFile(payload, id, filename));
+        });
+    }
+
+    private Response doGetviaggi(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             UserRepository userRepository = new UserRepository(connection);
             List<Viaggio_autoRes> viaggio_auto = userRepository.getViaggi(id);
@@ -170,13 +165,13 @@ public class ControllerUtenti {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
             return Response.ok(new Gson().toJson(utente)).build();
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
 
-    private Response doGetpercorsi(@PathParam("id") int id) {
+    private Response doGetpercorsi(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             UserRepository userRepository = new UserRepository(connection);
 
@@ -188,20 +183,22 @@ public class ControllerUtenti {
         }
     }
 
-    private Response doGetProfilo(@PathParam("id") int id) {
+    private Response doGetProfilo(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             UserRepository userRepository = new UserRepository(connection);
             UtenteRes utenteRes = userRepository.getUtente(id);
-            if(utenteRes==null) return Response.status(Response.Status.NOT_FOUND).build();
+            if (utenteRes == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
             return Response.ok(new Gson().toJson(utenteRes)).build();
-        } catch (SQLException | ParseException ex) {
+        } catch (Exception ex) {
 
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
 
-    private Response doCheckfriend(@PathParam("user1") int user1, @PathParam("user2") int user2) {
+    private Response doCheckfriend(@PathParam("user1") String user1, @PathParam("user2") String user2) {
         try (Connection connection = ds.getConnection()) {
             RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
 
@@ -213,7 +210,7 @@ public class ControllerUtenti {
         }
     }
 
-    private Response doUpdateProfilo(@Context UriInfo context, Utente utenteRqt, @PathParam("id") int id) {
+    private Response doUpdateProfilo(@Context UriInfo context, Utente utenteRqt, @PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             UserRepository userRepository = new UserRepository(connection);
             int i = userRepository.updateUser(utenteRqt, id);
@@ -231,7 +228,7 @@ public class ControllerUtenti {
         }
     }
 
-    private Response doTravelnumber(@PathParam("id") int id) {
+    private Response doTravelnumber(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
             UserRepository userRepository = new UserRepository(connection);
@@ -248,4 +245,36 @@ public class ControllerUtenti {
             return Response.serverError().build();
         }
     }
+
+    private Response doUploadFile(InputStream is, @PathParam("id") String id, @PathParam("filename") String filename) {
+        try (Connection connection = ds.getConnection()) {
+            DropboxService drop = new DropboxService();
+            UserRepository userRepository = new UserRepository(connection);
+
+            Utente utente = userRepository.getUtente(id);
+            if (!utente.getImage_path().equals(defaultImagePath)) {
+                drop.delete(utente.getImage_path());
+            }
+            String ext = FilenameUtils.getExtension(filename);
+            Image image = ImageIO.read(is);
+            BufferedImage bi = ImageUtility.createResizedCopy(image, 180, 180, true);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(bi, ext, os);
+            InputStream is2 = new ByteArrayInputStream(os.toByteArray());
+            String dropboxPath = "/immagine-profilo/" + id + "/" + UUID.randomUUID();
+            drop.uploadStream(is2, dropboxPath);
+            String url = drop.getFileUrl(dropboxPath);
+            String newUrl = url.replace("dl=0", "raw=1");
+            int n = userRepository.updateUtenteImage(id, newUrl, dropboxPath);
+            if (n == 0) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (Exception ex) {
+            Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
+
+    }
+
 }

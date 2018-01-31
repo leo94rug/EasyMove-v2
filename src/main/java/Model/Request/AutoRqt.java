@@ -13,7 +13,7 @@ import Model.ModelDB.Auto;
  */
 public class AutoRqt extends Auto{
     
-    public AutoRqt(int id, String modello, String marca, String colore, int utente_fk) {
+    public AutoRqt(String id, String modello, String marca, String colore, String utente_fk) {
         super(id, modello, marca, colore, utente_fk);
     }
 

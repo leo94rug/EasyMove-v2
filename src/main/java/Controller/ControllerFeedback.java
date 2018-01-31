@@ -16,13 +16,11 @@ import Repository.FeedbackRepository;
 import Repository.NotificationRepository;
 import Repository.RelazioneRepository;
 import Repository.RouteRepository;
-import Repository.UserRepository;
+import Utilita.DatesConversion;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,8 +64,8 @@ public class ControllerFeedback {
 
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
-    @Path(value = "getfeedback/{id: [0-9]+}")
-    public void getfeedback(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    @Path(value = "getfeedback/{id}")
+    public void getfeedback(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetfeedback(id));
         });
@@ -100,12 +98,12 @@ public class ControllerFeedback {
         });
     }
 
-    private Response doGetfeedback(@PathParam("id") int id) {
+    private Response doGetfeedback(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             FeedbackRepository feedbackRepository = new FeedbackRepository(connection);
             FeedbackRes feedbackRes = feedbackRepository.getFeedback(id);
             return Response.ok(new Gson().toJson(feedbackRes)).build();
-        } catch (SQLException | ParseException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
@@ -116,8 +114,8 @@ public class ControllerFeedback {
             RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
             NotificationRepository notificationRepository = new NotificationRepository(connection);
             JSONObject obj = new JSONObject(payload);
-            int mittente = obj.getInt("mittente");
-            int destinatario = obj.getInt("destinatario");
+            String mittente = obj.getString("mittente");
+            String destinatario = obj.getString("destinatario");
             Relazione relazione = relazioneRepository.getRelazione(mittente, destinatario);
             if (relazione != null) {
                 switch (relazione.getDa_valutare()) {
@@ -125,9 +123,7 @@ public class ControllerFeedback {
                         return Response.ok(new Gson().toJson(0)).build();
                     }
                     case 1: {
-                        Date date = new Date();
-                        Timestamp timestamp = relazione.getDa_valutare_data();
-                        if (timestamp.after(new Timestamp(date.getTime()))) {
+                        if (DatesConversion.before(DatesConversion.now(), relazione.getDa_valutare_data())) {
                             return Response.ok(new Gson().toJson(2)).build();
                         } else {
                             return Response.ok(new Gson().toJson(1)).build();
@@ -137,7 +133,7 @@ public class ControllerFeedback {
                         return Response.ok(new Gson().toJson(2)).build();
                     }
                     case 3: {
-                        notificationRepository.checkNotificationExistAndDelete(destinatario,mittente, Notifica_tipologia.INSERISCI_FEEDBACK);
+                        notificationRepository.checkNotificationExistAndDelete(destinatario, mittente, Notifica_tipologia.INSERISCI_FEEDBACK);
                         return Response.ok(new Gson().toJson(3)).build();
                     }
                 }
@@ -145,7 +141,7 @@ public class ControllerFeedback {
                 throw new ObjectNotFound();
             }
             return Response.ok(new Gson().toJson(0)).build();
-        } catch (SQLException | JSONException ex) {
+        } catch (SQLException | JSONException | ParseException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         } catch (ObjectNotFound ex) {
@@ -165,7 +161,7 @@ public class ControllerFeedback {
             int i = feedbackRepository.addFeedback(feedbackRqt);
             if (i != 0) {
                 relazioneRepository.updateRelazioneDaValutare(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Relazione_da_valutare.FEEDBACK_GIA_INSERITO, null);
-                notificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensito(),feedbackRqt.getUtente_recensore(), Notifica_tipologia.INSERISCI_FEEDBACK);
+                notificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensito(), feedbackRqt.getUtente_recensore(), Notifica_tipologia.INSERISCI_FEEDBACK);
             }
             return Response.ok().build();
         } catch (SQLException ex) {
@@ -179,9 +175,9 @@ public class ControllerFeedback {
             RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
             RouteRepository routeRepository = new RouteRepository(connection);
             JSONObject obj = new JSONObject(payload);
-            int utente_1 = obj.getInt("passeggero");
-            int utente_2 = obj.getInt("autista");
-            int id_tappa = obj.getInt("id_tappa");
+            String utente_1 = obj.getString("passeggero");
+            String utente_2 = obj.getString("autista");
+            String id_tappa = obj.getString("id_tappa");
             Tratta_auto tratta_auto = routeRepository.getTravelDetail(id_tappa, id_tappa);
             Relazione relazione = relazioneRepository.getRelazione(utente_1, utente_2);
 
@@ -192,9 +188,8 @@ public class ControllerFeedback {
                         return Response.ok(new Gson().toJson(0)).build();
                     }
                     case 1: {
-                        Timestamp timestamp = relazione.getDa_valutare_data();
-                        if (tratta_auto.getOrario_partenza().after(timestamp)) {
-                            int i = relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
+                        if (DatesConversion.before(relazione.getDa_valutare_data(), tratta_auto.getOrario_partenza())) {
+                            relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, tratta_auto.getOrario_partenza());
                             return Response.ok(new Gson().toJson(0)).build();
                         }
                         return Response.ok(new Gson().toJson(1)).build();

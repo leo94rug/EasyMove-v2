@@ -6,7 +6,6 @@
 package Model.Response;
 
 import Model.ModelDB.Prenotazione;
-import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
 import java.sql.ResultSet;
 import java.sql.SQLException;

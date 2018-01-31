@@ -5,8 +5,8 @@
         .module('app')
         .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$timeout','NotificationsService','FlashService','RouteService','UserService','AuthenticationService' ,'$rootScope','$location','$compile','$scope','$store'];
-    function HomeController($timeout,NotificationsService,FlashService,RouteService,UserService,AuthenticationService, $rootScope,$location,$compile,$scope,$store) {
+    HomeController.$inject = ['DateService','$timeout','NotificationsService','FlashService','RouteService','UserService','AuthenticationService' ,'$rootScope','$location','$compile','$scope','$store'];
+    function HomeController(DateService,$timeout,NotificationsService,FlashService,RouteService,UserService,AuthenticationService, $rootScope,$location,$compile,$scope,$store) {
         var vm = this;
         vm.utente = $store.get('utente');
         $('body,html').animate({scrollTop:0},800);
@@ -32,14 +32,6 @@
             FlashService.set({title: "Logout effettuato", body: "", type: "info"});
             $location.path('/login');
         }        
-        Date.createFromMysql = function(mysql_string){ 
-          var t, result = null;
-          if( typeof mysql_string === 'string' )   {
-            t = mysql_string.split(/[- :]/);
-            result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);          
-          }
-          return result;   
-        }
         function geolocate() {
             if (navigator.geolocation) {
                 if (vm.localizzato===0) {
@@ -110,7 +102,7 @@
                             else{
                                 vm.routeAuto=response;
                                 vm.routeAuto.forEach( function (arrayItem){
-                                    arrayItem.tratta_auto.orario_partenza = Date.createFromMysql(arrayItem.tratta_auto.orario_partenza_string);
+                                    arrayItem.tratta_auto.orario_partenza = DateService.dateFromString(arrayItem.tratta_auto.orario_partenza);
                                 });
                             }
                         });

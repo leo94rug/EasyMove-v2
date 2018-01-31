@@ -20,7 +20,6 @@
         }); 
         function register() {
             if ($scope.registerForm.$valid) {
-                debugger;
                 vm.user.anno_nascita = DateService.stringFromDate(vm.data); 
                 vm.user.biografia="L'utente non ha inserito una biografia";
                 AccountService.Create(vm.user).then(function(response) {

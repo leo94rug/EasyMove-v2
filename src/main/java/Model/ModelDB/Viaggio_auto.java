@@ -5,11 +5,9 @@
  */
 package Model.ModelDB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import static DatabaseConstants.Viaggio_auto.DESCRIZIONE;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,13 +17,14 @@ import org.json.JSONObject;
  */
 public class Viaggio_auto {
 
-    int id;
+    String id;
     String descrizione;
     String ritardo_max;
     String bagaglio_max;
     String disponibilita_deviazioni;
-    int utente_fk;
+    String utente_fk;
     String auto;
+    String data;
     int tipologia;
     public Viaggio_auto(){}
     
@@ -36,21 +35,22 @@ public class Viaggio_auto {
         ritardo_max = jsonObject.getString("ritardo_max");
         bagaglio_max = jsonObject.getString("bagaglio_max");
         disponibilita_deviazioni = jsonObject.getString("disponibilita_deviazioni");
-        utente_fk = jsonObject.getInt("utente_fk");
+        utente_fk = jsonObject.getString("utente_fk");
         auto = jsonObject.getString("auto");
         tipologia = jsonObject.getInt("tipologia");
     }
     public Viaggio_auto(ResultSet rs) throws SQLException {
-        this.id = rs.getInt("vi.id");
+        this.id = rs.getString("vi.id");
         this.tipologia = rs.getInt("vi.tipologia");
         this.ritardo_max = rs.getString("vi.ritardo_max");
         this.bagaglio_max = rs.getString("vi.bagaglio_max");
         this.disponibilita_deviazioni = rs.getString("vi.disponibilita_deviazioni");
-        this.utente_fk = rs.getInt("vi.utente_fk");
+        this.utente_fk = rs.getString("vi.utente_fk");
         this.auto = rs.getString("vi.auto");
+        this.descrizione = rs.getString("vi." + DESCRIZIONE);
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -74,7 +74,7 @@ public class Viaggio_auto {
         this.disponibilita_deviazioni = disponibilita_deviazioni;
     }
 
-    public void setUtente_fk(int utente_fk) {
+    public void setUtente_fk(String utente_fk) {
         this.utente_fk = utente_fk;
     }
 
@@ -82,7 +82,7 @@ public class Viaggio_auto {
         this.auto = auto;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -102,7 +102,7 @@ public class Viaggio_auto {
         return disponibilita_deviazioni;
     }
 
-    public int getUtente_fk() {
+    public String getUtente_fk() {
         return utente_fk;
     }
 

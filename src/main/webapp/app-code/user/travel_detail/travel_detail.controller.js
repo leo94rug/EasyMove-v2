@@ -5,11 +5,9 @@
         .module('app')
         .controller('TravelDetailController', TravelDetailController);
 
-    TravelDetailController.$inject = ['$timeout','NotificationsService','$scope','$store', 'RouteService','$location','UserService', '$rootScope', 'FlashService','$routeParams','$mdDialog','AuthenticationService'];
-    function TravelDetailController($timeout, NotificationsService,$scope,$store,RouteService, $location,UserService, $rootScope, FlashService,$routeParams,$mdDialog,AuthenticationService) {
+    TravelDetailController.$inject = ['DateService','$timeout','NotificationsService','$scope','$store', 'RouteService','$location','UserService', '$rootScope', 'FlashService','$routeParams','$mdDialog','AuthenticationService'];
+    function TravelDetailController(DateService,$timeout, NotificationsService,$scope,$store,RouteService, $location,UserService, $rootScope, FlashService,$routeParams,$mdDialog,AuthenticationService) {
         var vm = this;
-        debugger;
-        
         vm.tratta1=$routeParams.tratta1;
         vm.tratta2=$routeParams.tratta2;
         vm.initializa=initialize;
@@ -25,10 +23,7 @@
             { category: 'posti', name: '4',value:4 },
         ];      
         initialize();
-        $timeout(function(){
-            var myEl = angular.element( document.querySelector( '#headerSearch' ) );
-            myEl.addClass('active');           
-        });  
+
         
         function prenota(){
                 //if ($scope.offer.$valid) {
@@ -122,17 +117,13 @@
         function visualizzautente(email){
             $location.path('/profilo-utenti/' + email);
         }
-        Date.createFromMysql = function(mysql_string){ 
-          var t, result = null;
-          if( typeof mysql_string === 'string' )   {
-            t = mysql_string.split(/[- :]/);
-            result = new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);          
-          }
-          return result;   
-        }
         function initialize(){
             vm.utente = $store.get('utente');
             $('body,html').animate({scrollTop:0},800);
+            $timeout(function(){
+                var myEl = angular.element( document.querySelector( '#headerSearch' ) );
+                myEl.addClass('active');           
+            });  
             vm.disabled=false;
             vm.messaggio="";
             if (vm.utente) {
@@ -142,7 +133,7 @@
                     }
                     else{
                         vm.dettaglioPercorso=response.res.data;
-                        vm.dettaglioPercorso.orario_partenza = Date.createFromMysql(vm.dettaglioPercorso.orario_partenza_string);
+                        vm.dettaglioPercorso.orario_partenza = DateService.dateFromString(vm.dettaglioPercorso.orario_partenza_string);
                         RouteService.GetPercorso(vm.dettaglioPercorso.viaggio_fk).then(function(response) {
                             if(response.success===false){
                                 $location.path('/error');
@@ -184,8 +175,10 @@
                                                 $location.path('/error');
                                             }
                                             else{
-                                                vm.feedback=response.res.data;
-                                            }    
+                                                vm.feedback = response.res.data;
+                                                vm.feedback.listaFeedback.forEach(function (arrayItem) {
+                                                    arrayItem.date = DateService.dateFromString(arrayItem.date);
+                                                });                                            }    
                                         });
                                         UserService.CheckFriend(vm.utenteProfilo.id,vm.utente.id).then(function(response){
                                             if(response.success===false){

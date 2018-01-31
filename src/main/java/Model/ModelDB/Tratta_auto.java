@@ -5,12 +5,8 @@
  */
 package Model.ModelDB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import javax.sql.DataSource;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,12 +16,11 @@ import org.json.JSONObject;
  */
 public class Tratta_auto {
 
-    int id;
-    java.sql.Timestamp orario_partenza;
-    String orario_partenza_string;
+    String id;
+    String orario_partenza;
     int enumerazione;
-    Timestamp data;
-    int viaggio_fk;
+    String data;
+    String viaggio_fk;
     int prezzo;
     int distanza;
     int posti;
@@ -37,12 +32,11 @@ public class Tratta_auto {
     String denominazione_arrivo;
 
     public Tratta_auto(ResultSet rs) throws SQLException {
-        this.id = rs.getInt("t.id");
-        this.orario_partenza = rs.getTimestamp("t.orario_partenza");
-        this.orario_partenza_string=orario_partenza.toString();
-        this.data = rs.getTimestamp("t.data");
+        this.id = rs.getString("t.id");
+        this.orario_partenza = rs.getString("t.orario_partenza");
+        this.data = rs.getString("t.data");
         this.enumerazione = rs.getInt("t.enumerazione");
-        this.viaggio_fk = rs.getInt("t.viaggio_fk");
+        this.viaggio_fk = rs.getString("t.viaggio_fk");
         this.prezzo = rs.getInt("t.prezzo");
         this.distanza = rs.getInt("t.distanza");
         this.posti = rs.getInt("t.posti");
@@ -56,8 +50,7 @@ public class Tratta_auto {
     }
 
     public Tratta_auto(JSONObject jsonObject) throws JSONException {
-        long date = jsonObject.getLong("orario_partenza");
-        orario_partenza = new Timestamp(date);
+        orario_partenza = jsonObject.getString("orario_partenza");
         enumerazione = jsonObject.getInt("enumerazione");
         prezzo = jsonObject.getInt("prezzo");
         distanza = jsonObject.getInt("distanza");
@@ -82,11 +75,11 @@ public class Tratta_auto {
             this.posti=posti;
         }
     }
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public void setOrario_partenza(Timestamp orario_partenza) {
+    public void setOrario_partenza(String orario_partenza) {
         this.orario_partenza = orario_partenza;
     }
 
@@ -94,11 +87,11 @@ public class Tratta_auto {
         this.enumerazione = enumerazione;
     }
 
-    public void setData(Timestamp data) {
+    public void setData(String data) {
         this.data = data;
     }
 
-    public void setViaggio_fk(int viaggio_fk) {
+    public void setViaggio_fk(String viaggio_fk) {
         this.viaggio_fk = viaggio_fk;
     }
 
@@ -138,11 +131,11 @@ public class Tratta_auto {
         this.denominazione_arrivo = denominazione_arrivo;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public Timestamp getOrario_partenza() {
+    public String getOrario_partenza() {
         return orario_partenza;
     }
 
@@ -150,11 +143,11 @@ public class Tratta_auto {
         return enumerazione;
     }
 
-    public Timestamp getData() {
+    public String getData() {
         return data;
     }
 
-    public int getViaggio_fk() {
+    public String getViaggio_fk() {
         return viaggio_fk;
     }
 

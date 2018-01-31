@@ -10,11 +10,13 @@ import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Viaggio_auto;
 import Model.Response.Viaggio_autoRes;
 import Repository.RouteRepository;
+import Utilita.DatesConversion;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,17 +63,17 @@ public class ControllerPercorsi {
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "viaggio/{id}")
-    public void getviaggio(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final int id) {
+    public void getviaggio(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetviaggio(id));
         });
     }
 
     @DELETE
-    @Path("delete/{id: [0-9]+}")
+    @Path("delete/{id}")
     public void delete(@Suspended
             final AsyncResponse asyncResponse, @PathParam(value = "id")
-            final int id) {
+            final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doDelete(id));
         });
@@ -90,7 +92,7 @@ public class ControllerPercorsi {
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "percorso/{viaggio_fk}")
-    public void gettravel(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "viaggio_fk") final int viaggio_fk) {
+    public void gettravel(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "viaggio_fk") final String viaggio_fk) {
         executorService.submit(() -> {
             asyncResponse.resume(doGettravel(viaggio_fk));
         });
@@ -99,7 +101,7 @@ public class ControllerPercorsi {
     @GET
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "dettagliopercorso/{tratta1}/{tratta2}")
-    public void gettraveldetail(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "tratta1") final int tratta1, @PathParam(value = "tratta2") final int tratta2) {
+    public void gettraveldetail(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "tratta1") final String tratta1, @PathParam(value = "tratta2") final String tratta2) {
         executorService.submit(() -> {
             asyncResponse.resume(doGettraveldetail(tratta1, tratta2));
         });
@@ -108,13 +110,13 @@ public class ControllerPercorsi {
     @POST
     @Path(value = "insert")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void post2(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+    public void insert(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
         executorService.submit(() -> {
-            asyncResponse.resume(doPost2(context, payload));
+            asyncResponse.resume(doInsert(context, payload));
         });
     }
 
-    private Response doDelete(@PathParam("id") int id) {
+    private Response doDelete(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
             routeRepository.deleteTravel(id);
@@ -133,19 +135,13 @@ public class ControllerPercorsi {
 
             List<Viaggio_autoRes> cercaAuto = routeRepository.cercaAuto(ricerca);
             return Response.ok(new Gson().toJson(cercaAuto)).build();
-        } catch (JSONException ex) {
-            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        } catch (SQLException ex) {
-            Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
-        } catch (ParseException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
 
-    private Response doPost2(@Context UriInfo context, String payload) {
+    private Response doInsert(@Context UriInfo context, String payload) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
             JSONObject obj = new JSONObject(payload);
@@ -153,23 +149,27 @@ public class ControllerPercorsi {
             JSONArray ritorno = obj.getJSONArray("ritorno");
             JSONObject viaggio = obj.getJSONObject("viaggio");
             Viaggio_auto viaggio_auto = new Viaggio_auto(viaggio);
-            int idviaggio = routeRepository.ottieniIdValido();
+            String idviaggio = UUID.randomUUID().toString();
             viaggio_auto.setId(idviaggio);
             routeRepository.insertViaggio_auto(viaggio_auto);
             for (int i = 0; i < andata.length(); ++i) {
                 JSONObject tratta = andata.getJSONObject(i);
                 Tratta_auto tratta_auto = new Tratta_auto(tratta);
                 tratta_auto.setViaggio_fk(idviaggio);
+                tratta_auto.setId(UUID.randomUUID().toString());
+                tratta_auto.setData(DatesConversion.now());
                 routeRepository.insertTratta_auto(tratta_auto);
             }
             if (ritorno.length() > 0) {
-                idviaggio = routeRepository.ottieniIdValido();
+                idviaggio = UUID.randomUUID().toString();
                 viaggio_auto.setId(idviaggio);
                 routeRepository.insertViaggio_auto(viaggio_auto);
                 for (int i = 0; i < ritorno.length(); ++i) {
                     JSONObject tratta = ritorno.getJSONObject(i);
                     Tratta_auto tratta_auto = new Tratta_auto(tratta);
                     tratta_auto.setViaggio_fk(idviaggio);
+                    tratta_auto.setId(UUID.randomUUID().toString());
+                    tratta_auto.setData(DatesConversion.now());
                     routeRepository.insertTratta_auto(tratta_auto);
                 }
             }
@@ -183,7 +183,7 @@ public class ControllerPercorsi {
         }
     }
 
-    private Response doGettraveldetail(@PathParam("tratta1") int tratta1, @PathParam("tratta2") int tratta2) {
+    private Response doGettraveldetail(@PathParam("tratta1") String tratta1, @PathParam("tratta2") String tratta2) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
 
@@ -195,7 +195,7 @@ public class ControllerPercorsi {
         }
     }
 
-    private Response doGettravel(@PathParam("viaggio_fk") int viaggio_fk) {
+    private Response doGettravel(@PathParam("viaggio_fk") String viaggio_fk) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
             List<Tratta_auto> tratteList = routeRepository.getListTratteAuto(viaggio_fk);
@@ -206,7 +206,7 @@ public class ControllerPercorsi {
         }
     }
 
-    private Response doGetviaggio(@PathParam("id") int id) {
+    private Response doGetviaggio(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
             return Response.ok(new Gson().toJson(routeRepository.getViaggioAuto(id))).build();

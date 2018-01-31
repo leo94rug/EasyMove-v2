@@ -94,7 +94,6 @@ public class FeedbackRes extends Feedback{
         
     public FeedbackRes(ResultSet rs) throws SQLException {
         super(rs);
-        this.dateString=super.getDate().toString();
     }
 
     public List<FeedbackRes> getListaFeedback() {

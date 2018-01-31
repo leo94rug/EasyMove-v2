@@ -22,8 +22,8 @@ public class Viaggio_autoRes extends Viaggio_auto{
     Tratta_auto tratta_auto;
     List<Tratta_auto> tratte_auto;
     Utente utente;
-    int id_partenza;
-    int id_arrivo;
+    String id_partenza;
+    String id_arrivo;
 
     public Viaggio_autoRes(JSONObject jsonObject) throws JSONException {
         super(jsonObject);
@@ -50,11 +50,11 @@ public class Viaggio_autoRes extends Viaggio_auto{
         this.utente = utente;
     }
 
-    public void setId_partenza(int id_partenza) {
+    public void setId_partenza(String id_partenza) {
         this.id_partenza = id_partenza;
     }
 
-    public void setId_arrivo(int id_arrivo) {
+    public void setId_arrivo(String id_arrivo) {
         this.id_arrivo = id_arrivo;
     }
 
@@ -70,11 +70,11 @@ public class Viaggio_autoRes extends Viaggio_auto{
         return utente;
     }
 
-    public int getId_partenza() {
+    public String getId_partenza() {
         return id_partenza;
     }
 
-    public int getId_arrivo() {
+    public String getId_arrivo() {
         return id_arrivo;
     }
 

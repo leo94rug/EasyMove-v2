@@ -17,7 +17,7 @@ angular
         function recuperaPsw() {
             AccountService.RecuperaPsw(vm.email).then(function (response) {
                 if(response.success===false){
-                    debugger;
+                    
                     switch(response.res.status){
                         case 500:{
                             $location.path('/error');

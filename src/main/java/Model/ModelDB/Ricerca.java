@@ -6,7 +6,6 @@
 package Model.ModelDB;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -20,12 +19,12 @@ import org.json.JSONObject;
  */
 public class Ricerca {
 
-    private int id;
+    private String id;
     private double lat_p;
     private double lat_a;
     private double lng_p;
     private double lng_a;
-    private Date date;
+    private String date;
     private Timestamp date_search;
     private int distanza;
     private int distanza_tra;
@@ -34,8 +33,7 @@ public class Ricerca {
     private int cambio;
 
     public Ricerca(JSONObject jsonObject) throws JSONException {
-        long data = jsonObject.getLong("date");
-        this.date = new Date(data);
+        date = jsonObject.getString("date");
         distanza = jsonObject.getInt("distanza");
         distanza_tra = jsonObject.getInt("distanza_tra");
         cambio = jsonObject.getInt("cambio");
@@ -63,7 +61,7 @@ public class Ricerca {
                     + "lata,"
                     + "utente_fk) VALUES (?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setDate(1, date);
+            ps.setString(1, date);
             ps.setInt(2, distanza);
             ps.setInt(3, distanza_tra);
             ps.setInt(4, cambio);
@@ -85,7 +83,7 @@ public class Ricerca {
         return distanza_tra;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -105,7 +103,7 @@ public class Ricerca {
         this.lng_a = lng_a;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -129,7 +127,7 @@ public class Ricerca {
         this.cambio = cambio;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -149,7 +147,7 @@ public class Ricerca {
         return lng_a;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 

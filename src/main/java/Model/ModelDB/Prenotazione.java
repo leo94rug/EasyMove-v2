@@ -23,22 +23,22 @@ import org.json.JSONObject;
  */
 public class Prenotazione{
 
-    private int id;
-    private int passeggero;
-    private int autista;
-    private int id_partenza;
-    private int id_arrivo;
+    private String id;
+    private String passeggero;
+    private String autista;
+    private String id_partenza;
+    private String id_arrivo;
     private int posti;
     private int prezzo;
-
-    public Prenotazione(JSONObject obj) throws JSONException {
+//TODO: eliminare
+   public Prenotazione(JSONObject obj) throws JSONException {
         if (obj.has("id")) {
-            id = (obj.getInt("id"));
+            id = (obj.getString("id"));
         }
-        passeggero = (obj.getInt("passeggero"));
-        autista = (obj.getInt("autista"));
-        id_arrivo = (obj.getInt("id_arrivo"));
-        id_partenza = (obj.getInt("id_partenza"));
+        passeggero = (obj.getString("passeggero"));
+        autista = (obj.getString("autista"));
+        id_arrivo = (obj.getString("id_arrivo"));
+        id_partenza = (obj.getString("id_partenza"));
         if (obj.has("posti")) {
             posti = (obj.getInt("posti"));
         }
@@ -48,11 +48,11 @@ public class Prenotazione{
     }
 
     public Prenotazione(ResultSet rs) throws SQLException {
-        this.id = rs.getInt(ID);
-        this.passeggero = rs.getInt(PASSEGGERO);
-        this.autista = rs.getInt(AUTISTA);
-        this.id_partenza = rs.getInt(ID_PARTENZA);
-        this.id_arrivo = rs.getInt(ID_ARRIVO);
+        this.id = rs.getString(ID);
+        this.passeggero = rs.getString(PASSEGGERO);
+        this.autista = rs.getString(AUTISTA);
+        this.id_partenza = rs.getString(ID_PARTENZA);
+        this.id_arrivo = rs.getString(ID_ARRIVO);
         this.posti = rs.getInt(POSTI);
         this.prezzo = rs.getInt(PREZZO);
     }
@@ -65,43 +65,43 @@ public class Prenotazione{
         this.prezzo = prezzo;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getPasseggero() {
+    public String getPasseggero() {
         return passeggero;
     }
 
-    public void setPasseggero(int passeggero) {
+    public void setPasseggero(String passeggero) {
         this.passeggero = passeggero;
     }
 
-    public int getAutista() {
+    public String getAutista() {
         return autista;
     }
 
-    public void setAutista(int autista) {
+    public void setAutista(String autista) {
         this.autista = autista;
     }
 
-    public int getId_partenza() {
+    public String getId_partenza() {
         return id_partenza;
     }
 
-    public void setId_partenza(int id_partenza) {
+    public void setId_partenza(String id_partenza) {
         this.id_partenza = id_partenza;
     }
 
-    public int getId_arrivo() {
+    public String getId_arrivo() {
         return id_arrivo;
     }
 
-    public void setId_arrivo(int id_arrivo) {
+    public void setId_arrivo(String id_arrivo) {
         this.id_arrivo = id_arrivo;
     }
 

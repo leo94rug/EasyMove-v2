@@ -10,6 +10,8 @@
         var service = {};
         var config = {
             headers: { 'Content-Type': 'application/json;' }
+        }; var configBlob = {
+            headers: { 'Content-Type': 'application/octet-stream;' }
         };
         //        var config2={
         //            headers : {'Content-Type': 'multipart/form-data;'}
@@ -22,7 +24,7 @@
         service.GetProfiloUtenti = GetProfiloUtenti;
         service.GetAuto = GetAuto;
         service.Update = Update;
-        service.UpdateImage = UpdateImage;
+        service.UpdateImage2 = UpdateImage2;
         service.DeleteCar = DeleteCar;
         service.GetProfilo = GetProfilo;
         service.GetViaggi = GetViaggi;
@@ -67,8 +69,9 @@
         function Update(user, id) {
             return $http.put(BASEURL + 'updateprofilo/' + id, user, config).then(handleSuccess, handleError);
         }
-        function UpdateImage(user) {
-            return $http.put(BASEURL + 'updateimage', user, config).then(handleSuccess, handleError);
+
+        function UpdateImage2(id, blob, name) {
+            return $http.put(BASEURL + 'updateimage/' + id + '/' + name, blob, configBlob).then(handleSuccess, handleError);
         }
         function DeleteCar(id) {
             return $http.delete(BASEURL + 'deletecar/' + id).then(handleSuccess, handleError);

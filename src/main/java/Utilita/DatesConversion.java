@@ -7,6 +7,8 @@ package Utilita;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -20,7 +22,8 @@ import java.util.TimeZone;
  */
 public class DatesConversion {
 
-    static String pattern = "yyyy-mm-dd hh:mm:ss";
+    static String pattern = "yyyy-MM-dd HH:mm:ss";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
 
     public static java.util.Date stringToDate(String dt) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
@@ -35,16 +38,26 @@ public class DatesConversion {
         return format;
     }
 
-    public static java.sql.Date convertUtilToSql(java.util.Date uDate) {
-        java.sql.Date sDate = new java.sql.Date(uDate.getTime());
-        return sDate;
+    public static boolean before(String date1, String date2) throws ParseException {
+        return stringToDate(date1).before(stringToDate(date2));
     }
 
-    public static java.util.Date convertSqlToUtil(java.sql.Date sDate) {
-        java.util.Date uDate = new java.util.Date(sDate.getTime());
-        return uDate;
+    public static String now() {
+        return dateToString(new java.util.Date());
     }
 
+    public static String addYears(String currentDateString,int year) {
+        LocalDateTime dateTime = LocalDateTime.parse(currentDateString, FORMATTER);
+        dateTime = dateTime.plusYears(year);
+        String yearsAfterString = dateTime.format(FORMATTER);
+        return yearsAfterString;
+    }
+    public static String addYears() {
+        LocalDateTime dateTime = LocalDateTime.parse(now(), FORMATTER);
+        dateTime = dateTime.plusYears(1);
+        String yearsAfterString = dateTime.format(FORMATTER);
+        return yearsAfterString;
+    }
     public static java.sql.Date setDate(int giorno, int mese, int anno) {
         GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         gc.clear();

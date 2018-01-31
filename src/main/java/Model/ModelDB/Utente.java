@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 
-public class Utente {
+public class Utente implements Cloneable{
 
     @XmlElement public String email;
     @XmlElement public String nome;
@@ -27,14 +27,16 @@ public class Utente {
     @XmlElement public String telefono1;
     String telefono2;
     @XmlElement public String password;
+    @XmlElement public String data;
     @XmlElement public String biografia;
     @XmlElement public String foto_utente;
+    @XmlElement public String image_path;
     @XmlElement public String sesso;
     int fumare;
     int animali;
     int tipo;
     int media_feedback;
-    int id;
+    String id;
     
     
     
@@ -50,29 +52,22 @@ public class Utente {
         this.telefono2 = rs.getString("u.telefono1");
         this.biografia = rs.getString("u.biografia");
         this.foto_utente = rs.getString("u.foto_utente");
+        this.image_path = rs.getString("u.image_path");
         this.professione = rs.getString("u.professione");
         this.password = rs.getString("u.psw");
         this.sesso = rs.getString("u.sesso");
         this.animali = rs.getInt("u.animali");
         this.fumare = rs.getInt("u.fumare");
         this.tipo = rs.getInt("u.tipo");
-        this.id=rs.getInt("u.id");
+        this.id=rs.getString("u.id");
     }
 
-    public String getPassword() {
-        return password;
+    public String getImage_path() {
+        return image_path;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    public void setImage_path(String image_path) {
+        this.image_path = image_path;
     }
 
     public String getEmail() {
@@ -131,6 +126,22 @@ public class Utente {
         this.telefono2 = telefono2;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
     public String getBiografia() {
         return biografia;
     }
@@ -187,4 +198,16 @@ public class Utente {
         this.media_feedback = media_feedback;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public Utente clone() throws CloneNotSupportedException {
+        return (Utente) super.clone(); //To change body of generated methods, choose Tools | Templates.
+    }
 }
