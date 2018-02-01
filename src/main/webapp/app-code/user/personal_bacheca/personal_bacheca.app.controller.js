@@ -29,7 +29,6 @@
                     $location.path('/error');
                 } else {
                     vm.user = response.res.data;
-                    debugger;
                     getNotificationNumber(vm.utente.id);
                     NotificationsService.GetNotifiche(vm.utente.id).then(function (response) {
 
@@ -258,8 +257,6 @@
                         send.destinatario = items.mittente;
                         send.tipologia = 3;
                         send.id_viaggio = items.id_viaggio;
-                        send.fine_validita = items.fine_validita.getTime();
-                        send.inizio_validita = items.inizio_validita.getTime();
                         send.posti = items.posti;
                         send.nome_viaggio = items.nome_viaggio;
                         send.id_partenza = items.id_partenza;
@@ -310,8 +307,6 @@
             send.destinatario = item.mittente;
             send.tipologia = 2;
             send.id_viaggio = item.id_viaggio;
-            send.fine_validita = item.fine_validita.getTime();
-            send.inizio_validita = item.inizio_validita.getTime();
             send.posti = item.posti;
             send.nome_viaggio = item.nome_viaggio;
             send.id_partenza = item.id_partenza;
@@ -331,8 +326,6 @@
             send.destinatario = item.mittente;
             send.tipologia = 5;
             send.id_viaggio = item.id_viaggio;
-            send.fine_validita = item.fine_validita.getTime();
-            send.inizio_validita = item.inizio_validita.getTime();
             send.posti = item.posti;
             send.nome_viaggio = item.nome_viaggio;
             send.id_partenza = item.id_partenza;
@@ -352,8 +345,6 @@
             send.destinatario = item.mittente;
             send.tipologia = 6;
             send.id_viaggio = item.id_viaggio;
-            send.fine_validita = item.fine_validita.getTime();
-            send.inizio_validita = item.inizio_validita.getTime();
             send.posti = item.posti;
             send.nome_viaggio = item.nome_viaggio;
             send.id_partenza = item.id_partenza;
@@ -373,9 +364,6 @@
             send.destinatario = item.mittente;
             send.tipologia = 4;
             send.id_viaggio = item.id_viaggio;
-            send.fine_validita = item.fine_validita.getTime();
-            send.inizio_validita = item.inizio_validita.getTime();
-            send.data = new Date().getTime();
             send.posti = item.posti;
             send.nome_viaggio = item.nome_viaggio;
             send.id_partenza = item.id_partenza;

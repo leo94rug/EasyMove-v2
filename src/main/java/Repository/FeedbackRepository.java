@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javax.naming.NamingException;
-import javax.sql.DataSource;
 
 /**
  *
@@ -58,7 +57,7 @@ public class FeedbackRepository {
         return feedBackResList;
     }
 
-    public int addFeedback(FeedbackRqt feedbackRqt) throws SQLException {
+    public int insertFeedback(FeedbackRqt feedbackRqt) throws SQLException {
             String query = "INSERT INTO " + Table.FEEDBACK + "("
                     + Feedback.ID + ","
                     + Feedback.VALUTAZIONE_DISPONIBILITA + ","
@@ -67,15 +66,15 @@ public class FeedbackRepository {
                     + Feedback.TESTO + ","
                     + Feedback.UTENTE_RECENSITO + ","
                     + Feedback.DATA + ","
-                    + Feedback.UTENTE_RECENSORE + ") VALUES (?,?,?,?,?,?,?)";
+                    + Feedback.UTENTE_RECENSORE + ") VALUES (?,?,?,?,?,?,?,?)";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, UUID.randomUUID().toString());
+            ps.setString(1, feedbackRqt.getId());
             ps.setInt(2, feedbackRqt.getValutazione_disponibilita());
             ps.setInt(3, feedbackRqt.getValutazione_guida());
             ps.setInt(4, feedbackRqt.getValutazione_puntualita());
             ps.setString(5, feedbackRqt.getTesto());
             ps.setString(6, feedbackRqt.getUtente_recensito());
-            ps.setString(7, DatesConversion.now());
+            ps.setString(7, feedbackRqt.getDate());
             ps.setString(8, feedbackRqt.getUtente_recensore());
             return ps.executeUpdate();
         

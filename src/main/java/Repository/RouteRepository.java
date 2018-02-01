@@ -36,7 +36,7 @@ import javax.naming.NamingException;
  */
 public class RouteRepository {
 
-    Connection connection;
+    Connection connection;   
 
     public RouteRepository(Connection dataSource) {
         connection = dataSource;
@@ -49,16 +49,16 @@ public class RouteRepository {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             int num = rs.getInt(ENUMERAZIONE);
-            int viaggio_fk = rs.getInt(VIAGGIO_FK);
+            String viaggio_fk = rs.getString(VIAGGIO_FK);
             int posti = rs.getInt(POSTI);
-            int id_tratta = rs.getInt(ID);
+            String id_tratta = rs.getString(ID);
             if (posti < min_posti) {
                 min_posti = posti;
             }
             if (!tratta2.equals(id_tratta)) {
                 ps = connection.prepareStatement("SELECT * FROM tratta_auto WHERE enumerazione=? AND viaggio_fk=?");
                 ps.setInt(1, num + 1);
-                ps.setInt(2, viaggio_fk);
+                ps.setString(2, viaggio_fk);
                 rs = ps.executeQuery();
             }
         }
@@ -93,13 +93,13 @@ public class RouteRepository {
         ps.setDouble(9, tratta_auto.getLat_arrivo());
         ps.setDouble(10, tratta_auto.getLng_arrivo());
         ps.setString(11, tratta_auto.getDenominazione_partenza());
-        ps.setString(12, DatesConversion.now());
-        ps.setString(13, UUID.randomUUID().toString());
+        ps.setString(12, tratta_auto.getData());
+        ps.setString(13, tratta_auto.getId());
         ps.setString(14, tratta_auto.getDenominazione_arrivo());
         int i = ps.executeUpdate();
     }
 
-    public void insertViaggio_auto(Viaggio_auto viaggio_auto) throws SQLException {
+    public int insertViaggio_auto(Viaggio_auto viaggio_auto) throws SQLException {
         String query = "INSERT INTO viaggio_auto("
                 + "id, "
                 + "auto, "
@@ -116,9 +116,9 @@ public class RouteRepository {
         ps.setString(4, viaggio_auto.getBagaglio_max());
         ps.setString(5, viaggio_auto.getDisponibilita_deviazioni());
         ps.setString(6, viaggio_auto.getUtente_fk());
-        ps.setString(7, DatesConversion.now());
+        ps.setString(7, viaggio_auto.getData());
         ps.setInt(8, viaggio_auto.getTipologia());
-        int i = ps.executeUpdate();
+        return ps.executeUpdate();
     }
 
     public List<Viaggio_autoRes> cercaAuto(Ricerca r) throws SQLException, ParseException, ClassNotFoundException, NamingException {

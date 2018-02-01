@@ -35,8 +35,6 @@ public class Notifica {
     public Notifica() {
     }
 
-    ;
-
     public Notifica(ResultSet rs) throws SQLException {
         this.id = rs.getString("n.id");
         this.mittente = rs.getString("n.mittente");

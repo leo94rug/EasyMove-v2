@@ -5,6 +5,7 @@
  */
 package Controller;
 
+import Interfaces.IDate;
 import Model.ModelDB.Ricerca;
 import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Viaggio_auto;
@@ -148,28 +149,31 @@ public class ControllerPercorsi {
             JSONArray andata = obj.getJSONArray("andata");
             JSONArray ritorno = obj.getJSONArray("ritorno");
             JSONObject viaggio = obj.getJSONObject("viaggio");
+            IDate dateUtility = new DatesConversion();
             Viaggio_auto viaggio_auto = new Viaggio_auto(viaggio);
             String idviaggio = UUID.randomUUID().toString();
             viaggio_auto.setId(idviaggio);
+            viaggio_auto.setData(dateUtility.now());
             routeRepository.insertViaggio_auto(viaggio_auto);
             for (int i = 0; i < andata.length(); ++i) {
                 JSONObject tratta = andata.getJSONObject(i);
                 Tratta_auto tratta_auto = new Tratta_auto(tratta);
                 tratta_auto.setViaggio_fk(idviaggio);
                 tratta_auto.setId(UUID.randomUUID().toString());
-                tratta_auto.setData(DatesConversion.now());
+                tratta_auto.setData(dateUtility.now());
                 routeRepository.insertTratta_auto(tratta_auto);
             }
             if (ritorno.length() > 0) {
                 idviaggio = UUID.randomUUID().toString();
                 viaggio_auto.setId(idviaggio);
+                viaggio_auto.setData(dateUtility.now());
                 routeRepository.insertViaggio_auto(viaggio_auto);
                 for (int i = 0; i < ritorno.length(); ++i) {
                     JSONObject tratta = ritorno.getJSONObject(i);
                     Tratta_auto tratta_auto = new Tratta_auto(tratta);
                     tratta_auto.setViaggio_fk(idviaggio);
                     tratta_auto.setId(UUID.randomUUID().toString());
-                    tratta_auto.setData(DatesConversion.now());
+                    tratta_auto.setData(dateUtility.now());
                     routeRepository.insertTratta_auto(tratta_auto);
                 }
             }

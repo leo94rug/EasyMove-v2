@@ -9,8 +9,6 @@ import Model.Response.PrenotazioneRes;
 import Repository.PrenotazioneRepository;
 import com.google.gson.Gson;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;

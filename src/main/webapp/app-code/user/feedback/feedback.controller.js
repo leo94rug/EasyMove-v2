@@ -36,20 +36,25 @@
                         case 0: {
                             FlashService.set({ title: "Attenzione", body: "Non è possibile inserire un feedback", type: "error" });
                             $location.path("/");
+                            break;
                             //non è possibile
                         }
                         case 1: {
                             FlashService.set({ title: "Attenzione", body: "Non è ancora possibile inserire un feedback", type: "error" });
                             $location.path("/");
+                            break;                           
                             //non è ancora possibile
                         }
                         case 2: {
                             vm.disable = false;
+                            debugger;
+                            break;                            
                             //ok
                         }
                         case 3: {
                             FlashService.set({ title: "Attenzione", body: "Hai già inserito un feedback a questo utente", type: "error" });
                             $location.path("/");
+                            break;                            
                             //già inserito
                         }
                     }
@@ -59,7 +64,7 @@
         function inserisci() {
             
             if (vm.feedback.valutazione_guida != undefined && vm.feedback.valutazione_puntualita != undefined && vm.feedback.valutazione_disponibilita != undefined) {
-                vm.feedback.utente_recensito = parseInt(vm.destinatario);
+                vm.feedback.utente_recensito = vm.destinatario;
                 vm.feedback.utente_recensore = vm.utente.id;
                 FeedbackService.InsertFeedback(vm.feedback).then(function (response) {
                     if (response.success === false) {

@@ -50,6 +50,14 @@ public class Viaggio_auto {
         this.descrizione = rs.getString("vi." + DESCRIZIONE);
     }
 
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
     public void setId(String id) {
         this.id = id;
     }

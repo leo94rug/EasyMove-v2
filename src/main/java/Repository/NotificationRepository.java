@@ -13,6 +13,7 @@ import static DatabaseConstants.Table.NOTIFICA;
 import static DatabaseConstants.Table.UTENTE;
 import DatabaseConstants.TableConstants.Notifica_stato;
 import static DatabaseConstants.TableConstants.Notifica_tipologia.INSERISCI_FEEDBACK;
+import Interfaces.IDate;
 import Model.ModelDB.Notifica;
 import Model.ModelDB.Relazione;
 import Model.Request.NotificaRqt;
@@ -33,13 +34,13 @@ import java.util.UUID;
  * @author leo
  */
 public class NotificationRepository {
-
+    
     Connection connection;
-
+    
     public NotificationRepository(Connection dataSource) {
         connection = dataSource;
     }
-
+    
     public void checkNotificationExistAndDelete(String mittente, String destinatario, int tipologia) throws SQLException {
         String query = "SELECT " + ID + " FROM " + NOTIFICA + " AS n WHERE " + MITTENTE + "=? AND " + DESTINATARIO + "=? AND " + TIPOLOGIA + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
@@ -48,14 +49,14 @@ public class NotificationRepository {
         ps.setInt(3, tipologia);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            int id = rs.getInt("n." + ID);
+            String id = rs.getString("n." + ID);
             query = "DELETE FROM " + NOTIFICA + " WHERE " + ID + "=?";
             ps = connection.prepareStatement(query);
-            ps.setInt(1, id);
+            ps.setString(1, id);
             ps.executeUpdate();
         }
     }
-
+    
     public Notifica getNotifica(String id) throws SQLException {
         String query = "SELECT * FROM " + NOTIFICA + " AS n WHERE " + ID + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
@@ -63,9 +64,10 @@ public class NotificationRepository {
         ResultSet rs = ps.executeQuery();
         return rs.next() ? new Notifica(rs) : null;
     }
-
+    
     public int getNoticationNumber(String idUtente) throws SQLException {
-        String date = DatesConversion.now();
+        IDate dateUtility = new DatesConversion();
+        String date = dateUtility.now();
         PreparedStatement ps = connection.prepareStatement(""
                 + "SELECT COUNT(n.id) AS numero "
                 + "FROM " + UTENTE + " AS u JOIN " + NOTIFICA + " AS n ON u.id=n.mittente "
@@ -78,12 +80,13 @@ public class NotificationRepository {
         ps.setString(3, date);
         ResultSet rs = ps.executeQuery();
         return rs.next() ? rs.getInt("numero") : 0;
-
+        
     }
-
+    
     public List<NotificaRes> getNotifiche(String id) throws SQLException {
         List<NotificaRes> notifiche = new ArrayList();
-        String date = DatesConversion.now();
+        IDate dateUtility = new DatesConversion();
+        String date = dateUtility.now();
         String query = "SELECT * "
                 + "FROM " + UTENTE + " AS u JOIN " + NOTIFICA + " AS n ON u.id=n.mittente "
                 + "JOIN notifica_tipologia AS nt ON n.tipologia=nt.id_tipologia "
@@ -102,7 +105,7 @@ public class NotificationRepository {
         }
         return notifiche;
     }
-
+    
     public int insertNotifica(NotificaRqt notifica) throws SQLException {
         String query = "INSERT INTO notifica("
                 + "id, "
@@ -140,33 +143,33 @@ public class NotificationRepository {
         ps.setString(14, notifica.getId_partenza());
         ps.setString(15, notifica.getId_arrivo());
         ps.setString(16, notifica.getNome_destinatario());
-        ps.setString(17, DatesConversion.now());
+        ps.setString(17, notifica.getData());
         int r = ps.executeUpdate();
         return r;
-
+        
     }
-
+    
     public int eliminaNotifica(String id) throws SQLException {
         String query = "UPDATE notifica SET stato=2 WHERE id=?";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, id);
         return ps.executeUpdate();
     }
-
+    
     public void insertFeedbackNotification(String utente_1, String utente_2, NotificaRqt notifica) throws SQLException, ParseException, CloneNotSupportedException {
         RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
         RouteRepository routeRepository = new RouteRepository(connection);
         String id_tappa = notifica.getId_partenza();
+        IDate dateUtility = new DatesConversion();
         String orarioPartenza = routeRepository.getTravelDetail(id_tappa, id_tappa).getOrario_partenza();
         Relazione relazione = relazioneRepository.getRelazione(utente_1, utente_2);
-
         if (relazione != null) {
             switch (relazione.getDa_valutare()) {
                 case 0: {
                     relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
                 }
                 case 1: {
-                    if (DatesConversion.before(orarioPartenza, relazione.getDa_valutare_data())) {
+                    if (dateUtility.before(orarioPartenza, relazione.getDa_valutare_data())) {
                         relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
                         break;
                     }
@@ -175,17 +178,12 @@ public class NotificationRepository {
                     insertFeedbackNotification.setMessaggio("Inserisci un feedback");
                     insertFeedbackNotification.setMittente(utente_1);
                     insertFeedbackNotification.setDestinatario(utente_2);
-
+                    
                     checkNotificationExistAndDelete(utente_1, utente_2, INSERISCI_FEEDBACK);
                     insertFeedbackNotification.setInizio_validita(orarioPartenza);
-                    //java.util.Date now = calendar.getTime();
-                    //notifica.setInizio_validita(new java.sql.Timestamp(now.getTime()));
-                    //Calendar calendar = Calendar.getInstance();
-                    //calendar.add(Calendar.YEAR, +1);
-                    //java.util.Date future = calendar.getTime();
-                    insertFeedbackNotification.setFine_validita(DatesConversion.addYears());
+                    insertFeedbackNotification.setFine_validita(dateUtility.addYears());
                     insertFeedbackNotification.setId(UUID.randomUUID().toString());
-
+                    insertFeedbackNotification.setData(dateUtility.now());
                     insertNotifica(insertFeedbackNotification);
                     // TODOnow: invia notifica insert feedback
 
@@ -193,5 +191,5 @@ public class NotificationRepository {
             }
         }
     }
-
+    
 }

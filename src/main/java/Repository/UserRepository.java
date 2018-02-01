@@ -21,10 +21,10 @@ import static DatabaseConstants.Utente.PROFESSIONE;
 import static DatabaseConstants.Utente.SESSO;
 import static DatabaseConstants.Utente.TIPO;
 import Interfaces.ICrypt;
+import Interfaces.IDate;
 import Model.ModelDB.Utente;
 import Model.Response.UtenteRes;
 import Model.Response.Viaggio_autoRes;
-import Utilita.Constants;
 import static Utilita.Constants.defaultImagePath;
 import static Utilita.Constants.defaultProfileImage;
 import Utilita.Crypt.Encryptor;
@@ -45,26 +45,26 @@ import javax.naming.NamingException;
  * @author leo
  */
 public class UserRepository {
-    
+
     Connection connection;
-    
+
     public UserRepository(Connection dataSource) {
         connection = dataSource;
     }
-    
+
     public int deleteUser(String id) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("DELETE FROM utente WHERE id=?");
         ps.setString(1, id);
         return ps.executeUpdate();
     }
-    
+
     public boolean existingUser(String email) throws SQLException {
         PreparedStatement ps = connection.prepareStatement("SELECT email FROM utente WHERE email=?");
         ps.setString(1, email);
         ResultSet rs = ps.executeQuery();
         return rs.next();
     }
-    
+
     public String getNomeCognome(String id) throws SQLException {
         String nome = "";
         String query = "SELECT nome,cognome FROM utente WHERE id=?";
@@ -76,7 +76,7 @@ public class UserRepository {
         }
         return nome;
     }
-    
+
     public int updateUser(Utente anagrafica, String id) throws SQLException {
         String query = "UPDATE " + UTENTE + " SET "
                 + "cognome = ?, "
@@ -95,9 +95,9 @@ public class UserRepository {
         ps.setString(6, anagrafica.getNome());
         ps.setString(7, id);
         return ps.executeUpdate();
-        
+
     }
-    
+
     public List<Viaggio_autoRes> getViaggi(String utente_fk) throws SQLException {
         List<Viaggio_autoRes> viaggiolist = new ArrayList();
         java.util.Date utilDate = new java.util.Date();
@@ -114,10 +114,10 @@ public class UserRepository {
             viaggio_autoRes.setId_arrivo(tratta_auto.getId_arrivo());
             viaggiolist.add(viaggio_autoRes);
         }
-        
+
         return viaggiolist;
     }
-    
+
     public UtenteRes getUtente(String id) throws SQLException, ParseException {
         UtenteRes utente = null;
         String query = "SELECT * FROM " + UTENTE + " AS u WHERE u.id=?";
@@ -127,12 +127,12 @@ public class UserRepository {
         if (rs.next()) {
             utente = new UtenteRes(rs);
         }
-        
+
         return utente;
     }
-    
+
     public String getFermataSuccessiva(int i, String viaggio_fk) throws SQLException {
-        
+
         String query = "SELECT id FROM tratta_auto WHERE viaggio_fk=? AND enumerazione=?";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, viaggio_fk);
@@ -143,17 +143,17 @@ public class UserRepository {
         } else {
             return getFermataSuccessiva(i - 1, viaggio_fk);
         }
-        
+
     }
-    
-    public void updateUserEmailStatus(String id) throws SQLException {        
+
+    public void updateUserEmailStatus(String id) throws SQLException {
         String query = "UPDATE " + UTENTE + " SET " + TIPO + "=1 WHERE " + ID + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, id);
         ps.executeUpdate();
-        
+
     }
-    
+
     public UtenteRes getUtenteByEmail(String email) throws SQLException, ClassNotFoundException, NamingException, ParseException {
         String query = "SELECT * FROM " + UTENTE + " AS u WHERE " + EMAIL + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
@@ -166,19 +166,20 @@ public class UserRepository {
         String query = "UPDATE " + UTENTE + " SET " + TIPO + " = ? WHERE " + EMAIL + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setInt(1, REGISTRATO);
-        ps.setString(2, email); 
+        ps.setString(2, email);
         return ps.executeUpdate() != 0;
     }
 
     public Utente formalizer(Utente utente) throws CloneNotSupportedException, Exception {
         Utente newUtente = utente.clone();
         ICrypt crypt = new Encryptor();
-        newUtente.setId(UUID.randomUUID().toString());    
+        IDate dateUtility = new DatesConversion();
+        newUtente.setId(UUID.randomUUID().toString());
         newUtente.setFoto_utente(defaultProfileImage);
         newUtente.setImage_path(defaultImagePath);
         newUtente.setPassword(crypt.encrypt(utente.getPassword()));
-        newUtente.setData(DatesConversion.now());
-        return newUtente;        
+        newUtente.setData(dateUtility.now());
+        return newUtente;
     }
 
     public int insertUser(Utente utenteRqt) throws SQLException, Exception {
@@ -209,17 +210,17 @@ public class UserRepository {
         ps.setInt(12, NON_CONFERMATO);
         return ps.executeUpdate();
     }
-    
+
     public int setPassword(String id, String psw) throws SQLException, Exception {
-        
+
         ICrypt crypt = new Encryptor();
         String new_psw_crypt = crypt.encrypt(psw);
         PreparedStatement ps = connection.prepareStatement("UPDATE " + UTENTE + " SET " + PASSWORD + "=? WHERE " + ID + "=?");
         ps.setString(1, new_psw_crypt);
         ps.setString(2, id);
-        return ps.executeUpdate();  
+        return ps.executeUpdate();
     }
-    
+
     public int updateUtenteImage(String id, String immagine, String path) throws SQLException {
         String query = "UPDATE " + UTENTE + " SET " + FOTO_UTENTE + " = ?, " + IMAGE_PATH + " = ?  WHERE " + ID + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
@@ -227,9 +228,9 @@ public class UserRepository {
         ps.setString(2, path);
         ps.setString(3, id);
         return ps.executeUpdate();
-        
+
     }
-    
+
     public int getTravelNumber(String id, Date date) throws SQLException {
         String query = "SELECT COUNT(viaggio_fk) AS numero FROM tratta_auto AS t "
                 + "JOIN viaggio_auto AS v ON t.viaggio_fk=v.id "

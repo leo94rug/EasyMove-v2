@@ -13,7 +13,9 @@ import static DatabaseConstants.Prenotazione.POSTI;
 import static DatabaseConstants.Table.PRENOTAZIONE;
 import static DatabaseConstants.Table.UTENTE;
 import static DatabaseConstants.Utente.ID;
+import Interfaces.IDate;
 import Model.ModelDB.Notifica;
+import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
 import Model.Request.NotificaRqt;
 import Model.Response.PrenotazioneRes;
@@ -40,20 +42,22 @@ public class PrenotazioneRepository {
         connection = dataSource;
     }
 
-    public void setPrenotation(Notifica prenotazione) throws SQLException {
+    public void insertPrenotation(Notifica prenotazione) throws SQLException {
         String query = "INSERT INTO " + PRENOTAZIONE
                 + "(" + AUTISTA
                 + ", " + PASSEGGERO
                 + ", " + ID_PARTENZA
                 + ", " + ID_ARRIVO
                 + ", " + POSTI
-                + ") VALUES (?,?,?,?,?)";
+                + ", " + ID
+                + ") VALUES (?,?,?,?,?,?)";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, prenotazione.getMittente());
         ps.setString(2, prenotazione.getDestinatario());
         ps.setString(3, prenotazione.getId_partenza());
         ps.setString(4, prenotazione.getId_arrivo());
         ps.setInt(5, prenotazione.getPosti());
+        ps.setString(6, prenotazione.getId());
         ps.executeUpdate();
 
     }
@@ -94,7 +98,10 @@ public class PrenotazioneRepository {
     }
 
     public boolean getDisponibilitaViaggio(NotificaRqt notifica) throws SQLException, ParseException {
-        return DatesConversion.before(notifica.getData(),DatesConversion.now());
+        RouteRepository routeRepository = new RouteRepository(connection);
+        IDate dateUtility = new DatesConversion();
+        Tratta_auto tratta_auto = routeRepository.getTravelDetail(notifica.getId_partenza(), notifica.getId_partenza());
+        return dateUtility.before( dateUtility.now(),tratta_auto.getOrario_partenza());
     }
 
     public List<PrenotazioneRes> getPrenotazione(String idUtente) throws SQLException, ParseException, ClassNotFoundException, NamingException {
