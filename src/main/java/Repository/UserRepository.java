@@ -107,7 +107,7 @@ public class UserRepository {
         ps.setString(1, utente_fk);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes(rs);
+            Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes(rs);//TODO: gestire data in rs
             Viaggio_autoRes tratta_auto = routeRepository.getAllTratta_auto(viaggio_autoRes.getId());
             viaggio_autoRes.setTratta_auto(tratta_auto.getTratta_auto());
             viaggio_autoRes.setId_partenza(tratta_auto.getId_partenza());

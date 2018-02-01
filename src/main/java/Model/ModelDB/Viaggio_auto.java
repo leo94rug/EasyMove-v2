@@ -44,6 +44,7 @@ public class Viaggio_auto {
         this.tipologia = rs.getInt("vi.tipologia");
         this.ritardo_max = rs.getString("vi.ritardo_max");
         this.bagaglio_max = rs.getString("vi.bagaglio_max");
+        this.data = rs.getString("vi.data");
         this.disponibilita_deviazioni = rs.getString("vi.disponibilita_deviazioni");
         this.utente_fk = rs.getString("vi.utente_fk");
         this.auto = rs.getString("vi.auto");

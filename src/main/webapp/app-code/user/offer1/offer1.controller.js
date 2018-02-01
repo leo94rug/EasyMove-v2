@@ -96,7 +96,7 @@
                     promises.push(creaTratta(enumeratore[i], enumeratore[i + 1], i, vm.andataTime, 0));
                 }
                 if (vm.data.group2 === 2) {
-                    var j = 1;
+                    var j = 0;
                     for (var i = enumeratore.length - 1; i > 0; i--) {
                         promises.push(creaTratta(enumeratore[i], enumeratore[i - 1], j, vm.ritornoTime, 1));
                         j++;
@@ -212,7 +212,7 @@
                             distance = response.rows[0].elements[0].distance.value;
                             duration = response.rows[0].elements[0].duration.value * 60000;
                             prezzo = Math.pow(2, (Math.log(distance / 1000, 2)) - 4.2) - (distance / 1000000);
-                            
+                            debugger;
                             tratta = {
                                 orario_partenza: DateService.stringFromDate(date),
                                 enumerazione: i + 1,

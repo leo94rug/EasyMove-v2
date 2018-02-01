@@ -18,4 +18,4 @@ public class SendEmailConfermaRegistrazione extends SendEmail {
         this.setContent(content);
     }
     
-}
+} 
