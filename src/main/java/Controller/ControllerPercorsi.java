@@ -11,7 +11,9 @@ import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Viaggio_auto;
 import Model.Response.Viaggio_autoRes;
 import Repository.RouteRepository;
+import Repository.SearchRepository;
 import Utilita.DatesConversion;
+import Utilita.Filter.Secured;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -47,7 +49,7 @@ import org.json.JSONObject;
  */
 @Path("route")
 public class ControllerPercorsi {
-
+    
     @Context
     private UriInfo context;
 
@@ -56,12 +58,13 @@ public class ControllerPercorsi {
      */
     public ControllerPercorsi() {
     }
-
+    
     @Resource(name = "jdbc/webdb2")
     private DataSource ds;
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
-
+    
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "viaggio/{id}")
     public void getviaggio(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
@@ -69,8 +72,9 @@ public class ControllerPercorsi {
             asyncResponse.resume(doGetviaggio(id));
         });
     }
-
+    
     @DELETE
+    @Secured
     @Path("delete/{id}")
     public void delete(@Suspended
             final AsyncResponse asyncResponse, @PathParam(value = "id")
@@ -79,18 +83,20 @@ public class ControllerPercorsi {
             asyncResponse.resume(doDelete(id));
         });
     }
-
+    
     @POST
+    @Secured
     @Path(value = "cercaauto")
     @Consumes(value = MediaType.APPLICATION_JSON)
     @Produces(value = {MediaType.APPLICATION_JSON})
-    public void cercaAuto(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+    public void cercaAuto(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Ricerca payload) {
         executorService.submit(() -> {
             asyncResponse.resume(doCercaAuto(context, payload));
         });
     }
-
+    
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "percorso/{viaggio_fk}")
     public void gettravel(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "viaggio_fk") final String viaggio_fk) {
@@ -98,8 +104,9 @@ public class ControllerPercorsi {
             asyncResponse.resume(doGettravel(viaggio_fk));
         });
     }
-
+    
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "dettagliopercorso/{tratta1}/{tratta2}")
     public void gettraveldetail(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "tratta1") final String tratta1, @PathParam(value = "tratta2") final String tratta2) {
@@ -107,8 +114,9 @@ public class ControllerPercorsi {
             asyncResponse.resume(doGettraveldetail(tratta1, tratta2));
         });
     }
-
+    
     @POST
+    @Secured
     @Path(value = "insert")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void insert(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
@@ -116,7 +124,7 @@ public class ControllerPercorsi {
             asyncResponse.resume(doInsert(context, payload));
         });
     }
-
+    
     private Response doDelete(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
@@ -127,21 +135,22 @@ public class ControllerPercorsi {
             return Response.serverError().build();
         }
     }
-
-    private Response doCercaAuto(@Context UriInfo context, String payload) {
+    
+    private Response doCercaAuto(@Context UriInfo context, Ricerca ricerca) {
         try (Connection connection = ds.getConnection()) {
-            JSONObject obj = new JSONObject(payload);
-            Ricerca ricerca = new Ricerca(obj);
-            RouteRepository routeRepository = new RouteRepository(connection);
-
-            List<Viaggio_autoRes> cercaAuto = routeRepository.cercaAuto(ricerca);
+            IDate dateUtility = new DatesConversion();
+            ricerca.setId(UUID.randomUUID().toString());
+            ricerca.setDate(dateUtility.now());
+            SearchRepository searchRepository = new SearchRepository(connection);
+            searchRepository.insert(ricerca);
+            List<Viaggio_autoRes> cercaAuto = searchRepository.cercaAuto(ricerca);
             return Response.ok(new Gson().toJson(cercaAuto)).build();
         } catch (Exception ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
-
+    
     private Response doInsert(@Context UriInfo context, String payload) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
@@ -186,11 +195,11 @@ public class ControllerPercorsi {
             return Response.serverError().build();
         }
     }
-
+    
     private Response doGettraveldetail(@PathParam("tratta1") String tratta1, @PathParam("tratta2") String tratta2) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
-
+            
             Tratta_auto tratta_auto = routeRepository.getTravelDetail(tratta1, tratta2);
             return Response.ok(new Gson().toJson(tratta_auto)).build();
         } catch (SQLException | ParseException ex) {
@@ -198,7 +207,7 @@ public class ControllerPercorsi {
             return Response.serverError().build();
         }
     }
-
+    
     private Response doGettravel(@PathParam("viaggio_fk") String viaggio_fk) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
@@ -209,7 +218,7 @@ public class ControllerPercorsi {
             return Response.serverError().build();
         }
     }
-
+    
     private Response doGetviaggio(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);

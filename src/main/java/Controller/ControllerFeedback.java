@@ -18,6 +18,7 @@ import Repository.NotificationRepository;
 import Repository.RelazioneRepository;
 import Repository.RouteRepository;
 import Utilita.DatesConversion;
+import Utilita.Filter.Secured;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -65,15 +66,17 @@ public class ControllerFeedback {
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
 
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getfeedback/{id}")
     public void getfeedback(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetfeedback(id));
-        });
+        }); 
     }
 
     @POST
+    @Secured
     @Path(value = "checkispossibleinsertfeedback")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void checkispossibleinsertfeedback(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
@@ -83,6 +86,7 @@ public class ControllerFeedback {
     }
 
     @POST
+    @Secured
     @Path(value = "insertfeedback")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void insertfeedback(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final FeedbackRqt feedbackRqt) {
@@ -92,6 +96,7 @@ public class ControllerFeedback {
     }
 
     @POST
+    @Secured
     @Path(value = "possibilitainserirefeedback")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void possibilitainserirefeedback(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {

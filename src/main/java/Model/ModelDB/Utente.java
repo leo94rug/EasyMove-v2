@@ -7,7 +7,8 @@ package Model.ModelDB;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -15,10 +16,13 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author leo
  */
+
 @XmlRootElement
 
 public class Utente implements Cloneable{
-
+    @Context
+SecurityContext securityContext;
+    @XmlElement public String id;
     @XmlElement public String email;
     @XmlElement public String nome;
     @XmlElement public String cognome;
@@ -36,7 +40,7 @@ public class Utente implements Cloneable{
     int animali;
     int tipo;
     int media_feedback;
-    String id;
+    
     
     
     

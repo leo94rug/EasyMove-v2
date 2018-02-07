@@ -5,75 +5,29 @@
  */
 package Model.ModelDB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import javax.sql.DataSource;
-import org.json.JSONException;
-import org.json.JSONObject;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author leo
  */
+@XmlRootElement
+
 public class Ricerca {
 
     private String id;
-    private double lat_p;
-    private double lat_a;
-    private double lng_p;
-    private double lng_a;
+    @XmlElement public double lat_p;
+    @XmlElement public double lat_a;
+    @XmlElement public double lng_p;
+    @XmlElement public double lng_a;
     private String date;
-    private Timestamp date_search;
-    private int distanza;
-    private int distanza_tra;
-    private int tipo;
-    private String utente_fk;
-    private int cambio;
-
-    public Ricerca(JSONObject jsonObject) throws JSONException {
-        date = jsonObject.getString("date");
-        distanza = jsonObject.getInt("distanza");
-        distanza_tra = jsonObject.getInt("distanza_tra");
-        cambio = jsonObject.getInt("cambio");
-        tipo = jsonObject.getInt("tipo");
-        lng_p = jsonObject.getDouble("lngp");
-        lat_p = jsonObject.getDouble("latp");
-        lng_a = jsonObject.getDouble("lnga");
-        lat_a = jsonObject.getDouble("lata");
-        if (jsonObject.has("utente_fk")) {
-            utente_fk = jsonObject.getString("utente_fk");
-        }
-    }
-
-    public void insert(DataSource ds) throws SQLException {
-        try (Connection connection = ds.getConnection()) {
-            String query = "INSERT INTO ricerca("
-                    + "date, "
-                    + "distanza, "
-                    + "distanza_tra, "
-                    + "cambio, "
-                    + "tipo, "
-                    + "lngp, "
-                    + "latp, "
-                    + "lnga,"
-                    + "lata,"
-                    + "utente_fk) VALUES (?,?,?,?,?,?,?,?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, date);
-            ps.setInt(2, distanza);
-            ps.setInt(3, distanza_tra);
-            ps.setInt(4, cambio);
-            ps.setInt(5, tipo);
-            ps.setDouble(6, lng_p);
-            ps.setDouble(7, lat_p);
-            ps.setDouble(8, lng_a);
-            ps.setDouble(9, lat_a);
-            ps.setString(10, utente_fk);
-            int i = ps.executeUpdate();
-        }
-    }
+    @XmlElement public String date_search;
+    @XmlElement public int distanza;
+    @XmlElement public int distanza_tra;
+    @XmlElement public int tipo;
+    @XmlElement public String utente_fk;
+    @XmlElement public int cambio;
 
     public void setDistanza_tra(int distanza_tra) {
         this.distanza_tra = distanza_tra;
@@ -107,7 +61,7 @@ public class Ricerca {
         this.date = date;
     }
 
-    public void setDate_search(Timestamp date_search) {
+    public void setDate_search(String date_search) {
         this.date_search = date_search;
     }
 
@@ -151,7 +105,7 @@ public class Ricerca {
         return date;
     }
 
-    public Timestamp getDate_search() {
+    public String getDate_search() {
         return date_search;
     }
 

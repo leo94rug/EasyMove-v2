@@ -11,6 +11,7 @@ import Model.Response.Viaggio_autoRes;
 import Repository.RelazioneRepository;
 import Repository.UserRepository;
 import static Utilita.Constants.defaultImagePath;
+import Utilita.Filter.Secured;
 import Utilita.Image.ImageUtility;
 import Utilita.Storage.DropboxService;
 import com.dropbox.core.DbxException;
@@ -68,6 +69,7 @@ public class ControllerUtenti {
     private final ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
 
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getbyemail/{email}")
     public void getByEmail(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "email") final String email) {
@@ -77,6 +79,7 @@ public class ControllerUtenti {
     }
 
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getviaggi/{id}")
     public void getviaggi(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
@@ -86,6 +89,7 @@ public class ControllerUtenti {
     }
 
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getpercorsi/{id}")
     public void getpercorsi(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
@@ -94,7 +98,7 @@ public class ControllerUtenti {
         });
     }
 
-    @GET
+    @GET @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getprofilo/{id}")
     public void getProfilo(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {

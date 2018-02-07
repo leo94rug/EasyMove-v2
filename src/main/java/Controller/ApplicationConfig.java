@@ -32,10 +32,12 @@ public class ApplicationConfig extends Application {
         resources.add(Controller.ControllerAccount.class);
         resources.add(Controller.ControllerAuto.class);
         resources.add(Controller.ControllerFeedback.class);
+        resources.add(Controller.ControllerMerged.class);
         resources.add(Controller.ControllerNotifiche.class);
         resources.add(Controller.ControllerPercorsi.class);
         resources.add(Controller.ControllerPrenotazioni.class);
         resources.add(Controller.ControllerUtenti.class);
+        resources.add(Utilita.Filter.AuthenticationFilter.class);
     }
     
 }

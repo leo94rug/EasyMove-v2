@@ -26,16 +26,50 @@
             vm.attenzione = "";
             UserService.GetProfilo(vm.utente.id).then(function (response) {
                 if (response.success === false) {
-                    $location.path('/error');
+                    switch (response.res.status) {
+                        case 500:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
+                        default:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                    }
                 } else {
                     vm.user = response.res.data;
                     getNotificationNumber(vm.utente.id);
                     NotificationsService.GetNotifiche(vm.utente.id).then(function (response) {
-
                         if (response.success === false) {
-                            $location.path('/error');
+                            switch (response.res.status) {
+                                case 500:
+                                {
+                                    $location.path('/error');
+                                    break;
+                                }
+                                case 401:
+                                {
+                                    $('body,html').animate({scrollTop: 0}, 800);
+                                    FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                                    $location.path('/login');
+                                    break;
+                                }
+                                default:
+                                {
+                                    $location.path('/error');
+                                    break;
+                                }
+                            }
                         } else {
-                            console.log(response.res.data);
                             vm.notifiche = response.res.data;
                             vm.notifiche.forEach(function (arrayItem) {
                                 arrayItem.data = DateService.dateFromString(arrayItem.data);
@@ -70,6 +104,13 @@
                             FlashService.pop({title: "La notifica potrebbe essere già stata rimossa", body: "", type: "warning"});
                             getNotificationNumber(vm.utente.id);
                             $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
                             break;
                         }
                         case 410:
@@ -193,6 +234,13 @@
                             FlashService.pop({title: "Il viaggio potrebbe essere stato rimosso", body: "", type: "info"});
                             break;
                         }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
                         case 410:
                         {
                             removeLocalNotification(id);
@@ -212,7 +260,7 @@
                         clickOutsideToClose: true,
                         locals: {
                             items: item
-                        },
+                        }
                     })
                             .then(function (answer) {
                                 vm.aggiornaNotifiche();
@@ -234,7 +282,7 @@
                 {category: 'posti', name: '3', value: 3},
                 {category: 'posti', name: '4', value: 4},
                 {category: 'posti', name: '5', value: 5},
-                {category: 'posti', name: '6', value: 6},
+                {category: 'posti', name: '6', value: 6}
             ];
             $scope.hide = function () {
                 $mdDialog.hide();
@@ -248,8 +296,8 @@
                     if ($scope.posti <= items.posti) {
                         var send = new Object();
                         var stringPosti = " posti";
-                        if ($scope.posti == 1) {
-                            stringPosti = " posto"
+                        if ($scope.posti === 1) {
+                            stringPosti = " posto";
                         }
                         send.messaggio = items.nome_destinatario + ' vorrebbe prenotare ' + $scope.posti + stringPosti;
                         send.posti_da_prenotare = $scope.posti;
@@ -263,7 +311,25 @@
                         send.id_arrivo = items.id_arrivo;
                         NotificationsService.inviaNotifica(send).then(function (response) {
                             if (response.success === false) {
-                                $location.path('/error');
+                                switch (response.res.status) {
+                                    case 500:
+                                    {
+                                        $location.path('/error');
+                                        break;
+                                    }
+                                    case 401:
+                                    {
+                                        $('body,html').animate({scrollTop: 0}, 800);
+                                        FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                                        $location.path('/login');
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        $location.path('/error');
+                                        break;
+                                    }
+                                }
                             } else {
                                 FlashService.pop({title: "Hai inviato una richiesta di prenotazione", body: "", type: "info"});
                                 removeNotification(items.id);
@@ -279,7 +345,25 @@
         function aggiornaNotifiche() {
             NotificationsService.GetNotifiche(vm.utente.id).then(function (response) {
                 if (response.success === false) {
-                    $location.path('/error');
+                    switch (response.res.status) {
+                        case 500:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
+                        default:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                    }
                 } else {
                     vm.notifiche = response.res.data;
                     vm.notifiche.forEach(function (arrayItem) {
@@ -294,7 +378,25 @@
         function getNotificationNumber(idUtente) {
             NotificationsService.NotificationNumber(idUtente).then(function (response) {
                 if (response.success === false) {
-                    $location.path('/error');
+                    switch (response.res.status) {
+                        case 500:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
+                        default:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                    }
                 } else {
                     vm.number = response.res.data;
                 }
@@ -313,7 +415,25 @@
             send.id_arrivo = item.id_arrivo;
             NotificationsService.inviaNotifica(send).then(function (response) {
                 if (response.success === false) {
-                    $location.path('/error');
+                    switch (response.res.status) {
+                        case 500:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
+                        default:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                    }
                 } else {
                     removeNotification(item.id);
                 }
@@ -332,7 +452,25 @@
             send.id_arrivo = item.id_arrivo;
             NotificationsService.inviaNotifica(send).then(function (response) {
                 if (response.success === false) {
-                    $location.path('/error');
+                    switch (response.res.status) {
+                        case 500:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
+                        default:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                    }
                 } else {
                     removeNotification(item.id);
                 }
@@ -351,7 +489,25 @@
             send.id_arrivo = item.id_arrivo;
             NotificationsService.inviaNotifica(send).then(function (response) {
                 if (response.success === false) {
-                    $location.path('/error');
+                    switch (response.res.status) {
+                        case 500:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
+                        default:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                    }
                 } else {
                     removeNotification(item.id);
                 }
@@ -376,12 +532,19 @@
                             $location.path('/error');
                             break;
                         }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
                         case 410:
                         {
                             FlashService.pop({title: "Posti esauriti", body: "", type: "info"});
                             break;
                         }
-                        case 410:
+                        case 404:
                         {
                             FlashService.pop({title: "Viaggio già effettuato", body: "", type: "info"});
                             break;

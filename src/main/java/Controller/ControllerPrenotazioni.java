@@ -7,6 +7,7 @@ package Controller;
 
 import Model.Response.PrenotazioneRes;
 import Repository.PrenotazioneRepository;
+import Utilita.Filter.Secured;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.util.List;
@@ -54,6 +55,7 @@ public class ControllerPrenotazioni {
 //    }
 
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getprenotazioni/{id}")
     public void getPrenotazioni(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {

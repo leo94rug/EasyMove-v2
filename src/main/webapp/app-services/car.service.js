@@ -2,14 +2,14 @@
     'use strict';
 
     angular
-        .module('app')
-        .factory('CarService', CarService);
+            .module('app')
+            .factory('CarService', CarService);
 
-        CarService.$inject = ['$http', 'CONFIG'];
+    CarService.$inject = ['$http', 'CONFIG'];
     function CarService($http, CONFIG) {
         var service = {};
         var config = {
-            headers: { 'Content-Type': 'application/json;' }
+            headers: {'Content-Type': 'application/json;'}
         };
         var host = CONFIG.HOST;
         var root = CONFIG.ROOT;
@@ -35,11 +35,11 @@
         function handleSuccess(res) {
             console.log(res);
 
-            return { success: true, res: res };
+            return {success: true, res: res};
         }
 
         function handleError(res) {
-            return { success: false, res: res };
+            return {success: false, res: res};
         }
     }
 

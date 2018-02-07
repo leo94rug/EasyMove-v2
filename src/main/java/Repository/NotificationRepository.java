@@ -34,13 +34,13 @@ import java.util.UUID;
  * @author leo
  */
 public class NotificationRepository {
-    
+
     Connection connection;
-    
+
     public NotificationRepository(Connection dataSource) {
         connection = dataSource;
     }
-    
+
     public void checkNotificationExistAndDelete(String mittente, String destinatario, int tipologia) throws SQLException {
         String query = "SELECT " + ID + " FROM " + NOTIFICA + " AS n WHERE " + MITTENTE + "=? AND " + DESTINATARIO + "=? AND " + TIPOLOGIA + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
@@ -56,7 +56,7 @@ public class NotificationRepository {
             ps.executeUpdate();
         }
     }
-    
+
     public Notifica getNotifica(String id) throws SQLException {
         String query = "SELECT * FROM " + NOTIFICA + " AS n WHERE " + ID + "=?";
         PreparedStatement ps = connection.prepareStatement(query);
@@ -64,7 +64,7 @@ public class NotificationRepository {
         ResultSet rs = ps.executeQuery();
         return rs.next() ? new Notifica(rs) : null;
     }
-    
+
     public int getNoticationNumber(String idUtente) throws SQLException {
         IDate dateUtility = new DatesConversion();
         String date = dateUtility.now();
@@ -80,9 +80,9 @@ public class NotificationRepository {
         ps.setString(3, date);
         ResultSet rs = ps.executeQuery();
         return rs.next() ? rs.getInt("numero") : 0;
-        
+
     }
-    
+
     public List<NotificaRes> getNotifiche(String id) throws SQLException {
         List<NotificaRes> notifiche = new ArrayList();
         IDate dateUtility = new DatesConversion();
@@ -105,7 +105,7 @@ public class NotificationRepository {
         }
         return notifiche;
     }
-    
+
     public int insertNotifica(NotificaRqt notifica) throws SQLException {
         String query = "INSERT INTO notifica("
                 + "id, "
@@ -146,16 +146,15 @@ public class NotificationRepository {
         ps.setString(17, notifica.getData());
         int r = ps.executeUpdate();
         return r;
-        
     }
-    
+
     public int eliminaNotifica(String id) throws SQLException {
         String query = "UPDATE notifica SET stato=2 WHERE id=?";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, id);
         return ps.executeUpdate();
     }
-    
+
     public void insertFeedbackNotification(String utente_1, String utente_2, NotificaRqt notifica) throws SQLException, ParseException, CloneNotSupportedException {
         RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
         RouteRepository routeRepository = new RouteRepository(connection);
@@ -164,32 +163,44 @@ public class NotificationRepository {
         String orarioPartenza = routeRepository.getTravelDetail(id_tappa, id_tappa).getOrario_partenza();
         Relazione relazione = relazioneRepository.getRelazione(utente_1, utente_2);
         if (relazione != null) {
-            switch (relazione.getDa_valutare()) {
+            int daValutare = relazione.getDa_valutare();
+            switch (daValutare) {
                 case 0: {
                     relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
+                    break;
                 }
                 case 1: {
                     if (dateUtility.before(orarioPartenza, relazione.getDa_valutare_data())) {
                         relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
+                    }
+                    break;
+                }
+                case 2: {
+                    break;
+                }
+                case 3: {
+                    if (dateUtility.before(orarioPartenza, relazione.getDa_valutare_data())) {
+                        relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
                         break;
                     }
-                    NotificaRqt insertFeedbackNotification = notifica.clone();
-                    insertFeedbackNotification.setTipologia(INSERISCI_FEEDBACK);
-                    insertFeedbackNotification.setMessaggio("Inserisci un feedback");
-                    insertFeedbackNotification.setMittente(utente_1);
-                    insertFeedbackNotification.setDestinatario(utente_2);
-                    
-                    checkNotificationExistAndDelete(utente_1, utente_2, INSERISCI_FEEDBACK);
-                    insertFeedbackNotification.setInizio_validita(orarioPartenza);
-                    insertFeedbackNotification.setFine_validita(dateUtility.addYears());
-                    insertFeedbackNotification.setId(UUID.randomUUID().toString());
-                    insertFeedbackNotification.setData(dateUtility.now());
-                    insertNotifica(insertFeedbackNotification);
-                    // TODOnow: invia notifica insert feedback
-
                 }
             }
+            if (daValutare != 3) {
+                NotificaRqt insertFeedbackNotification = notifica.clone();
+                insertFeedbackNotification.setTipologia(INSERISCI_FEEDBACK);
+                insertFeedbackNotification.setMessaggio("Inserisci un feedback");
+                insertFeedbackNotification.setMittente(utente_1);
+                insertFeedbackNotification.setDestinatario(utente_2);
+
+                checkNotificationExistAndDelete(utente_1, utente_2, INSERISCI_FEEDBACK);
+                insertFeedbackNotification.setInizio_validita(orarioPartenza);
+                insertFeedbackNotification.setFine_validita(dateUtility.addYears());
+                insertFeedbackNotification.setId(UUID.randomUUID().toString());
+                insertFeedbackNotification.setData(dateUtility.now());
+                insertNotifica(insertFeedbackNotification);
+            }
+
         }
     }
-    
+
 }

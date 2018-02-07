@@ -8,23 +8,23 @@
                 <div id="intest_passaggi" class="ampio">
                     I tuoi passaggi
                 </div>
-                <div ng-if="vm.travel.length!=0">
+                <div ng-if="vm.travel.length !== 0">
                     <div ng-repeat="route in vm.travel" class="two-third">
-                            <a ng-href="prenotation/{{route.id_partenza}}/{{route.id_arrivo}}">
-                                
                         <md-list-item  class="md-3-line box options-block " >
-                            <div class="md-list-item-text">
-                                <p><b style="color: green;">Partenza:</b> {{route.tratta_auto.denominazione_partenza}}</p>
-                                <p><b style="color: red;">Arrivo:</b> {{route.tratta_auto.denominazione_arrivo}}</p>
-                                <p style="white-space: nowrap;">{{route.tratta_auto.orario_partenza | date : "H:mm - d/M/y"}}</p>
-                            </div>
+                            <a ng-href="prenotation/{{route.id_partenza}}/{{route.id_arrivo}}">
+
+                                <div class="md-list-item-text">
+                                    <p><b style="color: green;">Partenza:</b> {{route.tratta_auto.denominazione_partenza}}</p>
+                                    <p><b style="color: red;">Arrivo:</b> {{route.tratta_auto.denominazione_arrivo}}</p>
+                                    <p style="white-space: nowrap;">{{route.tratta_auto.orario_partenza| date : "H:mm - d/M/y"}}</p>
+                                </div>
+                            </a>
                             <md-button class="md-secondary md-raised" ng-click="vm.delete(route.id)">Elimina</md-button>
                         </md-list-item>
-                        </a>
                     </div>
                 </div>
             </div>
-            <div ng-if="vm.travel.length===0">
+            <div ng-if="vm.travel.length === 0">
                 <h2>Non sono presenti viaggi</h2>
             </div>
         </div>

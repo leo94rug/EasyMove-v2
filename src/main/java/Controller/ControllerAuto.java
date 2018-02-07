@@ -7,6 +7,7 @@ package Controller;
 
 import Model.Request.AutoRqt;
 import Repository.CarRepository;
+import Utilita.Filter.Secured;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -52,6 +53,7 @@ public class ControllerAuto {
     }
 
     @GET
+        @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "{id}")
     public void getauto(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
@@ -61,6 +63,7 @@ public class ControllerAuto {
     }
 
     @POST
+    @Secured
     @Path(value = "")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void addcar(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final AutoRqt autoRqt) {
@@ -70,6 +73,7 @@ public class ControllerAuto {
     }
 
     @DELETE
+    @Secured
     @Path(value = "delete/{id}")
     public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {

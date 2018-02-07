@@ -25,13 +25,30 @@
             var user = {
                 "mittente": vm.utente.id,
                 "destinatario": vm.destinatario
-            }
+            };
             FeedbackService.checkIsPossibleInsertFeedback(user).then(function (response) {
                 if (response.success === false) {
-                    $location.path('/error');
+                    switch (response.res.status) {
+                        case 500:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                        case 401:
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
+                        default:
+                        {
+                            $location.path('/error');
+                            break;
+                        }
+                    }
                 }
                 else {
-                    
                     switch (response.res.data) {
                         case 0: {
                             FlashService.set({ title: "Attenzione", body: "Non è possibile inserire un feedback", type: "error" });

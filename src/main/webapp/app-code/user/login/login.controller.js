@@ -4,9 +4,9 @@
             .module('app')
             .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['DateService','$timeout', 'AuthenticationService', 'AccountService', 'FlashService', '$location', '$store'];
+    LoginController.$inject = ['$http', 'DateService', '$timeout', 'AuthenticationService', 'AccountService', 'FlashService', '$location', '$store'];
 
-    function LoginController(DateService,$timeout, AuthenticationService, AccountService, FlashService, $location, $store) {
+    function LoginController($http, DateService, $timeout, AuthenticationService, AccountService, FlashService, $location, $store) {
         var vm = this;
         $('body,html').animate({scrollTop: 0}, 800);
         vm.login = login;
@@ -19,7 +19,7 @@
         });
         vm.email;
         function login() {
-            if (vm.loginUser != undefined) {
+            if (vm.loginUser !== undefined) {
                 vm.email = vm.loginUser.email;
             }
             AccountService.Login(vm.loginUser).then(function (response) {
@@ -52,16 +52,25 @@
                         }
                     }
                 } else {
-                    if (response.res.data.anno_nascita != null && response.res.data.anno_nascita != '') {
+                    if (response.res.data.anno_nascita !== null && response.res.data.anno_nascita !== '') {
                         response.res.data.anno_nascita = DateService.dateFromString(response.res.data.anno_nascita);
                     }
                     AuthenticationService.SetCredentials(response.res.data, vm.coll);
+                    $http.defaults.headers.common['Authorization'] = 'Bearer ' + response.res.data.token; // jshint ignore:line
                     $('body,html').animate({scrollTop: 0}, 800);
                     vm.email = undefined;
-                    var message='';
+                    var message = '';
                     switch (response.res.data.tipo) {
-                        case 1:{message = 'Sei loggato!';break;}
-                        case 2:{message = 'Sei loggato come admin!';break;}
+                        case 1:
+                        {
+                            message = 'Sei loggato!';
+                            break;
+                        }
+                        case 2:
+                        {
+                            message = 'Sei loggato come admin!';
+                            break;
+                        }
                     }
                     FlashService.set({title: message, body: "", type: "success"});
                     $location.path('/');

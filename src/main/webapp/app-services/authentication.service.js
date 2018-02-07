@@ -26,7 +26,6 @@
                 var cookieExp = new Date();
                 cookieExp.setDate(cookieExp.getDate() + 30);
                 $cookies.putObject('globals', JSON.stringify(utente), { expires: cookieExp });
-                var a=0;
             }
             else{
                 $cookies.remove('globals');

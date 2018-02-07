@@ -126,8 +126,9 @@ public class UserRepository {
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             utente = new UtenteRes(rs);
+            IDate dateUtility = new DatesConversion();
+            utente.setEta(dateUtility.calcoloEta(utente.getAnno_nascita()));
         }
-
         return utente;
     }
 

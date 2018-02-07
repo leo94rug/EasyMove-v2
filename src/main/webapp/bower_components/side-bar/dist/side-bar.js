@@ -93,7 +93,7 @@
         '<md-icon md-svg-src="images/menu.svg" style="height: 50px;width: 50px;color:black;"></md-icon>'+
     '</md-button>'+
     '<section layout="row" flex class="superZ">'+
-        '<md-sidenav class="md-sidenav-left scrollBloccato" md-component-id="left" md-whiteframe="4">'+
+        '<md-sidenav class="md-sidenav-left" md-component-id="left" md-whiteframe="4">'+
             '<md-content layout-padding style="margin-top: 80px;">'+
             '<a ng-if="utente" href="home" class="active"><p >Home</p></a>'+
             '<a ng-if="utente" href="search"><p ><b>Cerca</b></p></a>'+
@@ -105,7 +105,6 @@
             '<a ng-if="utente" href="feedback-ricevuti"><p >Feedback ricevuti</p></a>'+
             '<a ng-if="utente" href="passaggi"><p >Passaggi offerti</p></a>'+
             '<a ng-if="utente" href="prenotazioni"><p >Prenotazioni</p></a>'+
-            
             '<a ng-if="!utente" href="register"><p>Registrazione</p></a>'+
             '<a ng-if="utente"><p ng-click="logout()">Logout</p></a>'+
             '</md-content>'+

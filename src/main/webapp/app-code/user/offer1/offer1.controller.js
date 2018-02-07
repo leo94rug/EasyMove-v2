@@ -26,7 +26,7 @@
             });
             vm.radioData = [
                 { label: 'Andata', value: 1 },
-                { label: 'Andata e ritorno', value: 2 },
+                { label: 'Andata e ritorno', value: 2 }
             ];
             vm.partenzaList = [{ 0: vm.partenza }];
             vm.arrivoList = [{ 0: vm.arrivo }];
@@ -43,10 +43,10 @@
             };
             vm.contTappa = 0;
             vm.localizzato = 0;
-            vm.types = ''
+            vm.types = '';
             vm.andataTratta = [];
             vm.ritornoTratta = [];
-            if ($rootScope.saveOffer != undefined) {
+            if ($rootScope.saveOffer !== undefined) {
                 vm.partenzaList = $rootScope.saveOffer.partenza;
                 vm.tappeList = $rootScope.saveOffer.tappe;
                 vm.arrivoList = $rootScope.saveOffer.arrivo;
@@ -57,7 +57,7 @@
         }
         function addTappa() {
             if (vm.contTappa < 4) {
-                vm.tappeList.push({ model: vm.tappeModel[vm.contTappa] })
+                vm.tappeList.push({ model: vm.tappeModel[vm.contTappa] });
                 vm.contTappa++;
             }
         }
@@ -91,7 +91,7 @@
                     dateTimeA: vm.andataTime,
                     dateTimeR: vm.ritornoTime,
                     ar: vm.data.group2
-                }
+                };
                 for (var i = 0; i < enumeratore.length - 1; i++) {
                     promises.push(creaTratta(enumeratore[i], enumeratore[i + 1], i, vm.andataTime, 0));
                 }
@@ -147,13 +147,13 @@
                 }
             }
             var nome1 = "";
-            if (premise1 != undefined) {
+            if (premise1 !== undefined) {
                 nome1 = premise1 + ', ';
             }
-            if (route1 != undefined) {
+            if (route1 !== undefined) {
                 nome1 = nome1 + route1 + ', ';
             }
-            if (locality1 != undefined) {
+            if (locality1 !== undefined) {
                 nome1 = nome1 + locality1;
             }
             var route2;
@@ -178,13 +178,13 @@
                 }
             }
             var nome2 = "";
-            if (premise2 != undefined) {
+            if (premise2 !== undefined) {
                 nome2 = premise2 + ', ';
             }
-            if (route2 != undefined) {
+            if (route2 !== undefined) {
                 nome2 = nome2 + route2 + ', ';
             }
-            if (locality2 != undefined) {
+            if (locality2 !== undefined) {
                 nome2 = nome2 + locality2;
             }
             var distance;
@@ -196,7 +196,7 @@
             service.getDistanceMatrix({
                 origins: [formatted_address1],
                 destinations: [formatted_address2],
-                travelMode: 'DRIVING',
+                travelMode: 'DRIVING'
             },
                 function (response, status) {
                     if (response.success === false) {
@@ -225,7 +225,7 @@
                                 lng_arrivo: lng2,
                                 denominazione_partenza: nome1,
                                 denominazione_arrivo: nome2,
-                                durata: duration,
+                                durata: duration
                             };
                             if (a === 0) {
                                 vm.dateA = date.getTime() + duration;
@@ -259,7 +259,7 @@
                             bounds: circle.getBounds(),
                             types: ['establishment', 'geocode'],
                             componentRestrictions: { country: 'it' },
-                        }
+                        };
                     });
                 }
             }

@@ -121,77 +121,7 @@ public class RouteRepository {
         return ps.executeUpdate();
     }
 
-    public List<Viaggio_autoRes> cercaAuto(Ricerca r) throws SQLException, ParseException, ClassNotFoundException, NamingException {
-        Coordinate coordinate = new Coordinate(r.getLat_p(), r.getLng_p(), r.getLat_a(), r.getLng_a(), r.getDistanza_tra(), r.getDistanza());
-        List<Tratta_auto> listaPartenze = new ArrayList();
-        listaPartenze = listaPartenzeAuto(coordinate, r);
-        return controlloTappeAuto(coordinate, listaPartenze);
-    }
-
-    private List<Tratta_auto> listaPartenzeAuto(Coordinate c, Ricerca r) throws SQLException {
-        ResultSet rs;
-        List<Tratta_auto> listaPartenze = new ArrayList();
-        String query = ("SELECT * FROM tratta_auto AS t "
-                + "JOIN viaggio_auto as v ON t.viaggio_fk=v.id "
-                + "WHERE t.lat_partenza < ? AND t.lat_partenza > ? AND t.lng_partenza < ? AND t.lng_partenza > ? AND t.orario_partenza >= ? AND v.visibile=1");
-
-        PreparedStatement ps = connection.prepareStatement(query);
-        ps.setDouble(1, c.getMaxLatP());
-        ps.setDouble(2, c.getMinLatP());
-        ps.setDouble(3, c.getMaxLonP());
-        ps.setDouble(4, c.getMinLonP());
-        ps.setString(5, r.getDate());
-        rs = ps.executeQuery();
-        while (rs.next()) {
-            Tratta_auto tratta = new Tratta_auto(rs);
-            listaPartenze.add(tratta);
-        }
-
-        return listaPartenze;
-    }
-
-    private List<Viaggio_autoRes> controlloTappeAuto(Coordinate c, List<Tratta_auto> listaPartenze) throws SQLException, ParseException, ClassNotFoundException, NamingException {
-        List<Viaggio_autoRes> successi = new ArrayList();
-        UserRepository userRepository = new UserRepository(connection);
-
-        for (Tratta_auto tratta_auto : listaPartenze) {
-            ResultSet rs;
-            String query = "SELECT * FROM tratta_auto AS t WHERE id=?";
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setString(1, tratta_auto.getId());
-            rs = ps.executeQuery();
-            tratta_auto.setDistanza(0);
-            tratta_auto.setPrezzo(0);
-            while (rs.next()) {
-                Tratta_auto tratta_auto_rs = new Tratta_auto(rs);
-                tratta_auto.addDistanza(tratta_auto_rs.getDistanza());
-                tratta_auto.addPosti(tratta_auto_rs.getPosti());
-                tratta_auto.addPrezzo(tratta_auto_rs.getPrezzo());
-                tratta_auto.setDenominazione_arrivo(tratta_auto_rs.getDenominazione_arrivo());
-                if (c.CalcolaDistanzaDaArrivo(tratta_auto_rs.getLat_arrivo(), tratta_auto_rs.getLng_arrivo())) {
-                    Viaggio_autoRes viaggio_autoRes = (Viaggio_autoRes) getViaggioAuto(tratta_auto.getViaggio_fk());
-                    Utente utente = userRepository.getUtente(viaggio_autoRes.getUtente_fk());
-                    viaggio_autoRes.setUtente(utente);
-                    viaggio_autoRes.setTratta_auto(tratta_auto);
-                    viaggio_autoRes.setId_partenza(tratta_auto.getId());
-                    viaggio_autoRes.setId_arrivo(tratta_auto_rs.getId());
-                    successi.add(viaggio_autoRes);
-                    rs.afterLast();
-                } else {
-                    query = "SELECT * FROM tratta_auto AS t WHERE viaggio_fk=? AND enumerazione=?";
-                    ps = connection.prepareStatement(query);
-                    ps.setString(1, tratta_auto_rs.getViaggio_fk());
-                    ps.setInt(2, tratta_auto_rs.getEnumerazione() + 1);
-                    rs = ps.executeQuery();
-                }
-            }
-        }
-
-        return successi;
-    }
-
     public int updatePosti(String id_tratta, int new_posti) throws SQLException {
-
         PreparedStatement ps = connection.prepareStatement("UPDATE " + TRATTA_AUTO
                 + " SET " + POSTI + "=? "
                 + "WHERE " + ID + "=?");
@@ -202,7 +132,6 @@ public class RouteRepository {
     }
 
     public boolean decreasePosti(Notifica prenotazione) throws SQLException {
-
         PreparedStatement ps = connection.prepareStatement("SELECT * FROM tratta_auto WHERE id=?");
         ps.setString(1, prenotazione.getId_partenza());
         ResultSet rs = ps.executeQuery();
@@ -224,7 +153,6 @@ public class RouteRepository {
     }
 
     public List<Tratta_auto> getListTratteAuto(String viaggio_fk) throws SQLException {
-
         List<Tratta_auto> tratteList = new ArrayList();
         ResultSet rs;
         String query = "SELECT * FROM tratta_auto AS t WHERE viaggio_fk=? ORDER BY enumerazione";
@@ -273,7 +201,6 @@ public class RouteRepository {
     }
 
     public Viaggio_autoRes getViaggioAuto(String id) throws SQLException {
-
         Viaggio_autoRes viaggio_auto = null;
         String query = "SELECT * FROM viaggio_auto AS vi WHERE vi.id=?";
         PreparedStatement ps = connection.prepareStatement(query);
@@ -323,11 +250,9 @@ public class RouteRepository {
             }
         }
         return tratta_auto;
-
     }
 
     public int deleteTravel(String id) throws SQLException {
-
         String query = "UPDATE viaggio_auto SET visibile=0 WHERE id=?";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, id);

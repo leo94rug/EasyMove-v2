@@ -10,8 +10,8 @@
         var service = {};
         var controller = "account";
         var config = {
-            headers: { 'Content-Type': 'application/json;' }
-        };
+            headers: { 'Content-Type': 'application/json;'
+        }};
         //        var config2={
         //            headers : {'Content-Type': 'multipart/form-data;'}
         //        };

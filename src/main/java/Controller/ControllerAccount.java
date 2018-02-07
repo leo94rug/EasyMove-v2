@@ -8,11 +8,17 @@ package Controller;
 import static DatabaseConstants.TableConstants.Utente_tipologia.NON_CONFERMATO;
 import static DatabaseConstants.TableConstants.Utente_tipologia.OSPITE;
 import Interfaces.ICrypt;
+import Interfaces.IDate;
+import Interfaces.Ijwt;
 import Model.ModelDB.Utente;
 import Model.Response.UtenteRes;
 import Repository.UserRepository;
 import Utilita.Crypt.Encryptor;
 import Utilita.Crypt.SimpleCrypt;
+import Utilita.DatesConversion;
+import Utilita.Filter.Secured;
+import Utilita.JWT.JWTToken;
+import Utilita.JWT.JjwtToken;
 import Utilita.email.MsgFactory;
 import Utilita.email.SendEmail;
 import com.google.gson.Gson;
@@ -20,9 +26,11 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +39,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
@@ -45,6 +54,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,6 +78,26 @@ public class ControllerAccount {
     }
 
     @POST
+    @Secured
+    @Path(value = "bear")
+    @Consumes(value = MediaType.APPLICATION_JSON)
+    public void bear(@Suspended final AsyncResponse asyncResponse,
+            @Context final UriInfo context,
+            final String payload,
+            @Context SecurityContext securityContext) {
+        executorService.submit(() -> {
+            asyncResponse.resume(doBear(context, payload, securityContext));
+        });
+    }
+
+    private Response doBear(@Context UriInfo context, String payload, SecurityContext securityContext) {
+        Principal principal = securityContext.getUserPrincipal();
+        String username = principal.getName();
+        return Response.ok().build();
+
+    }
+
+    @POST
     @Path(value = "deleteall")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void deleteall(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
@@ -79,7 +109,7 @@ public class ControllerAccount {
     @POST
     @Path(value = "login")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void login(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+    public void login(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Utente payload) {
         executorService.submit(() -> {
             asyncResponse.resume(doLogin(context, payload));
         });
@@ -95,9 +125,10 @@ public class ControllerAccount {
     }
 
     @POST
+        @Secured
     @Path(value = "modificapsw")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void modificaPassword(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
+    public void modificaPassword(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Utente payload) {
         executorService.submit(() -> {
             asyncResponse.resume(doModificaPassword(context, payload));
         });
@@ -131,6 +162,7 @@ public class ControllerAccount {
     }
 
     @GET
+        @Secured
     @Path(value = "check/{user1: [0-9]+}/{user2: [0-9]+}")
     @Produces(value = {MediaType.APPLICATION_JSON})
     public void updateEmailStatus(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "user1") final String user1, @PathParam(value = "user2") final String user2) {
@@ -154,13 +186,14 @@ public class ControllerAccount {
         }
     }
 
-    private Response doLogin(@Context UriInfo context, String payload) {
+    private Response doLogin(@Context UriInfo context, Utente payload){
         try (Connection connection = ds.getConnection()) {
             UserRepository userRepository = new UserRepository(connection);
             ICrypt crypt = new Encryptor();
-            JSONObject obj = new JSONObject(payload);
-            String email = obj.getString("email");
-            String password = crypt.encrypt(obj.getString("password"));
+            IDate dateUtility = new DatesConversion();
+            Ijwt tokenGenerator = new JjwtToken();
+            String email = payload.getEmail();
+            String password = crypt.encrypt(payload.getPassword());
             UtenteRes utenteRes = userRepository.getUtenteByEmail(email);
             if (utenteRes == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -174,16 +207,25 @@ public class ControllerAccount {
             if (utenteRes.getTipo() == OSPITE) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-
-            //String token = Utilita.MyToken.getToken(email);
-            utenteRes.calcolaEta();
-            //utenteRes.setToken(token);
+            utenteRes.setEta(dateUtility.calcoloEta(utenteRes.getAnno_nascita()));
+            
+            String token =tokenGenerator.encodeToken(utenteRes.getId());
+            
+            utenteRes.setToken(token);
             return Response.ok(new Gson().toJson(utenteRes)).build();
-
+        } catch (SQLException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NamingException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(ControllerAccount.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+        return Response.serverError().build();
+
     }
 
     private Response doConfermaEmail(@Context UriInfo context, String payload) {
@@ -218,13 +260,10 @@ public class ControllerAccount {
         }
     }
 
-    private Response doModificaPassword(@Context UriInfo context, String payload) {
+    private Response doModificaPassword(@Context UriInfo context, Utente utente) {
         try (Connection connection = ds.getConnection()) {
             UserRepository userRepository = new UserRepository(connection);
-            JSONObject obj = new JSONObject(payload);
-            String id = obj.getString("id");
-            String psw = obj.getString("password");
-            int i = userRepository.setPassword(id, psw);
+            int i = userRepository.setPassword(utente.getId(), utente.getPassword());
             if (i == 0) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             } else {
@@ -333,13 +372,10 @@ public class ControllerAccount {
 
     private Object dodeleteall(UriInfo context, String payload) {
         try (Connection connection = ds.getConnection()) {
-            String query = "DELETE FROM utente WHERE 1";
+            String query = "DELETE FROM feedback WHERE 1";
             PreparedStatement ps = connection.prepareStatement(query);
             int rs = ps.executeUpdate();
             query = "DELETE FROM auto WHERE 1";
-            ps = connection.prepareStatement(query);
-            rs = ps.executeUpdate();
-            query = "DELETE FROM feedback WHERE 1";
             ps = connection.prepareStatement(query);
             rs = ps.executeUpdate();
             query = "DELETE FROM notifica WHERE 1";

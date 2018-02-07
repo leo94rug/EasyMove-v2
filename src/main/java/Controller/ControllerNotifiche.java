@@ -16,6 +16,7 @@ import Repository.PrenotazioneRepository;
 import Repository.RelazioneRepository;
 import Repository.RouteRepository;
 import Utilita.DatesConversion;
+import Utilita.Filter.Secured;
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -64,6 +65,7 @@ public class ControllerNotifiche {
     }
 
     @GET
+    @Secured
     @Produces({MediaType.APPLICATION_JSON})
     @Path("notificationnumber/{id}")
     public void notificationnumber(@Suspended
@@ -74,6 +76,7 @@ public class ControllerNotifiche {
     }
 
     @POST
+    @Secured
     @Path(value = "invianotifica")
     @Consumes(value = MediaType.APPLICATION_JSON)
     public void invianotifica(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
@@ -83,6 +86,7 @@ public class ControllerNotifiche {
     }
 
     @GET
+    @Secured
     @Produces(value = {MediaType.APPLICATION_JSON})
     @Path(value = "getnotifiche/{id}")
     public void getnotifiche(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
@@ -92,6 +96,7 @@ public class ControllerNotifiche {
     }
 
     @DELETE
+    @Secured
     @Path(value = "deletenotification/{id}")
     public void delete(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {

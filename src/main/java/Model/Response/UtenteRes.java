@@ -18,27 +18,21 @@ import java.text.ParseException;
  */
 public class UtenteRes extends Utente {
 
-    //public String token;
+    public String token;
     public int eta;
 
-    public UtenteRes(ResultSet rs/*,String token*/) throws SQLException, ParseException {
+    public UtenteRes(ResultSet rs) throws SQLException, ParseException {
         super(rs);
-        //this.token=token;
-        IDate dateUtility = new DatesConversion();
-        this.eta = dateUtility.calcoloEta(super.getAnno_nascita());
     }
 
-//    public String getToken() {
-//        return token;
-//    }
-//
-//    public void setToken(String token) {
-//        this.token = token;
-//    }
-    public void calcolaEta() throws ParseException {
-        IDate dateUtility = new DatesConversion();
-        this.eta = dateUtility.calcoloEta(super.getAnno_nascita());
+    public String getToken() {
+        return token;
     }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
 
     public int getEta() {
         return eta;

@@ -72,7 +72,7 @@
                                     <p class="aaa"><b>Cognome:</b> {{vm.utenteProfilo.cognome}}</p>
                                 </div>
                                 <p class="aaa"><b>Età:</b> {{vm.utenteProfilo.eta}}</p>
-                                <div ng-if="vm.feedback.media_valutazione != 0">             
+                                <div ng-if="vm.feedback.media_valutazione !== 0">             
                                     <p class="aaa"><b>Valutato:</b> {{vm.feedback.media_valutazione| number:2}} / 5</p>
                                 </div>
                                 <div ng-if="vm.feedback.media_valutazione === 0">Non ha ancora feedback</div>
@@ -115,15 +115,15 @@
                         <md-card-title-text>
                             <h2>Passeggeri</h2>
                             <div class="full-width" style="padding-bottom: 10px;">
-                                <div ng-if="vm.dettaglioPercorso.passeggeri.cont != 0" style="display: inline-flex;">
+                                <div ng-if="vm.dettaglioPercorso.passeggeri.cont !== 0" style="display: inline-flex;">
 
                                     <a ng-repeat="pass in vm.dettaglioPercorso.passeggeri" ng-href="profilo-utenti/{{pass.id}}" >
                                         <md-list-item  class="md-1-line " style="min-height: 80px;" >
                                             <div style="
-                                                 min-height: 50px;  
-                                                 width: 50px;">
+                                                 min-height: 90px;  
+                                                 width: 90px;">
                                                 <img data-ng-src="{{pass.foto_utente}}" class="md-avatar" style="
-                                                     width: 50px;
+                                                     width: 60px;
                                                      height: 50px;">
                                                      <div>{{pass.nome}}</div>                                                                                                 
                                             </div>
@@ -139,7 +139,7 @@
             </div>
 
 
-            <div ng-if="vm.feedback.cont != 0">
+            <div ng-if="vm.feedback.cont !== 0">
                 <div class="two-third left" style="min-width: 270px;">
                     <h2>Feedback</h2>
                     <div class="options-block box fontPhone2">
