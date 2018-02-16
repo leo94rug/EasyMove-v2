@@ -17,7 +17,6 @@ import Utilita.Crypt.Encryptor;
 import Utilita.Crypt.SimpleCrypt;
 import Utilita.DatesConversion;
 import Utilita.Filter.Secured;
-import Utilita.JWT.JWTToken;
 import Utilita.JWT.JjwtToken;
 import Utilita.email.MsgFactory;
 import Utilita.email.SendEmail;
@@ -375,9 +374,6 @@ public class ControllerAccount {
             String query = "DELETE FROM feedback WHERE 1";
             PreparedStatement ps = connection.prepareStatement(query);
             int rs = ps.executeUpdate();
-            query = "DELETE FROM auto WHERE 1";
-            ps = connection.prepareStatement(query);
-            rs = ps.executeUpdate();
             query = "DELETE FROM notifica WHERE 1";
             ps = connection.prepareStatement(query);
             rs = ps.executeUpdate();

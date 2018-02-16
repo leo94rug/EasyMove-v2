@@ -97,7 +97,7 @@ public class PrenotazioneRepository {
         return posti >= prenotazione.getPosti();
     }
 
-    public boolean getDisponibilitaViaggio(NotificaRqt notifica) throws SQLException, ParseException {
+    public boolean getDisponibilitaViaggio(Notifica notifica) throws SQLException, ParseException {
         RouteRepository routeRepository = new RouteRepository(connection);
         IDate dateUtility = new DatesConversion();
         Tratta_auto tratta_auto = routeRepository.getTravelDetail(notifica.getId_partenza(), notifica.getId_partenza());

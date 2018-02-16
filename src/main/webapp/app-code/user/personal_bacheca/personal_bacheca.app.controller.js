@@ -2,8 +2,8 @@
     'use strict';
 
     angular
-            .module('app')
-            .controller('BachecaController', BachecaController);
+        .module('app')
+        .controller('BachecaController', BachecaController);
 
     BachecaController.$inject = ['DateService', 'PrenotationService', '$timeout', 'FeedbackService', 'NotificationsService', 'RouteService', '$scope', '$mdDialog', '$store', 'UserService', '$location', 'FlashService', 'AuthenticationService'];
     function BachecaController(DateService, PrenotationService, $timeout, FeedbackService, NotificationsService, RouteService, $scope, $mdDialog, $store, UserService, $location, FlashService, AuthenticationService) {
@@ -14,36 +14,42 @@
         vm.aggiornaNotifiche = aggiornaNotifiche;
         vm.removeNotification = removeNotification;
         vm.logout = logout;
+        vm.screenType = screenType;
         vm.profilo = profilo;
+        vm.actionMobile = actionMobile;
         initialize();
         function initialize() {
+            vm.selectedDirection = 'up';
+            vm.isOpen = false;
+            vm.selectedMode = 'md-fling';
             vm.utente = $store.get('utente');
             $timeout(function () {
                 var myEl = angular.element(document.querySelector('#headerBacheca'));
                 myEl.addClass('active');
             });
-            $('body,html').animate({scrollTop: 0}, 800);
+            $('body,html').animate({ scrollTop: 0 }, 800);
             vm.attenzione = "";
             UserService.GetProfilo(vm.utente.id).then(function (response) {
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         default:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                     }
                 } else {
                     vm.user = response.res.data;
@@ -52,22 +58,23 @@
                         if (response.success === false) {
                             switch (response.res.status) {
                                 case 500:
-                                {
-                                    $location.path('/error');
-                                    break;
-                                }
+                                    {
+                                        $location.path('/error');
+                                        break;
+                                    }
                                 case 401:
-                                {
-                                    $('body,html').animate({scrollTop: 0}, 800);
-                                    FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                                    $location.path('/login');
-                                    break;
-                                }
+                                    {
+                                        $('body,html').animate({ scrollTop: 0 }, 800);
+                                        AuthenticationService.ClearCredentials();
+                                        FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                        $location.path('/login');
+                                        break;
+                                    }
                                 default:
-                                {
-                                    $location.path('/error');
-                                    break;
-                                }
+                                    {
+                                        $location.path('/error');
+                                        break;
+                                    }
                             }
                         } else {
                             vm.notifiche = response.res.data;
@@ -81,46 +88,122 @@
                 }
             });
         }
+        function screenType() {
+            return window.screen.width <= 980;
+        }
         function profilo(item) {
             $location.path('/profilo-utenti/' + item.mittente);
         }
         function logout() {
             AuthenticationService.ClearCredentials();
-            FlashService.set({title: "Logout effettuato", body: "", type: "info"});
+            FlashService.set({ title: "Logout effettuato", body: "", type: "info" });
             $location.path('/');
+        }
+        function actionMobile(item) {
+            debugger;
+       
+
+
+
+            if (vm.isOpen) { vm.isOpen = false; }
+            else { vm.isOpen = true; }
+
+            switch (item.tipologia) {
+                case 1:
+                    {
+                        var accettaAmicizia = $mdDialog.confirm()
+                        .title('Vuoi accettare l\'amicizia di ' + item.mittente + '?')
+                        .textContent('Accettando l\'amicizia l\'utente potrà visualizzare i tuoi dati e fare una prenotazione .')
+                        .ariaLabel('Lucky day')
+                        .ok('Accetta')
+                        .cancel('Rifiuta');     
+                        $mdDialog.show(accettaAmicizia).then(function () {
+                            accettaCondivisione(item);
+                        }, function () {
+                            rifiutaAmicizia(item);
+                        });
+                        
+                        break;
+                    }
+                case 2:
+                    {
+                        $location.path("/prenotazione/" + item.id_partenza + "/" + item.id_arrivo + "/" + item.id);
+                        break;
+                    }
+                case 3:
+                    {
+                        var accettaPr = $mdDialog.confirm()
+                        .title('Richiesta di prenotazione')
+                        .textContent(item.messaggio)
+                        .ariaLabel('Lucky day')
+                        .ok('Accetta')
+                        .cancel('Rifiuta');
+                        $mdDialog.show(accettaPr).then(function () {
+                            accettaPrenotazione(item);
+                        }, function () {
+                            rifiutaPrenotazione(item);
+                        });
+                        break;
+                    }
+                case 4:
+                    {
+                        break;
+                    }
+                case 5:
+                    {
+                        /*non ci sono opzioni per chi riceve l'esito negativo per la prenotazione*/
+                        break;
+                    }
+                case 6:
+                    {
+                        /*non ci sono opzioni per chi riceve l'esito positivo per la amicizia*/
+                        break;
+                    }
+                case 7:
+                    {
+
+                        $location.path('/feedback/' + item.mittente);
+                        break;
+                    }
+                case 8:
+                    {
+                        $location.path("/feedback-ricevuti");
+                    }
+            }
         }
         function removeNotification(id) {
             NotificationsService.eliminaNotifica(id).then(function (response) {
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 404:
-                        {
-                            removeLocalNotification(id);
-                            FlashService.pop({title: "La notifica potrebbe essere già stata rimossa", body: "", type: "warning"});
-                            getNotificationNumber(vm.utente.id);
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                removeLocalNotification(id);
+                                FlashService.pop({ title: "La notifica potrebbe essere già stata rimossa", body: "", type: "warning" });
+                                getNotificationNumber(vm.utente.id);
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         case 410:
-                        {
-                            removeLocalNotification(id);
-                            getNotificationNumber(vm.utente.id);
-                            FlashService.pop({title: "La notifica è stata già rimossa in precedenza", body: "", type: "warning"});
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                removeLocalNotification(id);
+                                getNotificationNumber(vm.utente.id);
+                                FlashService.pop({ title: "La notifica è stata già rimossa in precedenza", body: "", type: "warning" });
+                                $location.path('/error');
+                                break;
+                            }
                     }
                 } else {
                     removeLocalNotification(id);
@@ -135,88 +218,85 @@
             }
         }
         function bottone1(item, ev) {
-
             switch (item.tipologia) {
                 case 1:
-                {
-                    accettaCondivisione(item);
-                    FlashService.pop({title: "L'utente è stato aggiunto agli amici", body: "", type: "info"});
-                    break;
-                }
+                    {
+                        accettaCondivisione(item);
+                        break;
+                    }
                 case 2:
-                {
-                    prenota(item, ev);
-                    break;
-                }
+                    {
+                        prenota(item, ev);
+                        break;
+                    }
                 case 3:
-                {
-                    accettaPrenotazione(item);
-                    break;
-                }
+                    {
+                        accettaPrenotazione(item);
+                        break;
+                    }
                 case 4:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
                 case 5:
-                {
-                    /*non ci sono opzioni per chi riceve l'esito negativo per la prenotazione*/
-                    break;
-                }
+                    {
+                        /*non ci sono opzioni per chi riceve l'esito negativo per la prenotazione*/
+                        break;
+                    }
                 case 6:
-                {
-                    /*non ci sono opzioni per chi riceve l'esito positivo per la amicizia*/
-                    break;
-                }
+                    {
+                        /*non ci sono opzioni per chi riceve l'esito positivo per la amicizia*/
+                        break;
+                    }
                 case 7:
-                {
+                    {
 
-                    addFeedback(item.mittente);
-                    break;
-                }
+                        $location.path('/feedback/' + item.mittente);
+                        break;
+                    }
                 case 8:
-                {
-                    $location.path("/feedback-ricevuti");
-                }
+                    {
+                        $location.path("/feedback-ricevuti");
+                    }
             }
         }
         function bottone2(item) {
             switch (item.tipologia) {
                 case 1:
-                {
-                    rifiutaAmicizia(item);
-                    FlashService.pop({title: "Hai rifiutato l'amicizia", body: "", type: "info"});
-                    break;
-                }
+                    {
+                        rifiutaAmicizia(item);
+                        break;
+                    }
                 case 2:
-                {
-                    /*non ci sono opzioni per chi riceve la notifica dell'amicizia non accettata*/
-                    break;
-                }
+                    {
+                        /*non ci sono opzioni per chi riceve la notifica dell'amicizia non accettata*/
+                        break;
+                    }
                 case 3:
-                {
-                    rifiutaPrenotazione(item);
-                    FlashService.pop({title: "Hai rifiutato la prenotazione", body: "", type: "info"});
-                    break;
-                }
+                    {
+                        rifiutaPrenotazione(item);
+                        FlashService.pop({ title: "Hai rifiutato la prenotazione", body: "", type: "info" });
+                        break;
+                    }
                 case 4:
-                {
-                    /*non ci sono opzioni per chi riceve l'esito positivo per la prenotazione*/
-                    break;
-                }
+                    {
+                        /*non ci sono opzioni per chi riceve l'esito positivo per la prenotazione*/
+                        break;
+                    }
                 case 5:
-                {
-                    /*non ci sono opzioni per chi riceve l'esito negativo per la prenotazione*/
-                    break;
-                }
+                    {
+                        /*non ci sono opzioni per chi riceve l'esito negativo per la prenotazione*/
+                        break;
+                    }
                 case 6:
-                {
-                    /*non ci sono opzioni per chi riceve l'esito positivo per la amicizia*/
-                    break;
-                }
+                    {
+                        /*non ci sono opzioni per chi riceve l'esito positivo per la amicizia*/
+                        break;
+                    }
                 case 7:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
         }
         function prenota(item, ev) {
@@ -224,30 +304,31 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 404:
-                        {
-                            removeLocalNotification(id);
-                            FlashService.pop({title: "Il viaggio potrebbe essere stato rimosso", body: "", type: "info"});
-                            break;
-                        }
+                            {
+                                removeLocalNotification(id);
+                                FlashService.pop({ title: "Il viaggio potrebbe essere stato rimosso", body: "", type: "info" });
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         case 410:
-                        {
-                            removeLocalNotification(id);
-                            getNotificationNumber(vm.utente.id);
-                            FlashService.pop({title: "Il viaggio potrebbe essere già stato effettuato", body: "", type: "info"});
-                            break;
-                        }
+                            {
+                                removeLocalNotification(id);
+                                getNotificationNumber(vm.utente.id);
+                                FlashService.pop({ title: "Il viaggio potrebbe essere già stato effettuato", body: "", type: "info" });
+                                break;
+                            }
                     }
                 } else {
                     var dettaglioPercorso = response.res.data;
@@ -262,27 +343,26 @@
                             items: item
                         }
                     })
-                            .then(function (answer) {
-                                vm.aggiornaNotifiche();
-                            }, function () {
+                        .then(function (answer) {
+                            vm.aggiornaNotifiche();
+                        }, function () {
 
-                            });
+                        });
                 }
             });
-        }
-        ;
+        };
         function DialogController($scope, $mdDialog, items) {
 
             $scope.item = items;
             $scope.attenzione = "";
             $scope.posti = 0;
             $scope.options = [
-                {category: 'posti', name: '1', value: 1},
-                {category: 'posti', name: '2', value: 2},
-                {category: 'posti', name: '3', value: 3},
-                {category: 'posti', name: '4', value: 4},
-                {category: 'posti', name: '5', value: 5},
-                {category: 'posti', name: '6', value: 6}
+                { category: 'posti', name: '1', value: 1 },
+                { category: 'posti', name: '2', value: 2 },
+                { category: 'posti', name: '3', value: 3 },
+                { category: 'posti', name: '4', value: 4 },
+                { category: 'posti', name: '5', value: 5 },
+                { category: 'posti', name: '6', value: 6 }
             ];
             $scope.hide = function () {
                 $mdDialog.hide();
@@ -313,25 +393,26 @@
                             if (response.success === false) {
                                 switch (response.res.status) {
                                     case 500:
-                                    {
-                                        $location.path('/error');
-                                        break;
-                                    }
+                                        {
+                                            $location.path('/error');
+                                            break;
+                                        }
                                     case 401:
-                                    {
-                                        $('body,html').animate({scrollTop: 0}, 800);
-                                        FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                                        $location.path('/login');
-                                        break;
-                                    }
+                                        {
+                                            $('body,html').animate({ scrollTop: 0 }, 800);
+                                            AuthenticationService.ClearCredentials();
+                                            FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                            $location.path('/login');
+                                            break;
+                                        }
                                     default:
-                                    {
-                                        $location.path('/error');
-                                        break;
-                                    }
+                                        {
+                                            $location.path('/error');
+                                            break;
+                                        }
                                 }
                             } else {
-                                FlashService.pop({title: "Hai inviato una richiesta di prenotazione", body: "", type: "info"});
+                                FlashService.pop({ title: "Hai inviato una richiesta di prenotazione", body: "", type: "info" });
                                 removeNotification(items.id);
                                 $mdDialog.hide(answer);
                             }
@@ -347,22 +428,23 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         default:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                     }
                 } else {
                     vm.notifiche = response.res.data;
@@ -380,22 +462,23 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         default:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                     }
                 } else {
                     vm.number = response.res.data;
@@ -417,24 +500,26 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         default:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                     }
                 } else {
+                    FlashService.pop({ title: "L'utente è stato aggiunto agli amici", body: "", type: "info" });
                     removeNotification(item.id);
                 }
             });
@@ -454,22 +539,23 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         default:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                     }
                 } else {
                     removeNotification(item.id);
@@ -491,24 +577,26 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         default:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                     }
                 } else {
+                    FlashService.pop({ title: "Hai rifiutato l'amicizia", body: "", type: "info" });                    
                     removeNotification(item.id);
                 }
             });
@@ -528,35 +616,33 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                        {
-                            $location.path('/error');
-                            break;
-                        }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         case 401:
-                        {
-                            $('body,html').animate({scrollTop: 0}, 800);
-                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                            $location.path('/login');
-                            break;
-                        }
+                            {
+                                $('body,html').animate({ scrollTop: 0 }, 800);
+                                AuthenticationService.ClearCredentials();
+                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
+                                $location.path('/login');
+                                break;
+                            }
                         case 410:
-                        {
-                            FlashService.pop({title: "Posti esauriti", body: "", type: "info"});
-                            break;
-                        }
+                            {
+                                FlashService.pop({ title: "Posti esauriti", body: "", type: "info" });
+                                break;
+                            }
                         case 404:
-                        {
-                            FlashService.pop({title: "Viaggio già effettuato", body: "", type: "info"});
-                            break;
-                        }
+                            {
+                                FlashService.pop({ title: "Viaggio già effettuato", body: "", type: "info" });
+                                break;
+                            }
                     }
                 } else {
                     removeNotification(item.id);
                 }
             });
-        }
-        function addFeedback(id) {
-            $location.path('/feedback/' + id);
         }
     }
 

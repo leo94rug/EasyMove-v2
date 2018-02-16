@@ -1,0 +1,54 @@
+﻿<form ng-submit="vm.prenota()" role="form" name="offer" ng-cloak>
+    <md-input-container>
+        <md-select ng-model="vm.posti" required name="sub" placeholder="Posti">
+            <md-optgroup label="Posti">
+                <md-option ng-value="option.value" ng-repeat="option in vm.options| filter: {category: 'posti' }">{{option.name}}</md-option>
+            </md-optgroup>
+        </md-select>
+        <div class="errors" ng-messages="offer.sub.$error">
+            <div ng-message="required">Indica i posti che vuoi prenotare</div>
+        </div>
+    </md-input-container>
+
+</form>
+
+<nav-bar></nav-bar>
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <!--- Content -->
+            <div class="content one-half modal">
+                <!--Login-->
+                <div class="box">
+                    <form name="vm.offer" ng-submit="vm.prenota()" role="form">
+                        <div class="f-row">
+                            <md-input-container flex="50">
+                                <md-select ng-model="vm.posti" required name="sub" placeholder="Posti">
+                                    <md-optgroup label="Posti">
+                                        <md-option ng-value="option.value" ng-repeat="option in vm.options| filter: {category: 'posti' }">{{option.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <div class="errors" ng-messages="vm.offer.sub.$error">
+                                    <div ng-message="required">Indica i posti che vuoi prenotare</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+                        <div class="f-row">
+                            <div class="full-width">
+                                <button type="submit" class="btn color medium full" />Prenota</button>
+                            </div>
+                            <div class="two-third">
+                                <b>{{vm.attenzione}}</b>
+                                <i>sono disponibili {{vm.postiDisponibili}} posti</i>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!--//Login-->
+            </div>
+            <!--- //Content -->
+        </div>
+    </div>
+</main>
+<foo-ter></foo-ter>

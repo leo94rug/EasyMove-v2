@@ -6,6 +6,7 @@
 package Utilita;
 
 import Interfaces.IDate;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -13,6 +14,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,7 +24,7 @@ import java.util.TimeZone;
 /**
  * java.util.date to java.sql.date
  */
-public class DatesConversion implements IDate{
+public class DatesConversion implements IDate {
 
     static String pattern = "yyyy-MM-dd HH:mm:ss";
 
@@ -51,8 +54,29 @@ public class DatesConversion implements IDate{
     }
 
     @Override
-    public boolean before(String date1, String date2) throws ParseException {
-        return stringToDate(date1).before(stringToDate(date2));
+    public boolean before(String date1, String date2) {
+        if(isDateValid(date1) && isDateValid(date2)){
+            try {
+                return stringToDate(date1).before(stringToDate(date2));
+            } catch (ParseException ex) {
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isDateValid(String date) {
+        try {
+            DateFormat df = new SimpleDateFormat(pattern);
+            df.setLenient(false);
+            df.parse(date);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -70,16 +94,30 @@ public class DatesConversion implements IDate{
      * @param year
      * @return
      */
-    public static String addYears(String currentDateString,int year) {
+    public String addYears(String currentDateString, int year) {
         DateTimeFormatter form = DateTimeFormatter.ofPattern(pattern);
         LocalDateTime dateTime = LocalDateTime.parse(currentDateString, form);
         dateTime = dateTime.plusYears(year);
         String yearsAfterString = dateTime.format(form);
         return yearsAfterString;
     }
+
     @Override
-    public String addYears() {
-        return addYears(now(),1);
+    public String addYears(int year) {
+        return addYears(now(), year);
+    }
+
+    public String addDays(String currentDateString, int day) {
+        DateTimeFormatter form = DateTimeFormatter.ofPattern(pattern);
+        LocalDateTime dateTime = LocalDateTime.parse(currentDateString, form);
+        dateTime = dateTime.plusDays(day);
+        String yearsAfterString = dateTime.format(form);
+        return yearsAfterString;
+    }
+
+    @Override
+    public String addDays(int day) {
+        return addDays(now(), day);
     }
 
     /**
