@@ -79,7 +79,7 @@ public class ControllerNotifiche {
     @Secured
     @Path(value = "invianotifica")
     @Consumes(value = MediaType.APPLICATION_JSON)
-    public void invianotifica(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final Notifica payload) {
+    public void invianotifica(@Suspended final AsyncResponse asyncResponse, @Context final UriInfo context, final String payload) {
         executorService.submit(() -> {
             asyncResponse.resume(doInvianotifica(context, payload));
         });
@@ -129,7 +129,7 @@ public class ControllerNotifiche {
 
     private Response doDelete(@PathParam("id") String id) {
         try (Connection connection = ds.getConnection()) {
-            IDate dateUtility = new DatesConversion();
+                        IDate dateUtility = new DatesConversion();
             NotificationRepository notificationRepository = new NotificationRepository(connection);
             Notifica notifica = notificationRepository.getNotifica(id);
             if (notifica == null) {
@@ -152,25 +152,26 @@ public class ControllerNotifiche {
         }
     }
 
-    private Response doInvianotifica(@Context final UriInfo context, final Notifica notifica) {
+    private Response doInvianotifica(@Context final UriInfo context, final String payload) {
         try (Connection connection = ds.getConnection()) {
-            IDate dateUtility = new DatesConversion();
+                                    IDate dateUtility = new DatesConversion();
             NotificationRepository notificationRepository = new NotificationRepository(connection);
             RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
             RouteRepository routeRepository = new RouteRepository(connection);
             PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
+            NotificaRqt notifica = new NotificaRqt(new JSONObject(payload), connection);
             switch (notifica.getTipologia()) {
                 // E' stata inviata una richiesta di amicizia
                 case 1: {
                     notifica.setInizio_validita(dateUtility.now());
-                    notifica.setFine_validita(dateUtility.addYears(1));
+                    notifica.setFine_validita(dateUtility.addYears());
                     notificationRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia());
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.IN_ATTESA);
                     break;
                 }
                 case 2: {
                     notifica.setInizio_validita(dateUtility.now());
-                    notifica.setFine_validita(dateUtility.addYears(1));
+                    notifica.setFine_validita(dateUtility.addYears());
                     notificationRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia());
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.APPROVATO);
                     relazioneRepository.setRelazioneApprovato(notifica.getDestinatario(), notifica.getMittente(), Relazione_approvato.APPROVATO);
@@ -178,13 +179,13 @@ public class ControllerNotifiche {
                 }
                 case 3: {
                     notifica.setInizio_validita(dateUtility.now());
-                    notifica.setFine_validita(dateUtility.addYears(1));
+                    notifica.setFine_validita(dateUtility.addYears());
                     break;
                 }
                 // Prenotazione accettata
                 case 4: {
                     notifica.setInizio_validita(dateUtility.now());
-                    notifica.setFine_validita(dateUtility.addYears(1));
+                    notifica.setFine_validita(dateUtility.addYears());
                     if (!prenotazioneRepository.getDisponibilitaViaggio(notifica)) {
                         return Response.status(Response.Status.NOT_FOUND).build();
                     }
@@ -200,17 +201,18 @@ public class ControllerNotifiche {
                         notificationRepository.insertFeedbackNotification(notifica.getDestinatario(), notifica.getMittente(), notifica);
                     } catch (SQLException | ParseException ex) {
                         Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
+
                     }
                     break;
                 }
                 case 5: {
                     notifica.setInizio_validita(dateUtility.now());
-                    notifica.setFine_validita(dateUtility.addYears(1));
+                    notifica.setFine_validita(dateUtility.addYears());
                     break;
                 }
                 case 6: { // Amicizia rifutata 
                     notifica.setInizio_validita(dateUtility.now());
-                    notifica.setFine_validita(dateUtility.addYears(1));
+                    notifica.setFine_validita(dateUtility.addYears());
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.BLOCCATO);
                     break;
                 }
@@ -225,7 +227,7 @@ public class ControllerNotifiche {
             notifica.setData(dateUtility.now());
             notificationRepository.insertNotifica(notifica);
             return Response.ok(new Gson().toJson(id)).build();
-        } catch (SQLException ex) {
+        } catch (JSONException | SQLException ex) {
             Logger.getLogger(ControllerNotifiche.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         } catch (ObjectNotFound ex) {

@@ -5,7 +5,7 @@
             .config(config)
             .run(run)
             .constant('CONFIG', {
-                //'HOST' : 'http://easymove.me/', 
+                // 'HOST' : 'http://easymove.me/', 
                 'HOST': 'http://localhost:8085/EasyMove-maven/',
                 'ROOT': 'rest'
             })
@@ -46,11 +46,6 @@
                 .when('/prenotation/:tratta1/:tratta2', {
                     controller: 'PrenotationController',
                     templateUrl: 'app-code/user/prenotation/prenotation.view.html',
-                    controllerAs: 'vm'
-                })                
-                .when('/prenotazione/:tratta1/:tratta2/:notification', {
-                    controller: 'PrenotazioneController',
-                    templateUrl: 'app-code/user/prenotazione/prenotazione.view.html',
                     controllerAs: 'vm'
                 })
                 .when('/showautobus/:tratta1/:tratta2', {
@@ -204,20 +199,16 @@
         //$rootScope.globals = $cookies.getObject('globals') || {};
         var utente = $cookies.getObject('globals') || null;
         var utente = JSON.parse(utente);
+        debugger;
         if (utente !== null) {
             $store.set('utente', utente);
             $http.defaults.headers.common['Authorization'] = 'Bearer ' + utente.token; // jshint ignore:line
         } else {
-            var utenteStore = $store.get('utente');
-            if (utenteStore === null) {
-                $store.set('utente', null);
-            } else {
-                $http.defaults.headers.common['Authorization'] = 'Bearer ' + utenteStore.token; // jshint ignore:line
-            }
+            $store.set('utente', null);
             /*var testToken = $store.get('utente') || null;
-             if (testToken !== null) {
-             $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line
-             }*/
+            if (testToken !== null) {
+                $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line
+            }*/
         }
 
         /*if ($rootScope.globals.currentUser) {

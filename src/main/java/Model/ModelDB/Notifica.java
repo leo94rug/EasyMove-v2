@@ -5,7 +5,6 @@
  */
 package Model.ModelDB;
 
-import Model.Request.NotificaRqt;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -13,7 +12,7 @@ import java.sql.SQLException;
  *
  * @author leo
  */
-public class Notifica implements Cloneable{
+public class Notifica {
 
     private String id;
     private String mittente;
@@ -33,37 +32,6 @@ public class Notifica implements Cloneable{
     private String id_arrivo;
     private String nome_destinatario;
 
-    public Notifica(String id, String mittente, String destinatario, int tipologia, String messaggio, String data, String fine_validita, String inizio_validita, String id_viaggio, String nome_viaggio, String nome_mittente, int stato, int posti, int posti_da_prenotare, String id_partenza, String id_arrivo, String nome_destinatario) {
-        this.id = id;
-        this.mittente = mittente;
-        this.destinatario = destinatario;
-        this.tipologia = tipologia;
-        this.messaggio = messaggio;
-        this.data = data;
-        this.fine_validita = fine_validita;
-        this.inizio_validita = inizio_validita;
-        this.id_viaggio = id_viaggio;
-        this.nome_viaggio = nome_viaggio;
-        this.nome_mittente = nome_mittente;
-        this.stato = stato;
-        this.posti = posti;
-        this.posti_da_prenotare = posti_da_prenotare;
-        this.id_partenza = id_partenza;
-        this.id_arrivo = id_arrivo;
-        this.nome_destinatario = nome_destinatario;
-    }
-    public Notifica(String id, String mittente, String destinatario, int tipologia, String data, String fine_validita, String inizio_validita, String nome_mittente, int stato, String nome_destinatario) {
-        this.id = id;
-        this.mittente = mittente;
-        this.destinatario = destinatario;
-        this.tipologia = tipologia;
-        this.data = data;
-        this.fine_validita = fine_validita;
-        this.inizio_validita = inizio_validita;
-        this.nome_mittente = nome_mittente;
-        this.stato = stato;
-        this.nome_destinatario = nome_destinatario;
-    }
     public Notifica() {
     }
 
@@ -222,8 +190,26 @@ public class Notifica implements Cloneable{
     public String getId_arrivo() {
         return id_arrivo;
     }
-    @Override
-    public NotificaRqt clone() throws CloneNotSupportedException {
-        return (NotificaRqt) super.clone(); //To change body of generated methods, choose Tools | Templates.
-    }
+
+//    public void setDataFromLong(long aInt) {
+//        int i = 0;
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(aInt);
+//        Timestamp inizio_validita_1 = new Timestamp(calendar.getTimeInMillis());
+//        this.setData(inizio_validita_1);
+//    }
+//
+//    public void setInizio_validitaFromLong(long aInt) {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(aInt);
+//        Timestamp inizio_validita_1 = new Timestamp(calendar.getTimeInMillis());
+//        this.setInizio_validita(inizio_validita_1);
+//    }
+//
+//    public void setFine_validitaFromLong(long aInt) {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(aInt);
+//        Timestamp fine_validita_1 = new Timestamp(calendar.getTimeInMillis());
+//        this.setFine_validita(fine_validita_1);
+//    }
 }

@@ -2,32 +2,32 @@
     'use strict';
 
     angular
-        .module('app')
-        .controller('ProfiloUtenteController', ProfiloUtenteController);
+            .module('app')
+            .controller('ProfiloUtenteController', ProfiloUtenteController);
 
     ProfiloUtenteController.$inject = ['DateService', '$timeout', 'CarService', 'UserService', '$location', '$store', 'FlashService', 'AuthenticationService'];
     function ProfiloUtenteController(DateService, $timeout, CarService, UserService, $location, $store, FlashService, AuthenticationService) {
         var vm = this;
         vm.initialize = initialize;
+        vm.image_loading = "";
         vm.update = update;
         vm.showImage = showImage;
+        vm.showPic = false;
         vm.upload = upload;
         vm.addcar = addcar;
         vm.logout = logout;
         vm.deletecar = deletecar;
+        vm.minDate = new Date(1900, 0, 1);
+        vm.maxDate = new Date(2006, 0, 1);
         initialize();
 
         function logout() {
             AuthenticationService.ClearCredentials();
-            FlashService.set({ title: "Logout effettuato", body: "", type: "info" });
+            FlashService.set({title: "Logout effettuato", body: "", type: "info"});
             $location.path('/');
         }
         function initialize() {
-            vm.image_loading = "";
-            vm.showPic = false;
-            vm.minDate = new Date(1900, 0, 1);
-            vm.maxDate = new Date(2006, 0, 1);
-            $('body,html').animate({ scrollTop: 0 }, 800);
+            $('body,html').animate({scrollTop: 0}, 800);
             $timeout(function () {
                 var myEl = angular.element(document.querySelector('#headerBacheca'));
                 myEl.addClass('active');
@@ -37,23 +37,22 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                            {
-                                $location.path('/error');
-                                break;
-                            }
+                        {
+                            $location.path('/error');
+                            break;
+                        }
                         case 401:
-                            {
-                                $('body,html').animate({ scrollTop: 0 }, 800);
-                                AuthenticationService.ClearCredentials();
-                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
-                                $location.path('/login');
-                                break;
-                            }
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
                         default:
-                            {
-                                $location.path('/error');
-                                break;
-                            }
+                        {
+                            $location.path('/error');
+                            break;
+                        }
                     }
                 } else {
                     response.res.data.anno_nascita = DateService.dateFromString(response.res.data.anno_nascita);
@@ -63,23 +62,22 @@
                         if (response.success === false) {
                             switch (response.res.status) {
                                 case 500:
-                                    {
-                                        $location.path('/error');
-                                        break;
-                                    }
+                                {
+                                    $location.path('/error');
+                                    break;
+                                }
                                 case 401:
-                                    {
-                                        $('body,html').animate({ scrollTop: 0 }, 800);
-                                        AuthenticationService.ClearCredentials();
-                                        FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
-                                        $location.path('/login');
-                                        break;
-                                    }
+                                {
+                                    $('body,html').animate({scrollTop: 0}, 800);
+                                    FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                                    $location.path('/login');
+                                    break;
+                                }
                                 default:
-                                    {
-                                        $location.path('/error');
-                                        break;
-                                    }
+                                {
+                                    $location.path('/error');
+                                    break;
+                                }
                             }
                         } else {
                             vm.autolist = response.res.data;
@@ -108,7 +106,7 @@
                     $location.path('/error');
                 } else {
 
-                    FlashService.pop({ title: "Profilo aggiornato!", body: "", type: "info" });
+                    FlashService.pop({title: "Profilo aggiornato!", body: "", type: "info"});
                     initialize();
                     //AuthenticationService.UpdateCredentials(vm.utente);
                 }
@@ -134,7 +132,7 @@
             }
 
             // write the ArrayBuffer to a blob, and you're done
-            var blob = new Blob([ab], { type: mimeString });
+            var blob = new Blob([ab], {type: mimeString});
             return blob;
 
         }
@@ -145,27 +143,26 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                            {
-                                $location.path('/error');
-                                break;
-                            }
+                        {
+                            $location.path('/error');
+                            break;
+                        }
                         case 401:
-                            {
-                                $('body,html').animate({ scrollTop: 0 }, 800);
-                                AuthenticationService.ClearCredentials();
-                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
-                                $location.path('/login');
-                                break;
-                            }
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
                         default:
-                            {
-                                $location.path('/error');
-                                break;
-                            }
+                        {
+                            $location.path('/error');
+                            break;
+                        }
                     }
                 } else {
                     vm.image_loading = "";
-                    FlashService.pop({ title: "Immagine inserita", body: "", type: "info" });
+                    FlashService.pop({title: "Immagine inserita", body: "", type: "info"});
                 }
             });
         }
@@ -183,26 +180,25 @@
                     if (response.success === false) {
                         switch (response.res.status) {
                             case 500:
-                                {
-                                    $location.path('/error');
-                                    break;
-                                }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                             case 401:
-                                {
-                                    $('body,html').animate({ scrollTop: 0 }, 800);
-                                    AuthenticationService.ClearCredentials();
-                                    FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
-                                    $location.path('/login');
-                                    break;
-                                }
+                            {
+                                $('body,html').animate({scrollTop: 0}, 800);
+                                FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                                $location.path('/login');
+                                break;
+                            }
                             default:
-                                {
-                                    $location.path('/error');
-                                    break;
-                                }
+                            {
+                                $location.path('/error');
+                                break;
+                            }
                         }
                     } else {
-                        FlashService.pop({ title: "Auto inserita", body: "", type: "info" });
+                        FlashService.pop({title: "Auto inserita", body: "", type: "info"});
                         vm.autolist.push(autoToSend);
                         vm.auto.marca = "";
                         vm.auto.modello = "";
@@ -217,26 +213,25 @@
                 if (response.success === false) {
                     switch (response.res.status) {
                         case 500:
-                            {
-                                $location.path('/error');
-                                break;
-                            }
+                        {
+                            $location.path('/error');
+                            break;
+                        }
                         case 401:
-                            {
-                                $('body,html').animate({ scrollTop: 0 }, 800);
-                                AuthenticationService.ClearCredentials();
-                                FlashService.set({ title: "Attenzione!", body: "Effettua il login per continuare", type: "warning" });
-                                $location.path('/login');
-                                break;
-                            }
+                        {
+                            $('body,html').animate({scrollTop: 0}, 800);
+                            FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                            $location.path('/login');
+                            break;
+                        }
                         default:
-                            {
-                                $location.path('/error');
-                                break;
-                            }
+                        {
+                            $location.path('/error');
+                            break;
+                        }
                     }
                 } else {
-                    FlashService.pop({ title: "Auto eliminata", body: "", type: "info" });
+                    FlashService.pop({title: "Auto eliminata", body: "", type: "info"});
                     var index = vm.autolist.findIndex(i => i.id === id);
                     if (index > -1) {
                         vm.autolist.splice(index, 1);

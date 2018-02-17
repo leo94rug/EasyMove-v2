@@ -100,18 +100,14 @@ public class UserRepository {
 
     public List<Viaggio_autoRes> getViaggi(String utente_fk) throws SQLException {
         List<Viaggio_autoRes> viaggiolist = new ArrayList();
-        IDate datesUtility = new DatesConversion();
+        java.util.Date utilDate = new java.util.Date();
         RouteRepository routeRepository = new RouteRepository(connection);
-        String query = "SELECT vi.*, tr.orario_partenza, tr.orario_partenza "
-                + "FROM viaggio_auto AS vi "
-                + "LEFT JOIN tratta_auto as tr ON tr.viaggio_fk=vi.id "
-                + "WHERE vi.utente_fk=? AND vi.visibile=1 AND tr.enumerazione=1 AND tr.orario_partenza>=?";
+        String query = "SELECT * FROM viaggio_auto AS vi WHERE vi.utente_fk=? AND vi.visibile=1";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setString(1, utente_fk);
-        ps.setString(2, datesUtility.addDays(-1));
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes(rs);
+            Viaggio_autoRes viaggio_autoRes = new Viaggio_autoRes(rs);//TODO: gestire data in rs
             Viaggio_autoRes tratta_auto = routeRepository.getAllTratta_auto(viaggio_autoRes.getId());
             viaggio_autoRes.setTratta_auto(tratta_auto.getTratta_auto());
             viaggio_autoRes.setId_partenza(tratta_auto.getId_partenza());

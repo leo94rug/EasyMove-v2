@@ -36,7 +36,6 @@
                         case 401:
                         {
                             $('body,html').animate({scrollTop: 0}, 800);
-                            AuthenticationService.ClearCredentials();
                             FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                             $location.path('/login');
                             break;

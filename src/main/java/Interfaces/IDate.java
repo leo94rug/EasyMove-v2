@@ -33,10 +33,10 @@ public interface IDate {
      * @param date1
      * @param date2
      * @return
+     * @throws ParseException
      */
-    boolean before(String date1, String date2);
+    boolean before(String date1, String date2) throws ParseException;
 
-    boolean isDateValid(String date);
     /**
      *
      * @return
@@ -45,16 +45,9 @@ public interface IDate {
 
     /**
      *
-     * @param year
      * @return
      */
-    String addYears(int year);
-    /**
-     *
-     * @param day
-     * @return
-     */
-    String addDays(int day);
+    String addYears();
 
     /**
      *

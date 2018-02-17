@@ -8,13 +8,10 @@ package Controller;
 import Interfaces.IDate;
 import Model.ModelDB.Ricerca;
 import Model.ModelDB.Tratta_auto;
-import Model.ModelDB.Utente;
 import Model.ModelDB.Viaggio_auto;
-import Model.Response.Tratta_autoRes;
 import Model.Response.Viaggio_autoRes;
 import Repository.RouteRepository;
 import Repository.SearchRepository;
-import Repository.UserRepository;
 import Utilita.DatesConversion;
 import Utilita.Filter.Secured;
 import com.google.gson.Gson;
@@ -202,12 +199,8 @@ public class ControllerPercorsi {
     private Response doGettraveldetail(@PathParam("tratta1") String tratta1, @PathParam("tratta2") String tratta2) {
         try (Connection connection = ds.getConnection()) {
             RouteRepository routeRepository = new RouteRepository(connection);
-            UserRepository userRepository = new UserRepository(connection);
-            Tratta_autoRes tratta_auto = routeRepository.getTravelDetail(tratta1, tratta2);
-            Viaggio_auto viaggio_auto =routeRepository.getViaggioAuto(tratta_auto.getViaggio_fk());
-            Utente utente = userRepository.getUtente(viaggio_auto.getUtente_fk());
-            tratta_auto.setUtente(utente);
-            tratta_auto.setViaggio_auto(viaggio_auto);
+            
+            Tratta_auto tratta_auto = routeRepository.getTravelDetail(tratta1, tratta2);
             return Response.ok(new Gson().toJson(tratta_auto)).build();
         } catch (SQLException | ParseException ex) {
             Logger.getLogger(ControllerPercorsi.class.getName()).log(Level.SEVERE, null, ex);

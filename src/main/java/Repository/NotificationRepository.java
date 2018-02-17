@@ -13,10 +13,6 @@ import static DatabaseConstants.Table.NOTIFICA;
 import static DatabaseConstants.Table.UTENTE;
 import DatabaseConstants.TableConstants.Notifica_stato;
 import static DatabaseConstants.TableConstants.Notifica_tipologia.INSERISCI_FEEDBACK;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.FEEDBACK_GIA_INSERITO;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.IMPOSSIBILE_INSERIRE_FEEDBACK;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.NON_E_ANCORA_POSSIBILE;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.PUO_INSERIRE_FEEDBACK;
 import Interfaces.IDate;
 import Model.ModelDB.Notifica;
 import Model.ModelDB.Relazione;
@@ -110,7 +106,7 @@ public class NotificationRepository {
         return notifiche;
     }
 
-    public int insertNotifica(Notifica notifica) throws SQLException {
+    public int insertNotifica(NotificaRqt notifica) throws SQLException {
         String query = "INSERT INTO notifica("
                 + "id, "
                 + "mittente, "
@@ -159,54 +155,52 @@ public class NotificationRepository {
         return ps.executeUpdate();
     }
 
-    public void insertFeedbackNotification(String utente_1, String utente_2, Notifica notifica) throws SQLException, ParseException, CloneNotSupportedException {
+    public void insertFeedbackNotification(String utente_1, String utente_2, NotificaRqt notifica) throws SQLException, ParseException, CloneNotSupportedException {
         RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
         RouteRepository routeRepository = new RouteRepository(connection);
         String id_tappa = notifica.getId_partenza();
         IDate dateUtility = new DatesConversion();
         String orarioPartenza = routeRepository.getTravelDetail(id_tappa, id_tappa).getOrario_partenza();
         Relazione relazione = relazioneRepository.getRelazione(utente_1, utente_2);
-        if (!dateUtility.isDateValid(orarioPartenza)) {
-            return;
-        }
-
-        int daValutare = relazione.getDa_valutare();
-        switch (daValutare) {
-            case IMPOSSIBILE_INSERIRE_FEEDBACK: {
-                relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
-                break;
-            }
-            case NON_E_ANCORA_POSSIBILE: {
-                if (dateUtility.before(orarioPartenza, relazione.getDa_valutare_data())) {
-                    relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
-                }
-                break;
-            }
-            case PUO_INSERIRE_FEEDBACK: {
-                break;
-            }
-            case FEEDBACK_GIA_INSERITO: {
-                if (dateUtility.before(orarioPartenza, relazione.getDa_valutare_data())) {
+        if (relazione != null) {
+            int daValutare = relazione.getDa_valutare();
+            switch (daValutare) {
+                case 0: {
                     relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
                     break;
                 }
+                case 1: {
+                    if (dateUtility.before(orarioPartenza, relazione.getDa_valutare_data())) {
+                        relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
+                    }
+                    break;
+                }
+                case 2: {
+                    break;
+                }
+                case 3: {
+                    if (dateUtility.before(orarioPartenza, relazione.getDa_valutare_data())) {
+                        relazioneRepository.updateRelazioneDaValutare(utente_1, utente_2, 1, orarioPartenza);
+                        break;
+                    }
+                }
             }
-        }
-        if (daValutare != FEEDBACK_GIA_INSERITO) {
-            NotificaRqt insertFeedbackNotification = notifica.clone();
-            insertFeedbackNotification.setTipologia(INSERISCI_FEEDBACK);
-            insertFeedbackNotification.setMessaggio("Richiesta feedback");
-            insertFeedbackNotification.setMittente(utente_1);
-            insertFeedbackNotification.setDestinatario(utente_2);
+            if (daValutare != 3) {
+                NotificaRqt insertFeedbackNotification = notifica.clone();
+                insertFeedbackNotification.setTipologia(INSERISCI_FEEDBACK);
+                insertFeedbackNotification.setMessaggio("Inserisci un feedback");
+                insertFeedbackNotification.setMittente(utente_1);
+                insertFeedbackNotification.setDestinatario(utente_2);
 
-            checkNotificationExistAndDelete(utente_1, utente_2, INSERISCI_FEEDBACK);
-            insertFeedbackNotification.setInizio_validita(orarioPartenza);
-            insertFeedbackNotification.setFine_validita(dateUtility.addYears(1));
-            insertFeedbackNotification.setId(UUID.randomUUID().toString());
-            insertFeedbackNotification.setData(dateUtility.now());
-            insertNotifica(insertFeedbackNotification);
-        }
+                checkNotificationExistAndDelete(utente_1, utente_2, INSERISCI_FEEDBACK);
+                insertFeedbackNotification.setInizio_validita(orarioPartenza);
+                insertFeedbackNotification.setFine_validita(dateUtility.addYears());
+                insertFeedbackNotification.setId(UUID.randomUUID().toString());
+                insertFeedbackNotification.setData(dateUtility.now());
+                insertNotifica(insertFeedbackNotification);
+            }
 
+        }
     }
 
 }

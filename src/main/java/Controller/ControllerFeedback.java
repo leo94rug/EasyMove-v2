@@ -6,25 +6,17 @@
 package Controller;
 
 import DatabaseConstants.TableConstants.Notifica_tipologia;
-import static DatabaseConstants.TableConstants.Notifica_tipologia.E_STATO_INSERITO_FEEDBACK;
 import DatabaseConstants.TableConstants.Relazione_da_valutare;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.FEEDBACK_GIA_INSERITO;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.IMPOSSIBILE_INSERIRE_FEEDBACK;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.NON_E_ANCORA_POSSIBILE;
-import static DatabaseConstants.TableConstants.Relazione_da_valutare.PUO_INSERIRE_FEEDBACK;
 import Eccezioni.ObjectNotFound;
 import Interfaces.IDate;
-import Model.ModelDB.Notifica;
 import Model.ModelDB.Relazione;
 import Model.ModelDB.Tratta_auto;
 import Model.Request.FeedbackRqt;
-import Model.Request.NotificaRqt;
 import Model.Response.FeedbackRes;
 import Repository.FeedbackRepository;
 import Repository.NotificationRepository;
 import Repository.RelazioneRepository;
 import Repository.RouteRepository;
-import Repository.UserRepository;
 import Utilita.DatesConversion;
 import Utilita.Filter.Secured;
 import com.google.gson.Gson;
@@ -80,7 +72,7 @@ public class ControllerFeedback {
     public void getfeedback(@Suspended final AsyncResponse asyncResponse, @PathParam(value = "id") final String id) {
         executorService.submit(() -> {
             asyncResponse.resume(doGetfeedback(id));
-        });
+        }); 
     }
 
     @POST
@@ -135,20 +127,20 @@ public class ControllerFeedback {
             Relazione relazione = relazioneRepository.getRelazione(mittente, destinatario);
             if (relazione != null) {
                 switch (relazione.getDa_valutare()) {
-                    case IMPOSSIBILE_INSERIRE_FEEDBACK: {
+                    case 0: {
                         return Response.ok(new Gson().toJson(0)).build();
                     }
-                    case NON_E_ANCORA_POSSIBILE: {
-                        if (dateUtility.before(relazione.getDa_valutare_data(), dateUtility.now())) {
+                    case 1: {
+                        if (dateUtility.before(relazione.getDa_valutare_data(),dateUtility.now())) {
                             return Response.ok(new Gson().toJson(2)).build();
                         } else {
                             return Response.ok(new Gson().toJson(1)).build();
                         }
                     }
-                    case PUO_INSERIRE_FEEDBACK: {
+                    case 2: {
                         return Response.ok(new Gson().toJson(2)).build();
                     }
-                    case FEEDBACK_GIA_INSERITO: {
+                    case 3: {
                         notificationRepository.checkNotificationExistAndDelete(destinatario, mittente, Notifica_tipologia.INSERISCI_FEEDBACK);
                         return Response.ok(new Gson().toJson(3)).build();
                     }
@@ -157,7 +149,7 @@ public class ControllerFeedback {
                 throw new ObjectNotFound();
             }
             return Response.ok(new Gson().toJson(0)).build();
-        } catch (SQLException | JSONException ex) {
+        } catch (SQLException | JSONException | ParseException ex) {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         } catch (ObjectNotFound ex) {
@@ -168,7 +160,6 @@ public class ControllerFeedback {
 
     private Response doInsertfeedback(@Context UriInfo context, FeedbackRqt feedbackRqt) {
         try (Connection connection = ds.getConnection()) {
-            UserRepository userRepository = new UserRepository(connection);
             RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
             IDate dateUtility = new DatesConversion();
             NotificationRepository notificationRepository = new NotificationRepository(connection);
@@ -182,19 +173,6 @@ public class ControllerFeedback {
             if (i != 0) {
                 relazioneRepository.updateRelazioneDaValutare(feedbackRqt.getUtente_recensore(), feedbackRqt.getUtente_recensito(), Relazione_da_valutare.FEEDBACK_GIA_INSERITO, null);
                 notificationRepository.checkNotificationExistAndDelete(feedbackRqt.getUtente_recensito(), feedbackRqt.getUtente_recensore(), Notifica_tipologia.INSERISCI_FEEDBACK);
-                Notifica notifica = new Notifica(
-                        UUID.randomUUID().toString(),
-                        feedbackRqt.getUtente_recensito(),
-                        feedbackRqt.getUtente_recensore(),
-                        E_STATO_INSERITO_FEEDBACK,
-                        dateUtility.now(),
-                        dateUtility.addYears(1),
-                        dateUtility.now(),
-                        userRepository.getNomeCognome(feedbackRqt.getUtente_recensito()),
-                        0,
-                        userRepository.getNomeCognome(feedbackRqt.getUtente_recensore())
-                );
-                notificationRepository.insertNotifica(notifica);
             }
             return Response.ok().build();
         } catch (SQLException ex) {

@@ -43,7 +43,6 @@
                             {
                                 $('body,html').animate({scrollTop: 0}, 800);
                                 FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
-                                AuthenticationService.ClearCredentials();
                                 $location.path('/login');
                                 break;
                             }

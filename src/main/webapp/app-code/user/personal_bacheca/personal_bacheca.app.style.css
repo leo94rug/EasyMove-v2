@@ -4,9 +4,6 @@
     display: flex;
         width: 100%;
         height: 170px;
-}.flex-container-bacheca-mobile {
-    display: -webkit-flex;
-    display: flex;
 }
 .flex-container-ins {
     display: -webkit-flex;
