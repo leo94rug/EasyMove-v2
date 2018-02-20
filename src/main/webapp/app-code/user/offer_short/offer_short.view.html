@@ -1,0 +1,107 @@
+<nav-bar></nav-bar>
+<main class="main" role="main">
+    <div class="wrap">
+        <div class="row">
+            <!--- Content -->
+            <div class="full-width content">
+                <h1>Offri un passaggio!</h1>
+            </div>
+            <!--- //Content -->
+            <div class="three-fourth">
+                <div class="box deleteInPhone itinerario-block">
+                    <h3 for="address">Stai offrendo un passaggio cittadino?</h3>
+                    <h4>Allora ricordati di inserire luoghi ben precisi come ad esempio:</h4>
+                    <p>Piazza Battaglione degli Alpini, 67100 L'Aquila, Italia</p>
+                    <p>Viale Croce Rossa, 67100 L'Aquila, Italia</p>
+                    <p>Facoltà di Ingegneria, 67100 L'Aquila AQ, Italia</p>
+                </div>
+                <form ng-submit="vm.submit()" role="form" layout-padding novalidate name="vm.offer" ng-cloak="" style="padding: 0px;">
+                    <div class="itinerario-block box">
+                        <div class="f-row">
+                            <md-input-container style="width: 325px;">
+                                <label for="partenza">Partenza</label>
+                                <input type="text" autocomplete="off" force-selection="true" name="partenza" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
+                                    ng-click="vm.geolocate()" ng-model="vm.partenzaList[0]" class="inputoffer" />
+                                <div ng-messages="vm.offer.partenza.$error">
+                                    <div ng-message="required">Campo obbligatorio.</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+                        <div class="f-row">
+                            <md-input-container style="width: 325px;">
+                                <label for="arrivo">Arrivo</label>
+                                <input type="text" autocomplete="off" force-selection="true" name="arrivo" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
+                                    ng-click="vm.geolocate()" ng-model="vm.arrivoList[0]" class="inputoffer" />
+                                <div ng-messages="vm.offer.arrivo.$error">
+                                    <div ng-message="required">Campo obbligatorio.</div>
+                                </div>
+                            </md-input-container>
+                        </div>
+                        <div style="display: inline-flex;">
+                            <h3>Tappe intermedie</h3>
+                            <p style="margin-left: 15px;outline-color: white;" class={{vm.color}} ng-click="vm.addTappa()">
+                                <i ng-mouseover=vm.color='blue' ng-mouseleave=vm.color='red'>+ aggiungi tappa intermedia</i>
+                            </p>
+                        </div>
+                        <div ng-repeat="t in vm.tappeList" class="f-row">
+                            <md-input-container style="width: 325px;">
+                                <label for="arrivo">{{$index+1}}° Tappa intermedia</label>
+                                <input type="text" autocomplete="off" force-selection="true" name="tappa" ng-required="true" g-places-autocomplete options="vm.autocompleteOptions"
+                                    ng-click="vm.geolocate()" ng-model="vm.tappeList[$index]" class="inputoffer" />
+                                <div ng-messages="vm.offer.tappa.$error">
+                                    <div ng-message="required">Campo obbligatorio.</div>
+                                </div>
+                            </md-input-container>
+                            <img src="images/close.png" ng-click="vm.removeTappa($index)" style="height: 12px;">
+                        </div>
+                    </div>
+                    <div class="tempo-block box">
+                        <div class="f-row">
+                            <label for="address">Andata e ritorno</label>
+                            <div class="radioButtondemoBasicUsage">
+                                <md-radio-group ng-model="vm.data.group2" class="md-primary">
+
+                                    <md-radio-button ng-repeat="d in vm.radioData" ng-value="d.value" ng-class="{'md-align-top-left': $index == 1}" style="display: inline-flex;margin-right: 10px;padding: 0px;">
+                                        {{ d.label}}
+                                        <br>
+                                    </md-radio-button>
+                                </md-radio-group>
+                            </div>
+                        </div>
+                        <md-content layout-padding ng-cloak>
+                            <div class="one-half">
+                                <md-input-container style="width: 325px;">
+
+                                    <h4>Andata</h4>
+                                    <md-datepicker ng-model="vm.andataTime" name="andatadate" ng-required="true" d-placeholder="Enter date*" md-open-on-focus></md-datepicker>
+                                    <mdp-time-picker mdp-auto-switch="true"  ng-model="vm.andataTime" md-open-on-focus>                                    </mdp-time-picker>                                    
+                                        <div ng-messages="vm.offer.andatadate.$error">
+                                                <div ng-message="valid">La data inserita non è valida!</div>
+                                                <div ng-message="required">La data è obbligatoria!</div>
+                                        </div>
+                                </md-input-container>
+                            </div>
+                            <div class="one-half">
+                                <div ng-if="vm.data.group2 === 2">
+                                    <md-input-container style="width: 325px;">
+                                        <h4>Ritorno</h4>
+                                        <md-datepicker ng-model="vm.ritornoTime" name="ritornotime" ng-required="true"  md-placeholder="Enter date*" md-open-on-focus></md-datepicker>
+                                        <mdp-time-picker mdp-auto-switch="true" ng-model="vm.ritornoTime" md-open-on-focus></mdp-time-picker>                                        
+                                            <div ng-messages="vm.offer.ritornotime.$error">
+                                                <div ng-message="valid">La data inserita non è valida!</div>
+                                                <div ng-message="required">La data è obbligatoria!</div>
+                                            </div>
+                                            <div ng-if=vm.dataprecerror>Hai inserito la data di ritorno precedente all'andata</div>
+                                    </md-input-container>
+                                </div>
+                            </div>
+                        </md-content>
+                    </div>
+
+                    <input type="submit" value="Prosegui" class="btn medium color right"></input>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- //Main -->

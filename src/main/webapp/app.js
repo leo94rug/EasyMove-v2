@@ -68,7 +68,12 @@
                     templateUrl: 'app-code/user/visualizza_autobus_ibrido/visualizza_autobus_ibrido.view.html',
                     controllerAs: 'vm'
                 })
-                .when('/offer1', {
+                .when('/offershort', {
+                    controller: 'OfferShortController',
+                    templateUrl: 'app-code/user/offer_short/offer_short.view.html',
+                    controllerAs: 'vm'
+                })                
+                        .when('/offer1', {
                     controller: 'Offer1Controller',
                     templateUrl: 'app-code/user/offer1/offer1.view.html',
                     controllerAs: 'vm'
