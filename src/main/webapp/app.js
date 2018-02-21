@@ -73,7 +73,7 @@
                     templateUrl: 'app-code/user/offer_short/offer_short.view.html',
                     controllerAs: 'vm'
                 })                
-                        .when('/offer1', {
+                .when('/offer1', {
                     controller: 'Offer1Controller',
                     templateUrl: 'app-code/user/offer1/offer1.view.html',
                     controllerAs: 'vm'
@@ -204,7 +204,6 @@
         //$rootScope.globals = $cookies.getObject('globals') || {};
         var utente = $cookies.getObject('globals') || null;
         var utente = JSON.parse(utente);
-        debugger;
         if (utente !== null) {
             $store.set('utente', utente);
             $http.defaults.headers.common['Authorization'] = 'Bearer ' + utente.token; // jshint ignore:line

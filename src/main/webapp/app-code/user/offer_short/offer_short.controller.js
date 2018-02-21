@@ -2,40 +2,47 @@
     'use strict';
 
     angular
-        .module('app')
-        .controller('OfferShortController', OfferShortController);
-    OfferShortController.$inject = ['DateService','$timeout', '$q', 'UserService', '$location', '$rootScope', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService', '$store', 'FlashService'];
-    function OfferShortController(DateService,$timeout, $q, UserService, $location, $rootScope, $mdpDatePicker, $mdpTimePicker, AuthenticationService, $store, FlashService) {
+            .module('app')
+            .controller('OfferShortController', OfferShortController);
+    OfferShortController.$inject = ['RouteService','PosizioneService', 'DateService', '$timeout', '$q', '$location', '$rootScope', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService', '$store', 'FlashService'];
+    function OfferShortController(RouteService,PosizioneService, DateService, $timeout, $q, $location, $rootScope, $mdpDatePicker, $mdpTimePicker, AuthenticationService, $store, FlashService) {
         var vm = this;
-        vm.geolocate = geolocate;
-        vm.addTappa = addTappa;
         vm.submit = submit;
-        vm.removeTappa = removeTappa;
         vm.logout = logout;
         vm.initialize = initialize;
         vm.initialize();
         function initialize() {
-            vm.dataprecerror=false;
+            vm.simulateQuery = false;
+            vm.isDisabled = false;
+            loadAll();
+            // list of `state` value/display objects
+            vm.querySearch = querySearch;
+            vm.selectedItemChangePartenza = selectedItemChangePartenza;
+            vm.searchTextChangePartenza = searchTextChangePartenza;
+            vm.selectedItemChangeArrivo = selectedItemChangeArrivo;
+            vm.searchTextChangeArrivo = searchTextChangeArrivo;
+
+            vm.dataprecerror = false;
             vm.today = new Date();
             vm.color = "red";
             vm.utente = $store.get('utente');
-            $('body,html').animate({ scrollTop: 0 }, 800);
+            $('body,html').animate({scrollTop: 0}, 800);
             $timeout(function () {
                 var myEl = angular.element(document.querySelector('#headerOffer'));
                 myEl.addClass('active');
             });
             vm.radioData = [
-                { label: 'Andata', value: 1 },
-                { label: 'Andata e ritorno', value: 2 }
+                {label: 'Andata', value: 1},
+                {label: 'Andata e ritorno', value: 2}
             ];
-            vm.partenzaList = [{ 0: vm.partenza }];
-            vm.arrivoList = [{ 0: vm.arrivo }];
+            vm.partenzaList = [{0: vm.partenza}];
+            vm.arrivoList = [{0: vm.arrivo}];
             vm.tappeList = [];
             vm.tappeModel = [
-                { 1: vm.tappa1 },
-                { 2: vm.tappa2 },
-                { 3: vm.tappa3 },
-                { 4: vm.tappa4 }
+                {1: vm.tappa1},
+                {2: vm.tappa2},
+                {3: vm.tappa3},
+                {4: vm.tappa4}
             ];
             vm.data = {
                 group2: 1,
@@ -55,30 +62,20 @@
                 vm.data.group2 = $rootScope.saveOffer.ar;
             }
         }
-        function addTappa() {
-            if (vm.contTappa < 4) {
-                vm.tappeList.push({ model: vm.tappeModel[vm.contTappa] });
-                vm.contTappa++;
-            }
-        }
-        function removeTappa(n) {
-            vm.tappeList.splice(n, 1);
-            vm.contTappa--;
-        }
         function logout() {
             AuthenticationService.ClearCredentials();
-            FlashService.set({ title: "Logout effettuato", body: "", type: "info" });
+            FlashService.set({title: "Logout effettuato", body: "", type: "info"});
             $location.path('/');
         }
         function submit() {
             if (vm.data.group2 === 2) {
                 if (vm.andataTime > vm.ritornoTime) {
                     vm.offer.$valid = false;
-                    vm.dataprecerror=true;
+                    vm.dataprecerror = true;
                 }
             }
             if (vm.offer.$valid) {
-                vm.dataprecerror=false;                
+                vm.dataprecerror = false;
                 var promises = [];
                 var enumeratore = vm.partenzaList.concat(vm.tappeList, vm.arrivoList);
                 for (var i = 0; i < enumeratore.length; i++) {
@@ -103,25 +100,69 @@
                     }
                 }
                 $q.all(promises).then(
-                    function () {
-                        var viaggio = {
-                            utente_fk: vm.utente.id,
-                            tipologia: 0
-                        };
-                        $rootScope.offerDetail = {
-                            andata: vm.andataTratta,
-                            ritorno: vm.ritornoTratta,
-                            viaggio: viaggio
-                        };
-                    },
-                    function () {
-                        $location.path('/error');
-                    }
+                        function () {
+                            var viaggio = {
+                                utente_fk: vm.utente.id,
+                                tipologia: 0
+                            };
+                            $rootScope.offerDetail = {
+                                andata: vm.andataTratta,
+                                ritorno: vm.ritornoTratta,
+                                viaggio: viaggio
+                            };
+                        },
+                        function () {
+                            $location.path('/error');
+                        }
                 ).finally(function () {
-                    $location.path('/offer2');
+                    vm.offerDetail = {
+                        andata: $rootScope.offerDetail.andata,
+                        ritorno: $rootScope.offerDetail.ritorno,
+                        viaggio: $rootScope.offerDetail.viaggio
+                    };
+                    var sum = 0;
+                    for (var i = 0; i < vm.offerDetail.andata.length; i++) {
+                        sum = sum + vm.offerDetail.andata[i].distanza;
+                        vm.offerDetail.andata[i].posti = vm.posti;
+
+                    }
+                    for (var i = 0; i < vm.offerDetail.ritorno.length; i++) {
+                        vm.offerDetail.ritorno[i].posti = vm.posti;
+                    }
+                    if (sum > 30000) {
+                        vm.offerDetail.viaggio.tipo = 1;
+                    }
+                    RouteService.Create(vm.offerDetail).then(function (response) {
+                        if (response.success === false) {
+                            switch (response.res.status) {
+                                case 500:
+                                {
+                                    $location.path('/error');
+                                    break;
+                                }
+                                case 401:
+                                {
+                                    $('body,html').animate({scrollTop: 0}, 800);
+                                    FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
+                                    $location.path('/login');
+                                    break;
+                                }
+                                default:
+                                {
+                                    $location.path('/error');
+                                    break;
+                                }
+                            }
+                        } else {
+                            $rootScope.saveOffer = undefined;
+                            $rootScope.offerDetail = undefined;
+                            vm.response = response;
+                            FlashService.set({title: "Passaggio inserito!", body: "", type: "success"});
+                            $location.path('/');
+                        }
+                    });
                 });
-            }
-            else {
+            } else {
 
             }
         }
@@ -141,9 +182,15 @@
             for (var j = 0; j < obj1.address_components.length; j++) {
                 var addressType = obj1.address_components[j].types[0];
                 if (componentForm[addressType]) {
-                    if (addressType === 'route') { route1 = obj1.address_components[j][componentForm[addressType]]; }
-                    if (addressType === 'locality') { locality1 = obj1.address_components[j][componentForm[addressType]]; }
-                    if (addressType === 'premise') { premise1 = obj1.address_components[j][componentForm[addressType]]; }
+                    if (addressType === 'route') {
+                        route1 = obj1.address_components[j][componentForm[addressType]];
+                    }
+                    if (addressType === 'locality') {
+                        locality1 = obj1.address_components[j][componentForm[addressType]];
+                    }
+                    if (addressType === 'premise') {
+                        premise1 = obj1.address_components[j][componentForm[addressType]];
+                    }
                 }
             }
             var nome1 = "";
@@ -198,71 +245,46 @@
                 destinations: [formatted_address2],
                 travelMode: 'DRIVING'
             },
-                function (response, status) {
-                    if (response.success === false) {
-                        deferred.reject("fail");
-                        return deferred.promise;
-                    }
-                    else {
-                        if (response.rows[0].elements[0].status === 'ZERO_RESULTS') {
+                    function (response, status) {
+                        if (response.success === false) {
                             deferred.reject("fail");
                             return deferred.promise;
-                        }
-                        else {
-                            distance = response.rows[0].elements[0].distance.value;
-                            duration = response.rows[0].elements[0].duration.value * 60000;
-                            prezzo = Math.pow(2, (Math.log(distance / 1000, 2)) - 4.2) - (distance / 1000000);
-                            debugger;
-                            tratta = {
-                                orario_partenza: DateService.stringFromDate(date),
-                                enumerazione: i + 1,
-                                prezzo: prezzo,
-                                distanza: distance,
-                                posti: vm.posti,
-                                lat_partenza: lat1,
-                                lng_partenza: lng1,
-                                lat_arrivo: lat2,
-                                lng_arrivo: lng2,
-                                denominazione_partenza: nome1,
-                                denominazione_arrivo: nome2,
-                                durata: duration
-                            };
-                            if (a === 0) {
-                                vm.dateA = date.getTime() + duration;
-                                vm.andataTratta.push(tratta);
+                        } else {
+                            if (response.rows[0].elements[0].status === 'ZERO_RESULTS') {
+                                deferred.reject("fail");
+                                return deferred.promise;
+                            } else {
+                                distance = response.rows[0].elements[0].distance.value;
+                                duration = response.rows[0].elements[0].duration.value * 60000;
+                                prezzo = Math.pow(2, (Math.log(distance / 1000, 2)) - 4.2) - (distance / 1000000);
+                                debugger;
+                                tratta = {
+                                    orario_partenza: DateService.stringFromDate(date),
+                                    enumerazione: i + 1,
+                                    prezzo: prezzo,
+                                    distanza: distance,
+                                    posti: vm.posti,
+                                    lat_partenza: lat1,
+                                    lng_partenza: lng1,
+                                    lat_arrivo: lat2,
+                                    lng_arrivo: lng2,
+                                    denominazione_partenza: nome1,
+                                    denominazione_arrivo: nome2,
+                                    durata: duration
+                                };
+                                if (a === 0) {
+                                    vm.dateA = date.getTime() + duration;
+                                    vm.andataTratta.push(tratta);
+                                } else {
+                                    vm.dateR = date.getTime() + duration;
+                                    vm.ritornoTratta.push(tratta);
+                                }
+                                deferred.resolve("ok");
+                                return deferred.promise;
                             }
-                            else {
-                                vm.dateR = date.getTime() + duration;
-                                vm.ritornoTratta.push(tratta);
-                            }
-                            deferred.resolve("ok");
-                            return deferred.promise;
                         }
-                    }
-                });
-            return deferred.promise;
-        }
-        function geolocate() {
-            if (navigator.geolocation) {
-                if (vm.localizzato === 0) {
-                    navigator.geolocation.getCurrentPosition(function (position) {
-                        vm.localizzato = 1;
-                        var geolocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        var circle = new google.maps.Circle({
-                            center: geolocation,
-                            radius: position.coords.accuracy
-                        });
-                        vm.autocompleteOptions = {
-                            bounds: circle.getBounds(),
-                            types: ['establishment', 'geocode'],
-                            componentRestrictions: { country: 'it' },
-                        };
                     });
-                }
-            }
+            return deferred.promise;
         }
         Math.log = (function () {
             var log = Math.log;
@@ -270,6 +292,66 @@
                 return log(n) / (base ? log(base) : 1);
             };
         })();
-    }
 
+
+
+
+        // ******************************
+        // Internal methods
+        // ******************************
+
+        function querySearch(query) {
+            var results = query ? vm.states.filter(createFilterFor(query)) : vm.states;
+            return results;
+        }
+
+        function searchTextChangePartenza(text) {
+            console.log("searchTextChange");
+        }
+
+        function selectedItemChangePartenza(item) {
+            vm.partenzaList[0] = item.address_components;
+            console.log("selectedItemChange");
+        }
+        function searchTextChangeArrivo(text) {
+            console.log("searchTextChange");
+        }
+
+        function selectedItemChangeArrivo(item) {
+            vm.arrivoList[0] = item.address_components;
+            console.log("selectedItemChange");
+        }
+        /**
+         * Build `states` list of key/value pairs
+         */
+        function loadAll() {
+            PosizioneService.GetPosizioni().then(function (response) {
+                if (response.success === false) {
+                    $location.path('/error');
+                } else {
+                    vm.states = response.res.data;
+                    return vm.states.map(function (repo) {
+                        repo.address_components = JSON.parse(repo.address_components);
+                        repo.address_components.geometry.location.lat = function () {
+                            return repo.lat;
+                        };
+                        repo.address_components.geometry.location.lng = function () {
+                            return repo.lng;
+                        };
+                        return repo;
+                    });
+                }
+            });
+
+        }
+
+        function createFilterFor(query) {
+            var lowercaseQuery = angular.lowercase(query);
+
+            return function filterFn(state) {
+                return (angular.lowercase(state.nome).indexOf(lowercaseQuery) === 0);
+            };
+
+        }
+    }
 })();

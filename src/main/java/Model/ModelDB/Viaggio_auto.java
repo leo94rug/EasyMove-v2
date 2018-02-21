@@ -17,15 +17,15 @@ import org.json.JSONObject;
  */
 public class Viaggio_auto {
 
-    String id;
-    String descrizione;
-    String ritardo_max;
-    String bagaglio_max;
-    String disponibilita_deviazioni;
-    String utente_fk;
-    String auto;
-    String data;
-    int tipologia;
+    public String id;
+    public String descrizione;
+    public String ritardo_max;
+    public String bagaglio_max;
+    public String disponibilita_deviazioni;
+    public String utente_fk;
+    public String auto;
+    public String data;
+    public int tipologia;
     public Viaggio_auto(){}
     
     public Viaggio_auto(JSONObject jsonObject) throws JSONException {
