@@ -81,7 +81,7 @@ public class Notifica implements Cloneable{
         this.fine_validita = rs.getString("n.fine_validita");
         this.inizio_validita = rs.getString("n.inizio_validita");
         this.posti = rs.getInt("n.posti");
-        this.posti = rs.getInt("n.posti_da_prenotare");
+        this.posti_da_prenotare = rs.getInt("n.posti_da_prenotare");
         this.id_partenza = rs.getString("n.id_partenza");
         this.id_arrivo = rs.getString("n.id_arrivo");
         this.nome_destinatario = rs.getString("n.nome_destinatario");

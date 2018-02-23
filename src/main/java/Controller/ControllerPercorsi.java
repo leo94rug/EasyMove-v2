@@ -138,7 +138,6 @@ public class ControllerPercorsi {
             return Response.serverError().build();
         }
     }
-    
     private Response doCercaAuto(@Context UriInfo context, Ricerca ricerca) {
         try (Connection connection = ds.getConnection()) {
             IDate dateUtility = new DatesConversion();

@@ -15,6 +15,7 @@ import Repository.NotificationRepository;
 import Repository.PrenotazioneRepository;
 import Repository.RelazioneRepository;
 import Repository.RouteRepository;
+import Repository.UserRepository;
 import Utilita.DatesConversion;
 import Utilita.Filter.Secured;
 import com.google.gson.Gson;
@@ -159,6 +160,7 @@ public class ControllerNotifiche {
             RelazioneRepository relazioneRepository = new RelazioneRepository(connection);
             RouteRepository routeRepository = new RouteRepository(connection);
             PrenotazioneRepository prenotazioneRepository = new PrenotazioneRepository(connection);
+            UserRepository userRepository = new UserRepository(connection);
             switch (notifica.getTipologia()) {
                 // E' stata inviata una richiesta di amicizia
                 case 1: {
@@ -176,7 +178,10 @@ public class ControllerNotifiche {
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.APPROVATO);
                     relazioneRepository.setRelazioneApprovato(notifica.getDestinatario(), notifica.getMittente(), Relazione_approvato.APPROVATO);
                     if (notifica.getPosti() == -1) {
-                        return Response.ok().build();
+                        notifica.setTipologia(9);
+                        notifica.setMessaggio("L'amicizia è stata accettata, ora puoi visualizzare i suoi dati personali");
+                    } else {
+                        notifica.setMessaggio("L'amicizia è stata accettata, ora puoi visualizzare i suoi dati personali e prenotare un passaggio");
                     }
                     break;
                 }
@@ -187,6 +192,7 @@ public class ControllerNotifiche {
                 }
                 // Prenotazione accettata
                 case 4: {
+                    notifica.setMessaggio("E' stata accettata la tua richiesta di prenotazione");
                     notifica.setInizio_validita(dateUtility.now());
                     notifica.setFine_validita(dateUtility.addYears(1));
                     if (!prenotazioneRepository.getDisponibilitaViaggio(notifica)) {
@@ -208,6 +214,7 @@ public class ControllerNotifiche {
                     break;
                 }
                 case 5: {
+                    notifica.setMessaggio("E' stata rifiutata la tua richiesta di prenotazione");
                     notifica.setInizio_validita(dateUtility.now());
                     notifica.setFine_validita(dateUtility.addYears(1));
                     break;
@@ -215,6 +222,7 @@ public class ControllerNotifiche {
                 case 6: { // Amicizia rifutata 
                     notifica.setInizio_validita(dateUtility.now());
                     notifica.setFine_validita(dateUtility.addYears(1));
+                    notifica.setMessaggio("E' stata rifiutata la tua richiesta di condividere i dati personali");
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.BLOCCATO);
                     break;
                 }
@@ -225,7 +233,14 @@ public class ControllerNotifiche {
             }
             //UserRepository.eliminaNotifica(notifica.getId(), ds);
             String id = UUID.randomUUID().toString();
+
             notifica.setId(id);
+            if (notifica.getNome_destinatario() == null) {
+                notifica.setNome_destinatario(userRepository.getNomeCognome(notifica.getDestinatario()));
+            }
+            if (notifica.getNome_mittente() == null) {
+                notifica.setNome_mittente(userRepository.getNomeCognome(notifica.getMittente()));
+            }
             notifica.setData(dateUtility.now());
             notificationRepository.insertNotifica(notifica);
             return Response.ok(new Gson().toJson(id)).build();

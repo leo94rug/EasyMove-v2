@@ -223,7 +223,6 @@
                 case 1:
                 {
                     accettaCondivisione(item);
-                    FlashService.pop({title: "L'utente è stato aggiunto agli amici", body: "", type: "info"});
                     break;
                 }
                 case 2:
@@ -267,7 +266,6 @@
                 case 1:
                 {
                     rifiutaAmicizia(item);
-                    FlashService.pop({title: "Hai rifiutato l'amicizia", body: "", type: "info"});
                     break;
                 }
                 case 2:
@@ -491,12 +489,13 @@
         }
         function accettaCondivisione(item) {
             var send = new Object();
-            send.messaggio = "L'amicizia è stata accettata, ora puoi visualizzare i suoi dati personali e prenotare un passaggio";
             send.mittente = vm.utente.id;
             send.destinatario = item.mittente;
             send.tipologia = 2;
             send.id_viaggio = item.id_viaggio;
             send.posti = item.posti;
+                        debugger;
+
             send.nome_viaggio = item.nome_viaggio;
             send.id_partenza = item.id_partenza;
             send.id_arrivo = item.id_arrivo;
@@ -530,7 +529,6 @@
         }
         function rifiutaPrenotazione(item) {
             var send = new Object();
-            send.messaggio = "E' stata rifiutata la tua richiesta di prenotazione";
             send.mittente = vm.utente.id;
             send.destinatario = item.mittente;
             send.tipologia = 5;
@@ -568,7 +566,6 @@
         }
         function rifiutaAmicizia(item) {
             var send = new Object();
-            send.messaggio = "E' stata rifiutata la tua richiesta di condividere i dati personali";
             send.mittente = vm.utente.id;
             send.destinatario = item.mittente;
             send.tipologia = 6;
@@ -607,7 +604,6 @@
         }
         function accettaPrenotazione(item) {
             var send = new Object();
-            send.messaggio = "E' stata accettata la tua richiesta di prenotazione";
             send.mittente = vm.utente.id;
             send.destinatario = item.mittente;
             send.tipologia = 4;

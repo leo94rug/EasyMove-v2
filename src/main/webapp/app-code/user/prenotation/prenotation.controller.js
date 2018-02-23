@@ -34,7 +34,7 @@
             vm.disabled_amicizia = true;
             vm.disabled_prenotazione = false;
             vm.options = [
-                {category: 'posti', name: '1', value: 1},
+                {category: 'posti', name: '1', value: 1}, 
                 {category: 'posti', name: '2', value: 2},
                 {category: 'posti', name: '3', value: 3},
                 {category: 'posti', name: '4', value: 4}
@@ -42,9 +42,11 @@
             vm.messaggio = "";
             if (vm.utente) {
                 RouteService.GetDettaglioPercorso(vm.tratta1, vm.tratta2).then(function (response) {
+                    debugger;
                     if (response.success === false) {
                         $location.path('/error');
                     } else {
+                        
                         vm.dettaglioPercorso = response.res.data;
                         vm.dettaglioPercorso.passeggeri.forEach(function (arrayItem) {
                             if (arrayItem.id === vm.utente.id) {
@@ -221,9 +223,7 @@
                 send.destinatario = vm.viaggio.utente_fk;
                 send.tipologia = 1;
                 send.id_viaggio = vm.viaggio.id;
-                send.fine_validita = new Date(2020, 1, 1).getTime();
-                send.inizio_validita = new Date().getTime();
-                send.posti = vm.dettaglioPercorso.posti_liberi;
+                send.posti = vm.dettaglioPercorso.posti;
                 send.nome_viaggio = "Da " + vm.dettaglioPercorso.denominazione_partenza + " a " + vm.dettaglioPercorso.denominazione_arrivo;
                 //send.nome_viaggio="";
                 send.id_partenza = vm.tratta1;
