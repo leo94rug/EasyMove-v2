@@ -62,7 +62,7 @@
                                 for (var i = 0; i < vm.percorso.length; i++) {
                                     vm.stringaPercorso += vm.percorso[i].denominazione_partenza;
                                     vm.stringaPercorso += " -> ";
-                                    if (i == vm.percorso.length - 1) {
+                                    if (i === vm.percorso.length - 1) {
                                         vm.stringaPercorso += vm.percorso[i].denominazione_arrivo;
                                     }
                                 }

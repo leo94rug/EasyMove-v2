@@ -167,6 +167,7 @@
                             case 401:
                             {
                                 $('body,html').animate({scrollTop: 0}, 800);
+                                AuthenticationService.ClearCredentials();
                                 FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                                 $location.path('/login');
                                 break;
@@ -212,7 +213,10 @@
                     vm.offerDetail.ritorno[i].posti = vm.posti;
                 }
                 if (sum > 30000) {
-                    vm.offerDetail.viaggio.tipo = 1;
+                    vm.offerDetail.viaggio.tipologia = 1;
+                }
+                else{
+                    vm.offerDetail.viaggio.tipologia = 0;
                 }
                 $rootScope.offerDetail = vm.offerDetail;
                 RouteService.Create(vm.offerDetail).then(function (response) {
@@ -226,6 +230,7 @@
                             case 401:
                             {
                                 $('body,html').animate({scrollTop: 0}, 800);
+                                AuthenticationService.ClearCredentials();
                                 FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                                 $location.path('/login');
                                 break;

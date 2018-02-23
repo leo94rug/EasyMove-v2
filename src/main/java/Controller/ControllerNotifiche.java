@@ -169,11 +169,15 @@ public class ControllerNotifiche {
                     break;
                 }
                 case 2: {
+
                     notifica.setInizio_validita(dateUtility.now());
                     notifica.setFine_validita(dateUtility.addYears(1));
                     notificationRepository.checkNotificationExistAndDelete(notifica.getMittente(), notifica.getDestinatario(), notifica.getTipologia());
                     relazioneRepository.setRelazioneApprovato(notifica.getMittente(), notifica.getDestinatario(), Relazione_approvato.APPROVATO);
                     relazioneRepository.setRelazioneApprovato(notifica.getDestinatario(), notifica.getMittente(), Relazione_approvato.APPROVATO);
+                    if (notifica.getPosti() == -1) {
+                        return Response.ok().build();
+                    }
                     break;
                 }
                 case 3: {
