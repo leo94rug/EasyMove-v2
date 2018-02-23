@@ -4,9 +4,10 @@
     angular
             .module('app')
             .controller('OfferShortController', OfferShortController);
-    OfferShortController.$inject = ['RouteService','PosizioneService', 'DateService', '$timeout', '$q', '$location', '$rootScope', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService', '$store', 'FlashService'];
-    function OfferShortController(RouteService,PosizioneService, DateService, $timeout, $q, $location, $rootScope, $mdpDatePicker, $mdpTimePicker, AuthenticationService, $store, FlashService) {
+    OfferShortController.$inject = ['RouteService', 'PosizioneService', 'DateService', '$timeout', '$q', '$location', '$rootScope', '$mdpDatePicker', '$mdpTimePicker', 'AuthenticationService', '$store', 'FlashService'];
+    function OfferShortController(RouteService, PosizioneService, DateService, $timeout, $q, $location, $rootScope, $mdpDatePicker, $mdpTimePicker, AuthenticationService, $store, FlashService) {
         var vm = this;
+        debugger;
         vm.submit = submit;
         vm.logout = logout;
         vm.initialize = initialize;
@@ -123,14 +124,17 @@
                     var sum = 0;
                     for (var i = 0; i < vm.offerDetail.andata.length; i++) {
                         sum = sum + vm.offerDetail.andata[i].distanza;
-                        vm.offerDetail.andata[i].posti = vm.posti;
+                        vm.offerDetail.andata[i].posti = -1;//vm.posti;
 
                     }
                     for (var i = 0; i < vm.offerDetail.ritorno.length; i++) {
-                        vm.offerDetail.ritorno[i].posti = vm.posti;
+                        vm.offerDetail.ritorno[i].posti = -1;//vm.posti;
                     }
                     if (sum > 30000) {
-                        vm.offerDetail.viaggio.tipo = 1;
+                        vm.offerDetail.viaggio.tipologia = 1;
+                    }
+                    else{
+                        vm.offerDetail.viaggio.tipologia = 0;
                     }
                     RouteService.Create(vm.offerDetail).then(function (response) {
                         if (response.success === false) {

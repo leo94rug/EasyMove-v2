@@ -130,6 +130,13 @@
                                     } else {
                                         vm.routeAuto = response.res.data;
                                         vm.routeAuto.forEach(function (arrayItem) {
+                                            debugger;
+                                            if(arrayItem.auto===undefined){
+                                                arrayItem.auto="Non specificata";
+                                            }                                            
+                                            if(arrayItem.tratta_auto.posti===-1){
+                                                arrayItem.tratta_auto.posti="Non specificati";
+                                            }
                                             arrayItem.tratta_auto.orario_partenza = DateService.dateFromString(arrayItem.tratta_auto.orario_partenza);
                                         });
                                     }

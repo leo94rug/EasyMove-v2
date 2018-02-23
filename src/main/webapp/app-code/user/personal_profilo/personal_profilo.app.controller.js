@@ -9,16 +9,14 @@
     function ProfiloUtenteController(DateService, $timeout, CarService, UserService, $location, $store, FlashService, AuthenticationService) {
         var vm = this;
         vm.initialize = initialize;
-        vm.image_loading = "";
+
         vm.update = update;
         vm.showImage = showImage;
-        vm.showPic = false;
+
         vm.upload = upload;
         vm.addcar = addcar;
         vm.logout = logout;
         vm.deletecar = deletecar;
-        vm.minDate = new Date(1900, 0, 1);
-        vm.maxDate = new Date(2006, 0, 1);
         initialize();
 
         function logout() {
@@ -28,6 +26,11 @@
         }
         function initialize() {
             $('body,html').animate({scrollTop: 0}, 800);
+            vm.image_loading = "";
+            vm.showPic = false;
+
+            vm.minDate = new Date(1900, 0, 1);
+            vm.maxDate = new Date(2006, 0, 1);
             $timeout(function () {
                 var myEl = angular.element(document.querySelector('#headerBacheca'));
                 myEl.addClass('active');
@@ -44,6 +47,8 @@
                         case 401:
                         {
                             $('body,html').animate({scrollTop: 0}, 800);
+                            AuthenticationService.ClearCredentials();
+                            AuthenticationService.ClearCredentials();
                             FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                             $location.path('/login');
                             break;
@@ -69,6 +74,7 @@
                                 case 401:
                                 {
                                     $('body,html').animate({scrollTop: 0}, 800);
+                                    AuthenticationService.ClearCredentials();
                                     FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                                     $location.path('/login');
                                     break;
@@ -150,6 +156,7 @@
                         case 401:
                         {
                             $('body,html').animate({scrollTop: 0}, 800);
+                            AuthenticationService.ClearCredentials();
                             FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                             $location.path('/login');
                             break;
@@ -187,6 +194,7 @@
                             case 401:
                             {
                                 $('body,html').animate({scrollTop: 0}, 800);
+                                AuthenticationService.ClearCredentials();
                                 FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                                 $location.path('/login');
                                 break;
@@ -220,6 +228,7 @@
                         case 401:
                         {
                             $('body,html').animate({scrollTop: 0}, 800);
+                            AuthenticationService.ClearCredentials();
                             FlashService.set({title: "Attenzione!", body: "Effettua il login per continuare", type: "warning"});
                             $location.path('/login');
                             break;

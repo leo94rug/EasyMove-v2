@@ -25,7 +25,7 @@
                                 </div>
                             </div>
                             <md-divider></md-divider>
-                            <div style="padding-top: 10px;">
+                            <div ng-if="vm.dettaglioPercorso.posti!==-1" style="padding-top: 10px;">
                                 <h3>Altre informazioni</h3>
                                 <div class="one-half">
                                     <div><b>Bagaglio:</b> {{vm.viaggio.bagaglio_max}}</div>
@@ -89,27 +89,29 @@
                     </md-button>
                 </div>
                 <div ng-if="vm.amicizia === 2">
-                    <form ng-submit="vm.prenota()" role="form" name="offer" ng-cloak>
+                    <form ng-submit="vm.prenota()" ng-if="vm.dettaglioPercorso.posti!==-1" role="form" name="offer" ng-cloak>
                         <md-input-container>
-                            <md-select ng-model="vm.posti" required name="sub" placeholder="Posti">
+                            <md-select  ng-model="vm.posti" required name="sub" placeholder="Posti">
                                 <md-optgroup label="Posti">
                                     <md-option ng-value="option.value" ng-repeat="option in vm.options| filter: {category: 'posti' }">{{option.name}}</md-option>
                                 </md-optgroup>
                             </md-select>
                             <div class="errors" ng-messages="offer.sub.$error">
                                 <div ng-message="required">Indica i posti che vuoi prenotare</div>
-                            </div>                        <h5>Seleziona il numero di posti che vuoi bloccare e clicca su prenota</h5>
+                            </div>                        
+                            <h5>Seleziona il numero di posti che vuoi bloccare e clicca su prenota</h5>
                             <md-button ng-disabled=vm.disabled_prenotazione class="md-primary md-raised" type="submit"  >
                                 PRENOTA
                             </md-button>   
                         </md-input-container>
 
                     </form>
+                    <div ng-if="vm.dettaglioPercorso.posti==-1">Mettetevi in contatto con il numero di telefono fornito</div>
                 </div>
                 {{vm.messaggio}}
             </div>        
             <feed-back style="float: right !important;"></feed-back>
-            <div class="two-third left">
+            <div class="two-third left" ng-if="vm.dettaglioPercorso.posti!==-1">
                 <md-card md-theme="{{ showDarkTheme ? 'dark-grey' : 'default' }}" md-theme-watch>
                     <md-card-title>
                         <md-card-title-text>

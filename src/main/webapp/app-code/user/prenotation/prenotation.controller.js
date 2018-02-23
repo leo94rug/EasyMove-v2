@@ -51,6 +51,7 @@
                                 vm.disabled_prenotazione = true;
                             }
                         });
+                        debugger;
                         vm.dettaglioPercorso.orario_partenza = DateService.dateFromString(vm.dettaglioPercorso.orario_partenza);
                         RouteService.GetPercorso(vm.dettaglioPercorso.viaggio_fk).then(function (response) {
                             if (response.success === false) {

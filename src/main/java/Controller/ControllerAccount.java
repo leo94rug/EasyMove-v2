@@ -17,7 +17,6 @@ import Utilita.Crypt.Encryptor;
 import Utilita.Crypt.SimpleCrypt;
 import Utilita.DatesConversion;
 import Utilita.Filter.Secured;
-import Utilita.JWT.JWTToken;
 import Utilita.JWT.JjwtToken;
 import Utilita.email.MsgFactory;
 import Utilita.email.SendEmail;

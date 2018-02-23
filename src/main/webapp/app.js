@@ -43,6 +43,11 @@
                     templateUrl: 'app-code/user/feedback/feedback.view.html',
                     controllerAs: 'vm'
                 })
+                .when('/prenotazione/:tratta1/:tratta2/:notification', {
+                    controller: 'PrenotazioneController',
+                    templateUrl: 'app-code/user/prenotazione/prenotazione.view.html',
+                    controllerAs: 'vm'
+                })
                 .when('/prenotation/:tratta1/:tratta2', {
                     controller: 'PrenotationController',
                     templateUrl: 'app-code/user/prenotation/prenotation.view.html',
@@ -72,7 +77,7 @@
                     controller: 'OfferShortController',
                     templateUrl: 'app-code/user/offer_short/offer_short.view.html',
                     controllerAs: 'vm'
-                })                
+                })
                 .when('/offer1', {
                     controller: 'Offer1Controller',
                     templateUrl: 'app-code/user/offer1/offer1.view.html',
@@ -208,11 +213,16 @@
             $store.set('utente', utente);
             $http.defaults.headers.common['Authorization'] = 'Bearer ' + utente.token; // jshint ignore:line
         } else {
-            $store.set('utente', null);
-            /*var testToken = $store.get('utente') || null;
-            if (testToken !== null) {
-                $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line
-            }*/
+            var utenteStore = $store.get('utente');
+            if (utenteStore === null) {
+                $store.set('utente', null);
+            } else {
+                $http.defaults.headers.common['Authorization'] = 'Bearer ' + utenteStore.token; // jshint ignore:line
+            }
+              /*var testToken = $store.get('utente') || null;		              /*var testToken = $store.get('utente') || null;
+ -            if (testToken !== null) {		 +             if (testToken !== null) {
+ -                $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line		 +             $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line
+ -            }*/		 
         }
 
         /*if ($rootScope.globals.currentUser) {

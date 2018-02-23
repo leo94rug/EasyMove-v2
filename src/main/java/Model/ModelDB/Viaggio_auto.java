@@ -5,7 +5,15 @@
  */
 package Model.ModelDB;
 
+import static DatabaseConstants.Viaggio_auto.AUTO;
+import static DatabaseConstants.Viaggio_auto.BAGAGLIO_MAX;
+import static DatabaseConstants.Viaggio_auto.DATA;
 import static DatabaseConstants.Viaggio_auto.DESCRIZIONE;
+import static DatabaseConstants.Viaggio_auto.DISPONIBILITA_DEVIAZIONI;
+import static DatabaseConstants.Viaggio_auto.ID;
+import static DatabaseConstants.Viaggio_auto.RITARDO_MAX;
+import static DatabaseConstants.Viaggio_auto.TIPOLOGIA;
+import static DatabaseConstants.Viaggio_auto.UTENTE_FK;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.json.JSONException;
@@ -26,28 +34,43 @@ public class Viaggio_auto {
     public String auto;
     public String data;
     public int tipologia;
-    public Viaggio_auto(){}
-    
-    public Viaggio_auto(JSONObject jsonObject) throws JSONException {
-        if (jsonObject.has("descrizione")) {
-            descrizione = jsonObject.getString("descrizione");
-        }
-        ritardo_max = jsonObject.getString("ritardo_max");
-        bagaglio_max = jsonObject.getString("bagaglio_max");
-        disponibilita_deviazioni = jsonObject.getString("disponibilita_deviazioni");
-        utente_fk = jsonObject.getString("utente_fk");
-        auto = jsonObject.getString("auto");
-        tipologia = jsonObject.getInt("tipologia");
+
+    public Viaggio_auto() {
     }
+
+    public Viaggio_auto(JSONObject jsonObject) throws JSONException {
+        if (jsonObject.has(DESCRIZIONE)) {
+            descrizione = jsonObject.getString(DESCRIZIONE);
+        }
+        if (jsonObject.has(RITARDO_MAX)) {
+            ritardo_max = jsonObject.getString(RITARDO_MAX);
+        }
+        if (jsonObject.has(BAGAGLIO_MAX)) {
+            bagaglio_max = jsonObject.getString(BAGAGLIO_MAX);
+        }
+        if (jsonObject.has(DISPONIBILITA_DEVIAZIONI)) {
+            disponibilita_deviazioni = jsonObject.getString(DISPONIBILITA_DEVIAZIONI);
+        }
+        if (jsonObject.has(UTENTE_FK)) {
+            utente_fk = jsonObject.getString(UTENTE_FK);
+        }
+        if (jsonObject.has(AUTO)) {
+            auto = jsonObject.getString(AUTO);
+        }
+        if (jsonObject.has(TIPOLOGIA)) {
+            tipologia = jsonObject.getInt(TIPOLOGIA);
+        }
+    }
+
     public Viaggio_auto(ResultSet rs) throws SQLException {
-        this.id = rs.getString("vi.id");
-        this.tipologia = rs.getInt("vi.tipologia");
-        this.ritardo_max = rs.getString("vi.ritardo_max");
-        this.bagaglio_max = rs.getString("vi.bagaglio_max");
-        this.data = rs.getString("vi.data");
-        this.disponibilita_deviazioni = rs.getString("vi.disponibilita_deviazioni");
-        this.utente_fk = rs.getString("vi.utente_fk");
-        this.auto = rs.getString("vi.auto");
+        this.id = rs.getString("vi." + ID);
+        this.tipologia = rs.getInt("vi." + TIPOLOGIA);
+        this.ritardo_max = rs.getString("vi." + RITARDO_MAX);
+        this.bagaglio_max = rs.getString("vi." + BAGAGLIO_MAX);
+        this.data = rs.getString("vi." + DATA);
+        this.disponibilita_deviazioni = rs.getString("vi." + DISPONIBILITA_DEVIAZIONI);
+        this.utente_fk = rs.getString("vi." + UTENTE_FK);
+        this.auto = rs.getString("vi." + AUTO);
         this.descrizione = rs.getString("vi." + DESCRIZIONE);
     }
 

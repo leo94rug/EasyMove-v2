@@ -1,0 +1,35 @@
+<div style="margin-top: 20px;">
+  <md-content style="background-color: inherit;">
+    <md-list>
+      <md-list-item class="md-3-line md-long-text box options-block" md-swipe-right="removeNotification(item.id)" ng-repeat="item in vm.notifiche">
+        <div class="flex-container-bacheca-mobile">
+          
+            <a ng-href="profilo-utenti/{{item.id_utente}}">
+              <img data-ng-src="{{item.foto_utente}}" style="height: 90px;
+              width: 90px;
+              max-height: 90px;
+              max-width: 90px;
+              border-radius: 50%;">
+            </a>
+          <div class="md-list-item-text" ng-click="vm.actionMobile(item)">
+            <div class="">
+              <div class="">
+                <div>
+                  <div style="font-weight:  bold;">{{item.titolo}} da {{item.nome_mittente}}</div>
+                  <div ng-if="item.tipologia!==1">per il viaggio {{item.nome_viaggio}} </div>
+                </div>
+              </div>
+            </div>
+            <div class="">
+              Messaggio: {{item.messaggio}}
+            </div>
+            <div style="font-size:  11px;">
+              Inviato il {{item.data | date : "H:mm - d/M/y"}}
+            </div>
+            
+          </div>
+        </div>
+      </md-list-item>
+    </md-list>
+  </md-content>
+</div>

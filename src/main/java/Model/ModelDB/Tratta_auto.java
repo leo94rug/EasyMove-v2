@@ -5,6 +5,13 @@
  */
 package Model.ModelDB;
 
+import static DatabaseConstants.Tratta_auto.DATA;
+import static DatabaseConstants.Tratta_auto.DISTANZA;
+import static DatabaseConstants.Tratta_auto.ENUMERAZIONE;
+import static DatabaseConstants.Tratta_auto.ORARIO_PARTENZA;
+import static DatabaseConstants.Tratta_auto.POSTI;
+import static DatabaseConstants.Tratta_auto.PREZZO;
+import static DatabaseConstants.Tratta_auto.VIAGGIO_FK;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.json.JSONException;
@@ -33,13 +40,13 @@ public class Tratta_auto {
 
     public Tratta_auto(ResultSet rs) throws SQLException {
         this.id = rs.getString("t.id");
-        this.orario_partenza = rs.getString("t.orario_partenza");
-        this.data = rs.getString("t.data");
-        this.enumerazione = rs.getInt("t.enumerazione");
-        this.viaggio_fk = rs.getString("t.viaggio_fk");
-        this.prezzo = rs.getInt("t.prezzo");
-        this.distanza = rs.getInt("t.distanza");
-        this.posti = rs.getInt("t.posti");
+        this.orario_partenza = rs.getString("t."+ORARIO_PARTENZA);
+        this.data = rs.getString("t."+DATA);
+        this.enumerazione = rs.getInt("t."+ENUMERAZIONE);
+        this.viaggio_fk = rs.getString("t."+VIAGGIO_FK);
+        this.prezzo = rs.getInt("t."+PREZZO);
+        this.distanza = rs.getInt("t."+DISTANZA);
+        this.posti = rs.getInt("t."+POSTI);
         this.lat_partenza = rs.getDouble("t.lat_partenza");
         this.lng_partenza = rs.getDouble("t.lng_partenza");
         this.lat_arrivo = rs.getDouble("t.lat_arrivo");
@@ -50,11 +57,13 @@ public class Tratta_auto {
     }
 
     public Tratta_auto(JSONObject jsonObject) throws JSONException {
-        orario_partenza = jsonObject.getString("orario_partenza");
-        enumerazione = jsonObject.getInt("enumerazione");
-        prezzo = jsonObject.getInt("prezzo");
-        distanza = jsonObject.getInt("distanza");
-        posti = jsonObject.getInt("posti");
+        orario_partenza = jsonObject.getString(ORARIO_PARTENZA);
+        enumerazione = jsonObject.getInt(ENUMERAZIONE);
+        prezzo = jsonObject.getInt(PREZZO);
+        distanza = jsonObject.getInt(DISTANZA);
+        if (jsonObject.has(POSTI)) {
+            posti = jsonObject.getInt(POSTI);
+        }
         lng_partenza = jsonObject.getDouble("lng_partenza");
         lat_partenza = jsonObject.getDouble("lat_partenza");
         lng_arrivo = jsonObject.getDouble("lng_arrivo");
@@ -63,18 +72,20 @@ public class Tratta_auto {
         denominazione_arrivo = jsonObject.getString("denominazione_arrivo");
     }
 
+    public void addPrezzo(int add) {
+        this.prezzo = this.prezzo + add;
+    }
 
-    public void addPrezzo(int add){
-        this.prezzo=this.prezzo+add;
-    }        
-    public void addDistanza(int add){
-        this.distanza=this.distanza+add;
-    }    
-    public void addPosti(int posti){
-        if(posti<this.posti){
-            this.posti=posti;
+    public void addDistanza(int add) {
+        this.distanza = this.distanza + add;
+    }
+
+    public void addPosti(int posti) {
+        if (posti < this.posti) {
+            this.posti = posti;
         }
     }
+
     public void setId(String id) {
         this.id = id;
     }
