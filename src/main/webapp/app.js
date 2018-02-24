@@ -5,7 +5,7 @@
             .config(config)
             .run(run)
             .constant('CONFIG', {
-                //'HOST' : 'http://easymove.me/', 
+                // 'HOST' : 'http://easymove.me/', 
                 'HOST': 'http://localhost:8085/EasyMove-maven/',
                 'ROOT': 'rest'
             })
@@ -43,14 +43,14 @@
                     templateUrl: 'app-code/user/feedback/feedback.view.html',
                     controllerAs: 'vm'
                 })
-                .when('/prenotation/:tratta1/:tratta2', {
-                    controller: 'PrenotationController',
-                    templateUrl: 'app-code/user/prenotation/prenotation.view.html',
-                    controllerAs: 'vm'
-                })                
                 .when('/prenotazione/:tratta1/:tratta2/:notification', {
                     controller: 'PrenotazioneController',
                     templateUrl: 'app-code/user/prenotazione/prenotazione.view.html',
+                    controllerAs: 'vm'
+                })
+                .when('/prenotation/:tratta1/:tratta2', {
+                    controller: 'PrenotationController',
+                    templateUrl: 'app-code/user/prenotation/prenotation.view.html',
                     controllerAs: 'vm'
                 })
                 .when('/showautobus/:tratta1/:tratta2', {
@@ -71,6 +71,11 @@
                 .when('/showautobusibrido', {
                     controller: 'AutobusIbridoController',
                     templateUrl: 'app-code/user/visualizza_autobus_ibrido/visualizza_autobus_ibrido.view.html',
+                    controllerAs: 'vm'
+                })
+                .when('/offershort', {
+                    controller: 'OfferShortController',
+                    templateUrl: 'app-code/user/offer_short/offer_short.view.html',
                     controllerAs: 'vm'
                 })
                 .when('/offer1', {
@@ -214,10 +219,10 @@
             } else {
                 $http.defaults.headers.common['Authorization'] = 'Bearer ' + utenteStore.token; // jshint ignore:line
             }
-            /*var testToken = $store.get('utente') || null;
-             if (testToken !== null) {
-             $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line
-             }*/
+              /*var testToken = $store.get('utente') || null;		              /*var testToken = $store.get('utente') || null;
+ -            if (testToken !== null) {		 +             if (testToken !== null) {
+ -                $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line		 +             $http.defaults.headers.common['Authorization'] = 'Bearer ' + testToken.token; // jshint ignore:line
+ -            }*/		 
         }
 
         /*if ($rootScope.globals.currentUser) {

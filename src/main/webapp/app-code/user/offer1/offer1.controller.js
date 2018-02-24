@@ -81,6 +81,7 @@
                 vm.dataprecerror=false;                
                 var promises = [];
                 var enumeratore = vm.partenzaList.concat(vm.tappeList, vm.arrivoList);
+                debugger;
                 for (var i = 0; i < enumeratore.length; i++) {
                     enumeratore[i].numero = i;
                 }

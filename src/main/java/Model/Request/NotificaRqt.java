@@ -11,9 +11,10 @@ import Model.ModelDB.Notifica;
  *
  * @author leo
  */
-public class NotificaRqt extends Notifica  {
+public class NotificaRqt extends Notifica {
 
     public NotificaRqt() {
     }
+
 
 }

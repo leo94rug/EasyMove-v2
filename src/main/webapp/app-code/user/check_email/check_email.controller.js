@@ -8,24 +8,22 @@ angular
 
     function CheckEmailController($timeout,FlashService,AccountService,AuthenticationService,$routeParams,$store,$location){
         var vm = this;
-
+        $('body,html').animate({scrollTop:0},800);
+        vm.message="Stiamo confermando la tua email ... ";
+        vm.utente = $store.get('utente');
         vm.inserisci=inserisci;
         vm.logout=logout;
         vm.inserisci();
- 
+        $timeout(function(){
+            var myEl = angular.element( document.querySelector( '#headerRegister' ) );
+            myEl.addClass('active');           
+        });      
         function logout(){
             AuthenticationService.ClearCredentials();
             FlashService.set({title: "Logout effettuato", body: "", type: "info"});
             $location.path('/login');
         }
         function inserisci() {
-            $('body,html').animate({scrollTop:0},800);
-            vm.message="Stiamo confermando la tua email ... ";
-            vm.utente = $store.get('utente');
-            $timeout(function(){
-                var myEl = angular.element( document.querySelector( '#headerRegister' ) );
-                myEl.addClass('active');           
-            });     
             var obj = new Object();
             obj.email = $routeParams.email;
             obj.hash  = $routeParams.hash;

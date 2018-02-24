@@ -30,4 +30,3 @@ function notificationMobile(UserService, $rootScope,$location) {
         });
     }
 
-

@@ -18,6 +18,7 @@ public final class Table {
   public static final String NOTIFICA_STATO = "notifica_stato";
   public static final String NOTIFICA_TIPOLOGIA = "notifica_tipologia";
   public static final String POSIZIONE_AUTOBUS = "posizione_autobus";
+  public static final String POSIZIONE = "posizione";
   public static final String RELAZIONE = "relazione";
   public static final String RELAZIONE_DA_VALUTARE = "relazione_da_valutare";
   public static final String RICERCA = "ricerca";

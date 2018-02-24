@@ -201,7 +201,7 @@ public class ControllerFeedback {
             Logger.getLogger(ControllerUtenti.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
-    }
+    } 
 
     private Response doPossibilitainserirefeedback(@Context UriInfo context, String payload) {
         try (Connection connection = ds.getConnection()) {

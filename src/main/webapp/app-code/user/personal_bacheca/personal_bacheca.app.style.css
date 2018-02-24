@@ -2,9 +2,10 @@
 .flex-container-bacheca {
     display: -webkit-flex;
     display: flex;
-        width: 100%;
-        height: 170px;
-}.flex-container-bacheca-mobile {
+    width: 100%;
+    height: 170px;
+}
+.flex-container-bacheca-mobile {
     display: -webkit-flex;
     display: flex;
 }
@@ -22,7 +23,7 @@
 }
 .flex-item-ins {
     margin: 5px;
-      display: flex;
+    display: flex;
     -webkit-align-items: center;
     align-items: center;
 }
@@ -33,10 +34,10 @@
     display: flex;
     -webkit-align-items: center;
     align-items: center;
-  
+
 }
 .bottoni{
-  width: 100px;
+    width: 100px;
 }
 .item1 {
     -webkit-flex: 1;
@@ -48,12 +49,12 @@
     flex: 5;
 }
 .centra{
-  margin:auto;  
+    margin:auto;  
 }
 .item1-ins { 
     -webkit-flex: 2;
     flex: 2;
-      display: -webkit-flex;
+    display: -webkit-flex;
     display: flex;
     -webkit-justify-content: space-between;
     justify-content: space-between;
@@ -61,13 +62,13 @@
 .item2-ins {
     -webkit-flex: 5;
     flex: 5;
-  flex-flow: row wrap;
+    flex-flow: row wrap;
     word-break: break-all;
 }
 .item3-ins {
     -webkit-flex: 3;
     flex: 3;
-      display: flex;
+    display: flex;
 }
 .item4-ins {
     -webkit-flex: 1;
@@ -76,7 +77,7 @@
     align-self: flex-end;
 }
 .bottone{
-  margin:0px;
+    margin:0px;
 }
 .grandezza_img{
     max-width: 20px;

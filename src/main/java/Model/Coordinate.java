@@ -40,7 +40,7 @@ public class Coordinate {
     public static final int DISTANZA_URBANA = 25000;
     public static final int DISTANZA_PROVINCIALE = 100000;
 
-    public static final int DIAMETRO_PIEDI = 150; //diametro = 150*2=300
+    public static final int DIAMETRO_PIEDI = 1000; //diametro = 150*2=300
     public static final int DIAMETRO_MEDIO = 10000;
     public static final int DIAMETRO_GRANDE = 25000;
 
@@ -191,14 +191,17 @@ public class Coordinate {
         }
         //distanza = CalcolaDistanza(latPart, latArr, lonPart, lonArr);
         if (distanza < DISTANZA_URBANA) {
-            distanzaMax = 0.0124 * DIAMETRO_PIEDI / 1000;
-            distanzaMaxMetri = DIAMETRO_PIEDI;
+            double diametroAumentato = DIAMETRO_PIEDI * d;
+            distanzaMax = 0.0124 * diametroAumentato / 1000;
+            distanzaMaxMetri = diametroAumentato;
         } else if (distanza < DISTANZA_PROVINCIALE) {
-            distanzaMax = 0.0124 * DIAMETRO_MEDIO / 1000;
-            distanzaMaxMetri = DIAMETRO_MEDIO;
+            double diametroAumentato = DIAMETRO_MEDIO * d;
+            distanzaMax = 0.0124 * diametroAumentato / 1000;
+            distanzaMaxMetri = diametroAumentato;
         } else {
-            distanzaMax = 0.0124 * DIAMETRO_GRANDE / 1000;
-            distanzaMaxMetri = DIAMETRO_GRANDE;
+            double diametroAumentato = DIAMETRO_GRANDE * d;
+            distanzaMax = 0.0124 * diametroAumentato / 1000;
+            distanzaMaxMetri = diametroAumentato;
         }
 
         minLatP = latPart - (distanzaMax) * d;
@@ -243,11 +246,10 @@ public class Coordinate {
                 + cos(lat_beta) * cos(lat_alfa) * cos(fi));
         /* Calcola la distanza sulla superficie
       terrestre R = ~6371 km */
-        double distanzaMetri= p * raggio_quadratico_medio * 1000;
-        if(distanzaMetri<distanzaMaxMetri){
+        double distanzaMetri = p * raggio_quadratico_medio * 1000;
+        if (distanzaMetri < distanzaMaxMetri) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }

@@ -98,6 +98,7 @@
             '<a ng-if="utente" href="home" class="active"><p >Home</p></a>'+
             '<a ng-if="utente" href="search"><p ><b>Cerca</b></p></a>'+
             '<a ng-if="utente" href="offer1"><p ><b>Offri</b></p></a>'+
+            '<a ng-if="utente" href="offershort"><p ><b>Offri un passaggio veloce</b></p></a>'+
             '<a ng-if="!utente" href="home" class="active"><p >Home</p></a>'+
             '<a ng-if="!utente" href="login"><p  title="Destinations">Login</p></a>'+
             '<a ng-if="utente" href="bacheca"><p >Bacheca</p></a>'+            

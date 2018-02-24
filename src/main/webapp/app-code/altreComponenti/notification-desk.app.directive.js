@@ -29,5 +29,3 @@ function notificationDesktop(UserService, $rootScope,$location) {
 
         });
     }
-
-

@@ -1,26 +1,26 @@
 ﻿<nav-bar></nav-bar>
-	<main class="main" role="main">
+<main class="main" role="main">
 
-		<!-- Intro -->
-		<div class="intro">
-			<div class="wrap">
-				<div class="textwidget">
-					<h1 class="wow fadeInDown">cerchi un passaggio?</h1>
-					<h2 class="wow fadeInUp">Sei nel posto giusto.</h2>
-					<div class="actions" ng-show="vm.utente!=null">
-						<a ng-href=" bacheca" class="btn large white wow fadeInLeft anchor">Vai alle notifiche ({{vm.number}})</a>
-						<a ng-href="offer1" class="btn large color wow fadeInRight anchor">Offri un passaggio</a>
-					</div>
-					<div class="actions" ng-show="vm.utente==null">
-						<a ng-href="register" class="btn large white wow fadeInLeft anchor">Registrati</a>
-						<a ng-href="login" class="btn large color wow fadeInRight anchor">Login</a>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- //Intro -->
-		<!-- Search -->
-				    <form role="form" ng-cloak="" ng-submit="vm.submit()">
+    <!-- Intro -->
+    <div class="intro">
+        <div class="wrap">
+            <div class="textwidget">
+                <h1 class="wow fadeInDown">cerchi un passaggio?</h1>
+                <h2 class="wow fadeInUp">Sei nel posto giusto.</h2>
+                <div class="actions" ng-show="vm.utente != null">
+                    <a ng-href=" bacheca" class="btn large white wow fadeInLeft anchor">Vai alle notifiche ({{vm.number}})</a>
+                    <a ng-href="offer1" class="btn large color wow fadeInRight anchor">Offri un passaggio</a>
+                </div>
+                <div class="actions" ng-show="vm.utente == null">
+                    <a ng-href="register" class="btn large white wow fadeInLeft anchor">Registrati</a>
+                    <a ng-href="login" class="btn large color wow fadeInRight anchor">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //Intro -->
+    <!-- Search -->
+    <form role="form" ng-cloak="" ng-submit="vm.submit()">
         <div class="advanced-search color" id="booking">
             <div class="wrap">
                 <!-- Row -->
@@ -44,90 +44,138 @@
             </div>
         </div>
     </form>
-			</div>
-		</div>
-		<!-- //Search -->
-		
-		<!-- Services iconic -->
-		<div class="services iconic white">
-			<div class="wrap">
-				<div class="row">
-					<!-- Item -->
-					<div class="one-third wow fadeIn">
-						<span class="circle"><span class="ico pig"></span></span>
-						<h3>Risparmia</h3>
-						<p>Più viaggi e più risparmi, EasyMove è senza costi aggiuntivi</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn" data-wow-delay=".2s">
-						<span class="circle"><span class="ico lock"></span></span>
-						<h3>Sicuro</h3>
-						<p>I tuoi dati non vengono mostrati a meno che tu non lo desideri</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn" data-wow-delay=".4s">
-						<span class="circle"><span class="ico wallet"></span></span>
-						<h3>Contatti</h3>
-						<p>EasyMove tiene conto dei tuoi contatti nella pagina dedicata</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn">
-						<span class="circle"><span class="ico heart"></span></span>
-						<h3>Feedback</h3>
-						<p>Ricordati di inserire feedback, per noi sono di vitale importanza</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn" data-wow-delay=".2s">
-						<span class="circle"><span class="ico wand"></span></span>
-						<h3>Consigli</h3>
-						<p>Ogni consiglio per migliorare è ben accetto</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn" data-wow-delay=".4s">
-						<span class="circle"><span class="ico telephone"></span></span>
-						<h3>Telefono</h3>
-						<p>Ricordati di inserire il tuo numero di telefono altrimenti non potrai essere ricontattato</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn">
-						<span class="circle"><span class="ico award"></span></span>
-						<h3>Classifica</h3>
-						<p>Scala la classifica dei carpooler</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn" data-wow-delay=".2s">
-						<span class="circle"><span class="ico clip"></span></span>
-						<h3>Partner</h3>
-						<p>Diventa partner di EasyMove</p>
-					</div>
-					<!-- //Item -->
-					
-					<!-- Item -->
-					<div class="one-third wow fadeIn" data-wow-delay=".4s">
-						<span class="circle"><span class="ico shuttle"></span></span>
-						<h3>Velocità</h3>
-						<p>Lo scopo di EasyMove è di offrirti più possibilità per raggiungere la tua destinazione!</p>
-					</div>
-					<!-- //Item -->
-				</div>
-			</div>
-		</div>
-		<!-- //Services iconic -->
+    <!-- //Search -->
+    <div class="services iconic white">
+        <div class="wrap">
+            <div class="row">
+                <md-content>
 
-		
-	</main>
+                    <md-list class="" flex>
+                        <md-subheader class="md-no-sticky"><h1>Ultime novità</h1></md-subheader>
+                        <md-list-item class="md-3-line md-long-text">
+                            <div class="md-list-item-text">
+                                <h3>Passaggi cittadini</h3>
+                                <p>
+                                    Attraverso la nuova funzionalità <a ng-href="offershort">Offri un passaggio veloce</a>
+                                    è possibile offrire un passaggio cittadino a L'Aquila sfruttando i suggerimenti 
+                                    offerti dall'autocompletamento e tralasciando informazioni dettagliate.
+                                </p>
+                            </div>
+                        </md-list-item>                         
+                        <md-list-item class="md-3-line md-long-text">
+                            <div class="md-list-item-text">
+                                <h3>Prenotazione in bacheca</h3>
+                                <p>
+                                    EasyMove da oggi ci consentirà di effettuare una 
+                                    prenotazione direttamente dalla nostra bacheca, infatti
+                                    dopo che l'autista avrà accettato la nostra richiesta di 
+                                    amicizia ci verrà notificata la possibilità di prenotare 
+                                    il viaggio in <a ng-href="bacheca">Bacheca</a> ( ricordati che 
+                                    per prenotare un viaggio è necessario inviare una richiesta di amicizia )
+                                </p>
+                            </div>
+                        </md-list-item>                        
+                        <md-list-item class="md-3-line md-long-text">
+                            <div class="md-list-item-text">
+                                <h3>Benvenuti in EasyMove!</h3>
+                                <p>
+                                    Lo scopo di questa applicazione web, nata inizialmente come progetto di tesi,
+                                    è quello di fornire un servizio orientato al trasporto su piccola/media scala,
+                                    pensato per studenti e lavoratori pendolari. 
+                                    Questo tipo di soluzione cerca di aiutare molte persone a raggiungere la propria meta
+                                    sfrutttando il car pooling in ambito cittadino.
+                                    Ovviamente, dovendo far riferimento a persone che difficilmente si conoscono, 
+                                    l’applicazione fornisce un sistema social tramite il quale i suoi utenti possono 
+                                    mettersi in contatto, preservando la privacy, e verificare l’attendibilità di un’offerta prima di accettarla.
+                                </p>
+                            </div>
+                        </md-list-item>
+                    </md-list>
+                </md-content>
+            </div>
+        </div>
+        
+    </div>
+    <!-- Services iconic -->
+    <div class="services iconic white">
+        <div class="wrap">
+            <div class="row">
+                <!-- Item -->
+                <div class="one-third wow fadeIn">
+                    <span class="circle"><span class="ico pig"></span></span>
+                    <h3>Risparmia</h3>
+                    <p>Più viaggi e più risparmi, EasyMove è senza costi aggiuntivi</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn" data-wow-delay=".2s">
+                    <span class="circle"><span class="ico lock"></span></span>
+                    <h3>Sicuro</h3>
+                    <p>I tuoi dati non vengono mostrati a meno che tu non lo desideri</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn" data-wow-delay=".4s">
+                    <span class="circle"><span class="ico wallet"></span></span>
+                    <h3>Contatti</h3>
+                    <p>EasyMove tiene conto dei tuoi contatti nella pagina dedicata</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn">
+                    <span class="circle"><span class="ico heart"></span></span>
+                    <h3>Feedback</h3>
+                    <p>Ricordati di inserire feedback, per noi sono di vitale importanza</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn" data-wow-delay=".2s">
+                    <span class="circle"><span class="ico wand"></span></span>
+                    <h3>Consigli</h3>
+                    <p>Ogni consiglio per migliorare è ben accetto</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn" data-wow-delay=".4s">
+                    <span class="circle"><span class="ico telephone"></span></span>
+                    <h3>Telefono</h3>
+                    <p>Ricordati di inserire il tuo numero di telefono altrimenti non potrai essere ricontattato</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn">
+                    <span class="circle"><span class="ico award"></span></span>
+                    <h3>Classifica</h3>
+                    <p>Scala la classifica dei carpooler</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn" data-wow-delay=".2s">
+                    <span class="circle"><span class="ico clip"></span></span>
+                    <h3>Partner</h3>
+                    <p>Diventa partner di EasyMove</p>
+                </div>
+                <!-- //Item -->
+
+                <!-- Item -->
+                <div class="one-third wow fadeIn" data-wow-delay=".4s">
+                    <span class="circle"><span class="ico shuttle"></span></span>
+                    <h3>Velocità</h3>
+                    <p>Lo scopo di EasyMove è di offrirti più possibilità per raggiungere la tua destinazione!</p>
+                </div>
+                <!-- //Item -->
+            </div>
+        </div>
+    </div>
+    <!-- //Services iconic -->
+
+
+</main>
 <foo-ter></foo-ter>

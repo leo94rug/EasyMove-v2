@@ -85,9 +85,12 @@ public class SearchRepository {
             tratta_auto.setPrezzo(0);
             while (rs.next()) {
                 Tratta_auto tratta_auto_rs = new Tratta_auto(rs);
-                tratta_auto.addDistanza(tratta_auto_rs.getDistanza());
-                tratta_auto.addPosti(tratta_auto_rs.getPosti());
-                tratta_auto.addPrezzo(tratta_auto_rs.getPrezzo());
+                int distanza =tratta_auto_rs.getDistanza();
+                int posti = tratta_auto_rs.getPosti();
+                int prezzo = tratta_auto_rs.getPrezzo();
+                tratta_auto.addDistanza(distanza);
+                tratta_auto.addPosti(posti);
+                tratta_auto.addPrezzo(prezzo);
                 tratta_auto.setDenominazione_arrivo(tratta_auto_rs.getDenominazione_arrivo());
                 if (c.CalcolaDistanzaDaArrivo(tratta_auto_rs.getLat_arrivo(), tratta_auto_rs.getLng_arrivo())) {
                     Viaggio_autoRes viaggio_autoRes = (Viaggio_autoRes) routeRepository.getViaggioAuto(tratta_auto.getViaggio_fk());

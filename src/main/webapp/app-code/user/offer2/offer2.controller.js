@@ -213,7 +213,10 @@
                     vm.offerDetail.ritorno[i].posti = vm.posti;
                 }
                 if (sum > 30000) {
-                    vm.offerDetail.viaggio.tipo = 1;
+                    vm.offerDetail.viaggio.tipologia = 1;
+                }
+                else{
+                    vm.offerDetail.viaggio.tipologia = 0;
                 }
                 $rootScope.offerDetail = vm.offerDetail;
                 RouteService.Create(vm.offerDetail).then(function (response) {

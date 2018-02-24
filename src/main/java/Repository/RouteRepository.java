@@ -6,20 +6,16 @@
 package Repository;
 
 import static DatabaseConstants.Table.TRATTA_AUTO;
-import static DatabaseConstants.Table.VIAGGIO_AUTO;
 import static DatabaseConstants.Tratta_auto.ENUMERAZIONE;
 import static DatabaseConstants.Tratta_auto.ID;
 import static DatabaseConstants.Tratta_auto.POSTI;
 import static DatabaseConstants.Tratta_auto.VIAGGIO_FK;
-import Model.Coordinate;
 import Model.ModelDB.Notifica;
-import Model.ModelDB.Ricerca;
 import Model.ModelDB.Tratta_auto;
 import Model.ModelDB.Utente;
 import Model.ModelDB.Viaggio_auto;
 import Model.Response.Viaggio_autoRes;
 import Model.Response.Tratta_autoRes;
-import Utilita.DatesConversion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,8 +23,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import javax.naming.NamingException;
 
 /**
  *
@@ -66,37 +60,37 @@ public class RouteRepository {
     }
 
     public void insertTratta_auto(Tratta_auto tratta_auto) throws SQLException {
-        String query = "INSERT INTO tratta_auto("
-                + "orario_partenza, "
-                + "enumerazione, "
-                + "viaggio_fk, "
-                + "prezzo, "
-                + "distanza, "
-                + "posti,"
-                + "lat_partenza,"
-                + "lng_partenza,"
-                + "lat_arrivo,"
-                + "lng_arrivo,"
-                + "denominazione_partenza,"
-                + "data,"
-                + "id,"
-                + "denominazione_arrivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        PreparedStatement ps = connection.prepareStatement(query);
-        ps.setString(1, tratta_auto.getOrario_partenza());
-        ps.setInt(2, tratta_auto.getEnumerazione());
-        ps.setString(3, tratta_auto.getViaggio_fk());
-        ps.setInt(4, tratta_auto.getPrezzo());
-        ps.setInt(5, tratta_auto.getDistanza());
-        ps.setInt(6, tratta_auto.getPosti());
-        ps.setDouble(7, tratta_auto.getLat_partenza());
-        ps.setDouble(8, tratta_auto.getLng_partenza());
-        ps.setDouble(9, tratta_auto.getLat_arrivo());
-        ps.setDouble(10, tratta_auto.getLng_arrivo());
-        ps.setString(11, tratta_auto.getDenominazione_partenza());
-        ps.setString(12, tratta_auto.getData());
-        ps.setString(13, tratta_auto.getId());
-        ps.setString(14, tratta_auto.getDenominazione_arrivo());
-        int i = ps.executeUpdate();
+            String query = "INSERT INTO tratta_auto("
+                    + "orario_partenza, "
+                    + "enumerazione, "
+                    + "viaggio_fk, "
+                    + "prezzo, "
+                    + "distanza, "
+                    + "posti,"
+                    + "lat_partenza,"
+                    + "lng_partenza,"
+                    + "lat_arrivo,"
+                    + "lng_arrivo,"
+                    + "denominazione_partenza,"
+                    + "data,"
+                    + "id,"
+                    + "denominazione_arrivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, tratta_auto.getOrario_partenza());
+            ps.setInt(2, tratta_auto.getEnumerazione());
+            ps.setString(3, tratta_auto.getViaggio_fk());
+            ps.setInt(4, tratta_auto.getPrezzo());
+            ps.setInt(5, tratta_auto.getDistanza());
+            ps.setInt(6, tratta_auto.getPosti());
+            ps.setDouble(7, tratta_auto.getLat_partenza());
+            ps.setDouble(8, tratta_auto.getLng_partenza());
+            ps.setDouble(9, tratta_auto.getLat_arrivo());
+            ps.setDouble(10, tratta_auto.getLng_arrivo());
+            ps.setString(11, tratta_auto.getDenominazione_partenza());
+            ps.setString(12, tratta_auto.getData());
+            ps.setString(13, tratta_auto.getId());
+            ps.setString(14, tratta_auto.getDenominazione_arrivo());
+            int i = ps.executeUpdate();
     }
 
     public int insertViaggio_auto(Viaggio_auto viaggio_auto) throws SQLException {
