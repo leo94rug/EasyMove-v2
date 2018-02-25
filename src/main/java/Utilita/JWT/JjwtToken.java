@@ -11,17 +11,20 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 
 /**
  *
  * @author leo
  */
-public class JjwtToken implements Ijwt{
+public class JjwtToken implements Ijwt {
 
     @Override
     public String encodeToken(String id) throws UnsupportedEncodingException {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, 1);
         String jwt = Jwts.builder()
-                .setSubject("users/TzMUocMF4p")
+                .setSubject("users/TzMUocMF4p").setExpiration(cal.getTime())
                 .claim("id", id)
                 .signWith(
                         SignatureAlgorithm.HS256,
